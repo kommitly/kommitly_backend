@@ -23,7 +23,6 @@ from rest_framework_simplejwt.views import (
     TokenObtainPairView,
     TokenRefreshView,
 )
-from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 
 schema_view = get_schema_view(
     openapi.Info(
@@ -52,4 +51,3 @@ urlpatterns = [
 
 ]
 
-urlpatterns += staticfiles_urlpatterns()
