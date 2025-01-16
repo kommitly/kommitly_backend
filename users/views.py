@@ -8,6 +8,8 @@ from .serializers import CreateUserSerializer, UserSerializer
 import kommitly_backend.settings as st
 from drf_yasg.utils import swagger_auto_schema
 from django.core.exceptions import ValidationError
+from django.core.mail import send_mail
+from django.shortcuts import get_object_or_404
 
 
 #Configure logging
@@ -47,6 +49,17 @@ class CreateUserView(APIView):
                 # Hash password
                 user.set_password(validated_data["password"])
                 user.save()
+
+                # Send verification email
+                verification_link = f"http://127.0.0.1:8000/api/verify/{user.verification_token}"
+                send_mail(
+                    subject="Verify your Kommitly Account",
+                    message=f"Hi {user.first_name},\n\nClick the link below to verify your account:\n{verification_link}",
+                    from_email="no-reply@kommitly.com",
+                    recipient_list=[user.email],
+                )
+
+
                 user_data= UserSerializer(user).data
                 logger.debug(f"User created {user}")
                 return Response(user_data, status=status.HTTP_201_CREATED)
@@ -63,4 +76,238 @@ class CreateUserView(APIView):
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         
    
+class VerifyUserView(APIView):
+    permission_classes = [permissions.AllowAny]
+
+    @swagger_auto_schema(
+        tags=["User"],
+        responses={
+            200: "User verified successfully",
+            400: "Invalid token",
+            404: "User not found",
+        },
+        operation_description="Verify a User's account via token",
+    )
+    def get(self, request, token, *args, **kwargs):
+        """
+        Verify a user using a unique token.
+        """
+        try:
+            user = get_object_or_404(User, verification_token=token)
+            if user.is_verified:
+                return Response({"message": "User already verified"}, status=status.HTTP_200_OK)
+            user.is_verified = True
+            user.verification_token = None  # Clear the token after verification
+            user.save()
+
+            # Optional: Redirect user to a confirmation page
+            return Response(
+                {"message": "User verified successfully. You can now log in."},
+                status=status.HTTP_200_OK,
+            )
+        except Exception as e:
+            logger.error(f"Error verifying user: {str(e)}")
+            return Response({"error": "Invalid or expired verification token."}, status=status.HTTP_400_BAD_REQUEST)
+
+
+# Get user details
+class GetUserView(APIView):
+    permission_classes = [
+        permissions.AllowAny,
+    ]
+
+    @swagger_auto_schema(
+        tags=["User"],
+        responses={200: UserSerializer, 404: "Not Found"},
+        operation_description="Get user by email",
+    )
+    def get(self, request, email, *args, **kwargs):
+        """
+        Get a user by email
+        """
+        try:
+            user = User.objects.get(email=email)
+        except User.DoesNotExist:
+            return Response(
+                f"User with email {email} not found",
+                status=status.HTTP_404_NOT_FOUND,
+            )
+        serializer = UserSerializer(user)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+
+# Update user with email
+class UpdateUserByEmailView(APIView):
+    permission_classes = [
+        permissions.AllowAny,
+    ]
+
+    @swagger_auto_schema(
+        tags=["User"],
+        request_body=CreateUserSerializer,
+        responses={
+            200: UserSerializer,
+            400: "Validation Error",
+            404: "Not Found",
+            500: "Unexpected Error",
+        },
+        operation_description="Update User by email",
+    )
+    def patch(self, request, email, *args, **kwargs):
+        """
+        Update a user by email
+        """
+        try:
+            user = User.objects.get(email=email)
+        except User.DoesNotExist:
+            return Response(
+                {"error": f"User with email {email} not found"},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+
+        serializer = CreateUserSerializer(user, data=request.data, partial=True)
+        if serializer.is_valid():
+            try:
+                updated_user = serializer.save()
+                logger.debug(f"Updated user: {updated_user}")
+                return Response(
+                    UserSerializer(updated_user).data, status=status.HTTP_200_OK
+                )
+            except ValidationError as e:
+                logger.error(f"Validation error: {str(e)}")
+                return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+            except Exception as e:
+                logger.error(f"Unexpected error: {str(e)}")
+                return Response(
+                    {"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
+                )
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+
+# Update user with token
+class UpdateAuthenticatedUserView(APIView):
+    permission_classes = [
+        permissions.IsAuthenticated,
+    ]
+
+    @swagger_auto_schema(
+        tags=["User"],
+        request_body=CreateUserSerializer,
+        responses={
+            200: UserSerializer,
+            400: "Validation Error",
+            404: "Not Found",
+            500: "Unexpected Error",
+        },
+        operation_description="Update authenticated User",
+    )
+    def patch(self, request, *args, **kwargs):
+        """
+        Update a user by token
+        """
+        try:
+            user = User.objects.get(email=request.user.email)
+        except User.DoesNotExist:
+            return Response(
+                {"error": f"User with email {request.user.email} not found"},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+
+        serializer = CreateUserSerializer(user, data=request.data, partial=True)
+        if serializer.is_valid():
+            try:
+                updated_user = serializer.save()
+                logger.debug(f"Updated user: {updated_user}")
+                return Response(
+                    UserSerializer(updated_user).data, status=status.HTTP_200_OK
+                )
+            except ValidationError as e:
+                logger.error(f"Validation error: {str(e)}")
+                return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+            except Exception as e:
+                logger.error(f"Unexpected error: {str(e)}")
+                return Response(
+                    {"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
+                )
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+
+
+
+#Delete authenticated user
+class DeleteAuthenticatedUserView(APIView):
+    permission_classes = [
+        permissions.IsAuthenticated,
+    ]
+
+    @swagger_auto_schema(
+        tags=["User"],
+        responses={
+            204: "No Content", 
+            404: "Not Found",
+            500: "Unexpected Error",
+        },
+        operation_description="Delete authenticated user",
+    )
+    def delete(self, request, *args, **kwargs):
+        """
+        Delete authenticated user
+        """
+        try:
+            user = User.objects.get(email=request.user.email)
+            user.delete()
+            logger.debug(f"User with email {user.email} deleted successfully")
+            return Response(f"User with email {user.email} deleted successfully",status=status.HTTP_204_NO_CONTENT)
+        except User.DoesNotExist:
+            return Response(
+                {"error": f"User with email {request.user.email} not found"},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+        except Exception as e:
+            logger.error(f"Unexpected error: {str(e)}")
+            return Response(
+                {"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
+
+#Delete user by email
+class DeleteUserByEmailView(APIView):
+    permission_classes = [
+        permissions.AllowAny,
+    ]
+
+    @swagger_auto_schema(
+        tags=["User"],
+        responses={
+            204: "No Content", 
+            404: "Not Found",
+            500: "Unexpected Error",
+        },
+        operation_description="Delete user by email",
+    )
+    def delete(self, request, email, *args, **kwargs):
+        """
+        Delete user by email
+        """
+        try:
+            user = User.objects.get(email=email)
+            user.delete()
+            logger.debug(f"User with email {user.email} deleted successfully")
+            return Response(f"User with email {user.email} deleted successfully",status=status.HTTP_204_NO_CONTENT)
+        except User.DoesNotExist:
+            return Response(
+                {"error": f"User with email {email} not found"},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+        except Exception as e:
+            logger.error(f"Unexpected error: {str(e)}")
+            return Response(
+                {"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+        
 
