@@ -5,6 +5,7 @@ import re
 # Function to get insights from GroqCloud
 def get_insights(goal):
     try:
+        print(f"Fetching insights for goal: {goal}")
         # Initialize Groq client with API key
         client = Groq(api_key=settings.GROQ_API_KEY)
 
@@ -14,7 +15,8 @@ def get_insights(goal):
             messages=[
                 {
                     "role": "user",
-                    "content": f"my goal is {goal}, how do I get there...break down this goal for me into actionable steps with realistic timelines"
+                    "content": f"my goal is {goal}, how do I get there...break down this goal for me into actionable tasks with realistic timelines. Please provide the response in the exact format below, with no additional text outside the specified structure:\n\n**Step 1: [Title] (X-X weeks)**\n1. **[Subtask Title]**: [Details about the subtask with timeline (X-X days/weeks/months)]\n\n**Step 2: [Title] (X-X weeks)**\n1. **[Subtask Title]**: [Details about the subtask with timeline (X-X days/weeks/months)]\n\nEnsure every step has a title, timeline, and clear subtasks with detailed timelines."
+
                 }
             ],
             temperature=1,
@@ -29,28 +31,55 @@ def get_insights(goal):
         for chunk in completion:
             response += chunk.choices[0].delta.content or ""
 
+        print(f"Raw response: {response}")
+
         # Parse the response into a list of actionable steps
         steps = parse_insights(response)
+        print(f"Parsed steps: {steps}")
         return steps
 
     except Exception as error:
         print(f"Error generating insights: {error}")
         raise ValueError("Failed to fetch insights from GroqCloud.")
-
+    
 def parse_insights(response):
-    # Split the response into steps
-    steps = re.split(r'\*\*Step \d+:', response)
+    """
+    Parses the AI response into a structured list of steps.
+    """
+    # Split the response into steps based on the format "**Step X: [Title] (X-X weeks)**"
+    steps = re.split(r'\*\*Step \d+:\s*', response)
     parsed_steps = []
 
-    for step in steps[1:]:  # Skip the first split part as it will be empty
-        # Extract the step title and actionable steps
-        title_match = re.search(r'(.+?)\*\*', step)
+    for step in steps[1:]:  # Skip the first part as it will not be a valid step
+        # Extract the step title and timeline using the specified format
+        title_match = re.search(r'(.+?)\s*\((.+?)\)', step)
         if title_match:
             title = title_match.group(1).strip()
-            actionable_steps = re.findall(r'\d+\.\s(.+)', step)
-            parsed_steps.append({
-                "task_title": title,
-                "actionable_steps": actionable_steps
+            task_timeline = title_match.group(2).strip()
+        else:
+            continue  # Skip if no title or timeline is found
+
+        # Extract actionable steps using bullet points and subtasks format
+        actionable_steps_matches = re.findall(
+            r'\d+\.\s\*\*(.+?)\*\*:\s*(.+?)(?=\n\d+\.\s\*\*|$)', 
+            step, 
+            re.DOTALL
+        )
+        actionable_steps = []
+
+        for match in actionable_steps_matches:
+            subtask_title = match[0].strip()
+            details = match[1].strip()
+            actionable_steps.append({
+                "subtask_title": subtask_title,
+                "details": details,
             })
+
+        # Append the parsed step into the list
+        parsed_steps.append({
+            "task_title": title,
+            "task_timeline": task_timeline,
+            "actionable_steps": actionable_steps,
+        })
 
     return parsed_steps

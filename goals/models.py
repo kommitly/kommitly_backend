@@ -27,6 +27,8 @@ class Task(models.Model):
         default='pending',
     )
     completed_at = models.DateTimeField(blank=True, null=True)
-
+    actionable_steps = models.JSONField(default=dict)  # Add this field
+    task_timeline = models.CharField(max_length=255, null=True, blank=True)  # Add this field
+    
     def __str__(self):
         return self.title

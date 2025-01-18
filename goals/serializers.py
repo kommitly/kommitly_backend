@@ -22,7 +22,8 @@ class GoalSerializer(serializers.ModelSerializer):
             'title', 
             'description', 
             'created_at', 
-            'updated_at'
+            'updated_at',
+            'tasks'
 
             ]
 
@@ -49,6 +50,8 @@ class TaskSerializer(serializers.ModelSerializer):
             'title', 
             'due_date', 
             'status', 
-            'completed_at'
+            'completed_at',
+            'actionable_steps', 
+            'task_timeline'
             ]
 

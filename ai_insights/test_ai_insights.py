@@ -8,5 +8,6 @@ class AIInsightsTestCase(TestCase):
         try:
             insights = get_insights(goal)
             pprint(insights)  # Pretty-print the insights
+            print(insights) 
         except Exception as e:
             self.fail(f"Error: {e}")

@@ -70,6 +70,7 @@ class CreateGoalWithAIInsightsView(APIView):
                 insights = get_insights(goal.title)
 
                 # Print the insights for debugging
+                print("Goal Title:", goal.title)
                 print("Insights:", insights)
 
                 if not insights:
@@ -83,6 +84,8 @@ class CreateGoalWithAIInsightsView(APIView):
                         "title": step.get("task_title"),
                         "due_date": None,  # Handle missing due_date
                         "status": "pending",
+                        "actionable_steps": step.get("actionable_steps"),  # Include actionable steps
+                        "task_timeline": step.get("task_timeline")  # Include task timeline
                     }
                     task_serializer = TaskSerializer(data=task_data)
         
