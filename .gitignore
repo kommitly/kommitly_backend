@@ -2,3 +2,5 @@
 .env
 # Ignore virtual environment
 kommitly-env/
+
+venv/
