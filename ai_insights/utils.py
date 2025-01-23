@@ -3,9 +3,9 @@ from django.conf import settings
 import re
 
 # Function to get insights from GroqCloud
-def get_insights(goal):
+def get_insights(ai_goal):
     try:
-        print(f"Fetching insights for goal: {goal}")
+        print(f"Fetching insights for goal: {ai_goal}")
         # Initialize Groq client with API key
         client = Groq(api_key=settings.GROQ_API_KEY)
 
@@ -15,7 +15,7 @@ def get_insights(goal):
             messages=[
                 {
                     "role": "user",
-                    "content": f"my goal is {goal}, how do I get there...break down this goal for me into actionable tasks with realistic timelines. Please provide the response in the exact format below, with no additional text outside the specified structure:\n\n**Step 1: [Title] (X-X weeks)**\n1. **[Subtask Title]**: [Details about the subtask with timeline (X-X days/weeks/months)]\n\n**Step 2: [Title] (X-X weeks)**\n1. **[Subtask Title]**: [Details about the subtask with timeline (X-X days/weeks/months)]\n\nEnsure every step has a title, timeline, and clear subtasks with detailed timelines."
+                    "content": f"my goal is {ai_goal}, how do I get there...break down this goal for me into actionable tasks with realistic timelines. Please provide the response in the exact format below, with no additional text outside the specified structure:\n\n**Step 1: [Title] (X-X weeks)**\n1. **[Subtask Title]**: [Details about the subtask with timeline (X-X days/weeks/months)]\n\n**Step 2: [Title] (X-X weeks)**\n1. **[Subtask Title]**: [Details about the subtask with timeline (X-X days/weeks/months)]\n\nEnsure every step has a title, timeline, and clear subtasks with detailed timelines."
 
                 }
             ],

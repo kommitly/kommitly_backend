@@ -6,7 +6,7 @@ class AIInsightSerializer(serializers.ModelSerializer):
         model = AIInsight
         fields = [
             'id', 
-            'goal', 
+            'ai_goal', 
             'insight_text', 
             'created_at', 
             'updated_at'
