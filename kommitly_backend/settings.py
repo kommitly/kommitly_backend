@@ -11,12 +11,12 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 """
 from decouple import config
 from datetime import timedelta
-
+from dotenv import load_dotenv
 import dj_database_url
 
 from pathlib import Path
 import os
-
+load_dotenv()
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -38,6 +38,8 @@ ALLOWED_HOSTS = ["*"]
 
 AUTH_USER_MODEL = "users.User"
 
+# CORS
+CORS_ORIGIN_ALLOW_ALL = True
 
 # Application definition
 
