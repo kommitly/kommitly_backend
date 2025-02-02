@@ -68,9 +68,8 @@ class CreateAiGoalSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         # You can assign the user here if you're using Django's authentication system
-        user = self.context['request'].user  # Get the logged-in user from the request context
-        ai_goal = AiGoal.objects.create(user=user, **validated_data)
-        return ai_goal
+        validated_data["user"] = self.context["request"].user  # Ensure user is explicitly set
+        return AiGoal.objects.create(**validated_data) 
 
 
 class AiGoalSerializer(serializers.ModelSerializer):
@@ -124,3 +123,8 @@ class UserProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ['id', 'username', 'email', 'goals', 'tasks', 'ai_goals', 'ai_tasks']
+
+class UpdateAiGoalSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = AiGoal
+        fields = ['title', 'description']
