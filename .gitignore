@@ -1,6 +1,4 @@
 # Ignore the .env file
 .env
 # Ignore virtual environment
-kommitly-env/
-
-venv/
+myenv/
