@@ -19,6 +19,8 @@ from .views import (
     GetAiGoalByIdView,
     GetAiTaskByIdView,
     GenerateAIInsightsView,
+    UserGoalsView,  
+    
 )
 
 
@@ -42,6 +44,7 @@ urlpatterns= [
     path('tasks/<int:task_id>/delete-ai-task/', DeleteAiTaskView.as_view(), name='delete_ai_task'),
     path('goals/<int:goal_id>/ai-goal/', GetAiGoalByIdView.as_view(), name='get_ai_goal_by_id'),
     path('tasks/<int:task_id>/ai-task/', GetAiTaskByIdView.as_view(), name='get_ai_task_by_id'),
+    path('goals/user-goals/', UserGoalsView.as_view(), name='user_goals'), 
     
     
     

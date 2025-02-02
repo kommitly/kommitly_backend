@@ -1005,3 +1005,41 @@ class DeleteUserProfileView(APIView):
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR,
             )
 
+class UserGoalsView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    @swagger_auto_schema(
+        tags=["Goals"],
+        responses={
+            200: "User goals fetched successfully",
+            401: "Unauthorized",
+            500: "Unexpected error",
+        },
+        operation_description="Fetch all goals of the authenticated user, including regular goals and AI goals",
+    )
+    def get(self, request):
+        try:
+            user = request.user
+
+            # Fetch the user's regular goals
+            goals = Goal.objects.filter(user=user)
+            goal_serializer = GoalSerializer(goals, many=True)
+
+            # Fetch the user's AI goals
+            ai_goals = AiGoal.objects.filter(user=user)
+            ai_goal_serializer = AiGoalSerializer(ai_goals, many=True)
+
+            # Build the response
+            response_data = {
+                "goals": goal_serializer.data,
+                "ai_goals": ai_goal_serializer.data,
+            }
+
+            return Response(response_data, status=status.HTTP_200_OK)
+
+        except Exception as e:
+            logger.error(f"Error fetching user goals: {str(e)}")
+            return Response(
+                {"error": "An error occurred while fetching the user goals", "details": str(e)},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
