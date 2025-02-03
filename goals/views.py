@@ -718,7 +718,7 @@ class GetAiGoalByIdView(APIView):
     def get(self, request, goal_id, *args, **kwargs):
         try:
             # Fetch the goal by ID
-            ai_goal = AiGoal.objects.get(id=goal_id)
+            ai_goal = AiGoal.objects.prefetch_related('ai_tasks').get(id=goal_id)
 
             # Check if the goal belongs to the authenticated user
             if ai_goal.user != request.user:

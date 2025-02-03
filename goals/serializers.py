@@ -32,6 +32,23 @@ class TaskSerializer(serializers.ModelSerializer):
             'task_timeline'
             ]
 
+class AiTaskSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = AiTask
+        fields = [
+            'id', 
+            'ai_goal', 
+            'title', 
+            'due_date', 
+            'status', 
+            'completed_at',
+            'actionable_steps', 
+            'task_timeline'
+            ]
+
+
+
 class CreateGoalSerializer(serializers.ModelSerializer):
     class Meta:
         model = Goal
@@ -73,6 +90,7 @@ class CreateAiGoalSerializer(serializers.ModelSerializer):
 
 
 class AiGoalSerializer(serializers.ModelSerializer):
+    ai_tasks = AiTaskSerializer(many=True, read_only=True)  
 
     class Meta:
         model = AiGoal
@@ -96,22 +114,6 @@ class CreateAiTaskSerializer(serializers.ModelSerializer):
         # This will associate the task with an existing goal
         ai_task = AiTask.objects.create(**validated_data)
         return ai_task
-
-class AiTaskSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = AiTask
-        fields = [
-            'id', 
-            'ai_goal', 
-            'title', 
-            'due_date', 
-            'status', 
-            'completed_at',
-            'actionable_steps', 
-            'task_timeline'
-            ]
-
 
 
 class UserProfileSerializer(serializers.ModelSerializer):
