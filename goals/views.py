@@ -371,7 +371,7 @@ class CreateTaskView(APIView):
 
 
     def post(self, request):
-        serializer = CreateTaskSerializer(data=request.data)
+        serializer = CreateTaskSerializer(data=request.data, context={'request': request})
         if serializer.is_valid():
             task = serializer.save()
             return Response(TaskSerializer(task).data, status=status.HTTP_201_CREATED)
@@ -1043,3 +1043,92 @@ class UserGoalsView(APIView):
                 {"error": "An error occurred while fetching the user goals", "details": str(e)},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR,
             )
+
+
+class TriggerTaskRemindersView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    @swagger_auto_schema(
+        tags=["Tasks"],
+        responses={
+            200: openapi.Response(
+                description="Task reminders triggered successfully",
+                schema=openapi.Schema(
+                    type=openapi.TYPE_OBJECT,
+                    properties={
+                        "message": openapi.Schema(type=openapi.TYPE_STRING),
+                    },
+                ),
+            ),
+            403: "Forbidden",
+            500: "Unexpected error",
+        },
+        operation_description="Manually trigger task reminders",
+    )
+
+    def post(self, request):
+        send_task_reminders.delay()
+        return Response({"message": "Task reminders triggered successfully"}, status=status.HTTP_200_OK)
+
+
+class TriggerAiTaskRemindersView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    @swagger_auto_schema(
+        tags=["Tasks"],
+        responses={
+            200: openapi.Response(
+                description="AI task reminders triggered successfully",
+                schema=openapi.Schema(
+                    type=openapi.TYPE_OBJECT,
+                    properties={
+                        "message": openapi.Schema(type=openapi.TYPE_STRING),
+                    },
+                ),
+            ),
+            403: "Forbidden",
+            500: "Unexpected error",
+        },
+        operation_description="Manually trigger AI task reminders",
+    )
+    def post(self, request):
+        send_ai_task_reminders.delay()
+        return Response({"message": "AI task reminders triggered successfully"}, status=status.HTTP_200_OK)
+
+class GetAllUserTasksView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    @swagger_auto_schema(
+        tags=["Tasks"],
+        responses={
+            200: TaskSerializer(many=True),
+            403: "Forbidden",
+            500: "Unexpected error",
+        },
+        operation_description="Get all tasks for the authenticated user",
+    )
+    def get(self, request):
+        user = request.user
+        logger.debug(f"Fetching tasks for user: {user.email}")
+        tasks = Task.objects.filter(user=user)
+        logger.debug(f"Found {tasks.count()} tasks for user: {user.email}")
+        serializer = TaskSerializer(tasks, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+class DeleteAllUserTasksView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    @swagger_auto_schema(
+        tags=["Tasks"],
+        responses={
+            204: "No Content",
+            403: "Forbidden",
+            500: "Unexpected error",
+        },
+        operation_description="Delete all tasks for the authenticated user",
+    )
+    def delete(self, request):
+        user = request.user
+        tasks_deleted, _ = Task.objects.filter(user=user).delete()
+        logger.info(f"Deleted {tasks_deleted} tasks for user: {user.email}")
+        return Response(status=status.HTTP_204_NO_CONTENT)

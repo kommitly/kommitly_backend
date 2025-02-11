@@ -1,12 +1,6 @@
 from rest_framework import serializers
 from .models import User
 
-"""
- Takes user input (like from a registration form) and converts
-   it into a User object that Django can work with.
-"""
-
-
 # Create User serializer
 class CreateUserSerializer(serializers.ModelSerializer):
     class Meta:
@@ -16,20 +10,24 @@ class CreateUserSerializer(serializers.ModelSerializer):
             "last_name",
             "email",
             "password",
+            "timezone",
         ]
         extra_kwargs = {
             "password": {"write_only": True},
-   
-        
         }
 
-"""Takes a User object from Django and converts it into a format (like JSON) 
- that can be easily understood and used by
-   the user (like displaying user details on a webpage)."""
+    def create(self, validated_data):
+        user = User.objects.create_user(
+            first_name=validated_data['first_name'],
+            last_name=validated_data['last_name'],
+            email=validated_data['email'],
+            password=validated_data['password'],
+            timezone=validated_data["timezone"]  # Ensure this is passed
+        )
+        return user
 
 # User serializer
 class UserSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = User
         fields = [
@@ -37,8 +35,8 @@ class UserSerializer(serializers.ModelSerializer):
             "first_name",
             "last_name",
             "email",
+            "timezone",
             "is_verified",
             "created_at",
             "updated_at",
         ]
-

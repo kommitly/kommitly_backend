@@ -43,6 +43,7 @@ class CreateUserView(APIView):
                     first_name = validated_data["first_name"],
                     last_name = validated_data["last_name"],
                     email = validated_data["email"],
+                    timezone = validated_data["timezone"]
 
                 )
 
@@ -51,7 +52,7 @@ class CreateUserView(APIView):
                 user.save()
 
                 # Send verification email
-                verification_link = f"https://kommitly-backend.onrender.com/api/verify/{user.verification_token}"
+                verification_link = f"http://127.0.0.1:8000/api/verify/{user.verification_token}"
                 send_mail(
                     subject="Verify your Kommitly Account",
                     message=f"Hi {user.first_name},\n\nClick the link below to verify your account:\n{verification_link}",

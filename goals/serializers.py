@@ -1,20 +1,39 @@
 from rest_framework import serializers
 from .models import Goal, Task, AiGoal, AiTask
 from users.models import User
+from django.utils.timezone import make_aware, datetime
+import pytz
 
 
 class CreateTaskSerializer(serializers.ModelSerializer):
     class Meta:
         model = Task
-        fields = ['goal', 'title', 'due_date', 'status']  # Include fields necessary for task creation
+        fields = ['goal','title', 'due_date', 'status', 'reminder_time']  # Include fields necessary for task creation
 
     def to_internal_value(self, data):
         if data.get('goal') == 0:
             data['goal'] = None
         return super().to_internal_value(data)
 
+    def validate(self, data):
+        if not data.get('reminder_time') and data.get('due_date'):
+            data['reminder_time'] = data['due_date'] - timedelta(minutes=30).time()  # Default: 30 min before due date
+        return data
+
     def create(self, validated_data):
-        task = Task.objects.create(**validated_data)
+        request = self.context.get('request')
+        user = request.user if request else None
+        user_timezone = pytz.timezone(user.timezone) if user else pytz.UTC
+
+        # Convert due_date and reminder_time to UTC
+        due_date = validated_data['due_date']
+        reminder_time = validated_data['reminder_time']
+        reminder_datetime = datetime.combine(due_date.date(), reminder_time)
+        reminder_datetime = make_aware(reminder_datetime, user_timezone)
+        validated_data['due_date'] = reminder_datetime.astimezone(pytz.UTC)
+        validated_data['reminder_time'] = reminder_datetime.astimezone(pytz.UTC).time()
+
+        task = Task.objects.create(user=user, **validated_data)
         return task
 
 class TaskSerializer(serializers.ModelSerializer):
@@ -23,14 +42,21 @@ class TaskSerializer(serializers.ModelSerializer):
         model = Task
         fields = [
             'id', 
-            'goal', 
+            'goal',
+            'user',
             'title', 
             'due_date', 
             'status', 
             'completed_at',
             'actionable_steps', 
-            'task_timeline'
+            'task_timeline',
+            'reminder_time'
             ]
+
+    def validate(self, data):
+        if not data.get('reminder_time') and data.get('due_date'):
+            data['reminder_time'] = data['due_date'] - timedelta(minutes=30).time()  # Default: 30 min before due date
+        return data
 
 class AiTaskSerializer(serializers.ModelSerializer):
 
@@ -46,6 +72,11 @@ class AiTaskSerializer(serializers.ModelSerializer):
             'actionable_steps', 
             'task_timeline'
             ]
+
+    def validate(self, data):
+        if not data.get('reminder_time') and data.get('due_date'):
+            data['reminder_time'] = data['due_date'] - timedelta(minutes=30).time()  # Default: 30 min before due date
+        return data
 
 
 
@@ -109,11 +140,22 @@ class CreateAiTaskSerializer(serializers.ModelSerializer):
     class Meta:
         model = AiTask
         fields = ['ai_goal', 'title', 'due_date', 'status']  # Include fields necessary for task creation
+    
+    def to_internal_value(self, data):
+        if data.get('ai_goal') == 0:
+            data['ai_goal'] = None
+        return super().to_internal_value(data)
+
+    def validate(self, data):
+        if not data.get('reminder_time') and data.get('due_date'):
+            data['reminder_time'] = (data['due_date'] - timedelta(minutes=30)).time()  # Default: 30 min before due date
+        return data
 
     def create(self, validated_data):
-        # This will associate the task with an existing goal
         ai_task = AiTask.objects.create(**validated_data)
         return ai_task
+
+
 
 
 class UserProfileSerializer(serializers.ModelSerializer):

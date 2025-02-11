@@ -4,6 +4,7 @@ import uuid
 from django.core.validators import MinLengthValidator
 from django.contrib.auth.models import AbstractUser
 from django.utils.crypto import get_random_string
+import pytz
 
 def generate_verification_token():
     return get_random_string(50)
@@ -21,11 +22,12 @@ class User(AbstractUser):
     password = models.CharField(validators=[MinLengthValidator(8)], max_length=128)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    timezone = models.CharField(max_length=50, choices=[(tz, tz) for tz in pytz.all_timezones], default='UTC')  # Add timezone field
 
     objects = CustomUserManager()
 
     USERNAME_FIELD = "email"
-    REQUIRED_FIELDS = ["first_name", "last_name"]
+    REQUIRED_FIELDS = ["first_name", "last_name", "timezone", "password"]
 
     def __str__(self):
         return self.first_name + " " + self.last_name   
