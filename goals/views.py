@@ -626,49 +626,31 @@ class UpdateAuthenticatedTaskView(APIView):
         
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-
 class UpdateAuthenticatedAiTaskView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
-    @swagger_auto_schema(
-        tags=["AI Goals"],
-        request_body=AiTaskSerializer,
-        responses={
-            200: AiTaskSerializer,
-            400: "Validation error",
-            404: "Task not found",
-            500: "Unexpected error",
-        },
-        operation_description="Update Ai task for the authenticated user",
-    )
     def patch(self, request, *args, **kwargs):
-        
-        # Check if the user exists
-        try:
-            user = User.objects.get(id=user.id)
-        except User.DoesNotExist:
-            return Response({"error": "User does not exist."}, status=status.HTTP_404_NOT_FOUND)
-
-
         task_id = kwargs.get("id")  # Extract task ID from URL
         if not task_id:
             return Response({"error": "Task ID is required."}, status=status.HTTP_400_BAD_REQUEST)
-        
+
         try:
             # Fetch the task that belongs to the authenticated user
-            ai_task = AiTask.objects.get(id=task_id, user=request.user)
+            ai_task = AiTask.objects.get(id=task_id)
         except AiTask.DoesNotExist:
             return Response({"error": "Task not found or does not belong to the user."}, status=status.HTTP_404_NOT_FOUND)
-        
+
+        # Debugging: Log request data
+        print("Received request data:", request.data)
+
         # Update task using serializer
         serializer = AiTaskSerializer(ai_task, data=request.data, partial=True)
         if serializer.is_valid():
-            updated_task = serializer.save()
-            return Response(AiTaskSerializer(updated_task).data, status=status.HTTP_200_OK)
-        
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+
+        print("Serializer errors:", serializer.errors)  # Debugging
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
 
 class GetGoalByIdView(APIView):
     permission_classes = [permissions.IsAuthenticated]

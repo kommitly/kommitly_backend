@@ -5,6 +5,7 @@ from django.utils.timezone import make_aware, datetime
 from datetime import timedelta
 import pytz
 from ai_insights.utils import get_insights
+from django.utils.timezone import localtime
 
 
 class CreateTaskSerializer(serializers.ModelSerializer):
@@ -60,8 +61,11 @@ class TaskSerializer(serializers.ModelSerializer):
             data['reminder_time'] = (data['due_date'] - timedelta(minutes=30)).time()
         return data
 
-
 class AiTaskSerializer(serializers.ModelSerializer):
+    completed_at = serializers.SerializerMethodField()
+    due_date = serializers.SerializerMethodField()
+    reminder_time = serializers.SerializerMethodField()
+
     class Meta:
         model = AiTask
         fields = [
@@ -72,8 +76,27 @@ class AiTaskSerializer(serializers.ModelSerializer):
             'status',
             'completed_at',
             'actionable_steps',
-            'task_timeline'
+            'task_timeline',
+            'reminder_time'
         ]
+
+    def get_user_timezone(self, obj):
+        """Fetch user's timezone from AiGoal if available, otherwise default to UTC."""
+        if obj.ai_goal and obj.ai_goal.user and obj.ai_goal.user.timezone:
+            return pytz.timezone(obj.ai_goal.user.timezone)
+        return pytz.UTC
+
+    def get_completed_at(self, obj):
+        if obj.completed_at:
+            return localtime(obj.completed_at, self.get_user_timezone(obj)).strftime('%Y-%m-%d %H:%M:%S')
+        return None
+
+    def get_due_date(self, obj):
+        if obj.due_date:
+            return localtime(obj.due_date, self.get_user_timezone(obj)).strftime('%Y-%m-%d %H:%M:%S')
+        return None
+    def get_reminder_time(self, obj):
+        return obj.reminder_time.strftime('%H:%M:%S') if obj.reminder_time else None  # TimeField does not support timezone conversion
 
     def update(self, instance, validated_data):
         """
@@ -84,10 +107,10 @@ class AiTaskSerializer(serializers.ModelSerializer):
         return instance
 
     def validate(self, data):
-        if not data.get('reminder_time') and data.get('due_date'):
-            data['reminder_time'] = (data['due_date'] - timedelta(minutes=30)).time()
+        """Ensure reminder_time is set to 30 minutes before due_date if not provided."""
+        if "reminder_time" not in data and "due_date" in data:
+            data["reminder_time"] = (data["due_date"] - timedelta(minutes=30)).time()
         return data
-
 
 class CreateGoalSerializer(serializers.ModelSerializer):
     category = serializers.ChoiceField(choices=AiGoal.CATEGORY_CHOICES, required=False, allow_null=True, default=None)
