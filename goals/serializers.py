@@ -2,13 +2,15 @@ from rest_framework import serializers
 from .models import Goal, Task, AiGoal, AiTask
 from users.models import User
 from django.utils.timezone import make_aware, datetime
+from datetime import timedelta
 import pytz
+from ai_insights.utils import get_insights
 
 
 class CreateTaskSerializer(serializers.ModelSerializer):
     class Meta:
         model = Task
-        fields = ['goal','title', 'due_date', 'status', 'reminder_time']  # Include fields necessary for task creation
+        fields = ['goal', 'title', 'due_date', 'status', 'reminder_time']
 
     def to_internal_value(self, data):
         if data.get('goal') == 0:
@@ -17,7 +19,7 @@ class CreateTaskSerializer(serializers.ModelSerializer):
 
     def validate(self, data):
         if not data.get('reminder_time') and data.get('due_date'):
-            data['reminder_time'] = data['due_date'] - timedelta(minutes=30).time()  # Default: 30 min before due date
+            data['reminder_time'] = (data['due_date'] - timedelta(minutes=30)).time()  # Fix timedelta usage
         return data
 
     def create(self, validated_data):
@@ -36,111 +38,144 @@ class CreateTaskSerializer(serializers.ModelSerializer):
         task = Task.objects.create(user=user, **validated_data)
         return task
 
-class TaskSerializer(serializers.ModelSerializer):
 
+class TaskSerializer(serializers.ModelSerializer):
     class Meta:
         model = Task
         fields = [
-            'id', 
+            'id',
             'goal',
             'user',
-            'title', 
-            'due_date', 
-            'status', 
+            'title',
+            'due_date',
+            'status',
             'completed_at',
-            'actionable_steps', 
+            'actionable_steps',
             'task_timeline',
             'reminder_time'
-            ]
+        ]
 
     def validate(self, data):
         if not data.get('reminder_time') and data.get('due_date'):
-            data['reminder_time'] = data['due_date'] - timedelta(minutes=30).time()  # Default: 30 min before due date
+            data['reminder_time'] = (data['due_date'] - timedelta(minutes=30)).time()
         return data
 
-class AiTaskSerializer(serializers.ModelSerializer):
 
+class AiTaskSerializer(serializers.ModelSerializer):
     class Meta:
         model = AiTask
         fields = [
-            'id', 
-            'ai_goal', 
-            'title', 
-            'due_date', 
-            'status', 
+            'id',
+            'ai_goal',
+            'title',
+            'due_date',
+            'status',
             'completed_at',
-            'actionable_steps', 
+            'actionable_steps',
             'task_timeline'
-            ]
+        ]
+
+    def update(self, instance, validated_data):
+        """
+        When task status is updated, trigger progress recalculation.
+        """
+        instance.status = validated_data.get('status', instance.status)
+        instance.save()  # This automatically updates AiGoal progress
+        return instance
 
     def validate(self, data):
         if not data.get('reminder_time') and data.get('due_date'):
-            data['reminder_time'] = data['due_date'] - timedelta(minutes=30).time()  # Default: 30 min before due date
+            data['reminder_time'] = (data['due_date'] - timedelta(minutes=30)).time()
         return data
 
 
-
 class CreateGoalSerializer(serializers.ModelSerializer):
+    category = serializers.ChoiceField(choices=AiGoal.CATEGORY_CHOICES, required=False, allow_null=True, default=None)
+    progress = serializers.IntegerField(default=0)
+
     class Meta:
         model = Goal
-        fields = ['title', 'description']  # Include only fields that are necessary for goal creation
+        fields = ['title', 'description', 'category','progress' ]
 
     def create(self, validated_data):
-        # You can assign the user here if you're using Django's authentication system
-        user = self.context['request'].user  # Get the logged-in user from the request context
+        user = self.context['request'].user
         goal = Goal.objects.create(user=user, **validated_data)
         return goal
 
+
 class GoalSerializer(serializers.ModelSerializer):
     tasks = TaskSerializer(many=True, read_only=True)
+    category = serializers.ChoiceField(choices=AiGoal.CATEGORY_CHOICES, required=False, allow_null=True, default=None)
+    progress = serializers.IntegerField(default=0)
 
     class Meta:
         model = Goal
         fields = [
-            'id', 
-            'user', 
-            'title', 
-            'description', 
-            'created_at', 
+            'id',
+            'user',
+            'title',
+            'description',
+            'category',
+            'progress',
+            'created_at',
             'updated_at',
             'tasks'
-
-            ]
-
+        ]
 
 
 class CreateAiGoalSerializer(serializers.ModelSerializer):
+    category = serializers.ChoiceField(choices=AiGoal.CATEGORY_CHOICES, required=False, allow_null=True, default=None)
+    progress = serializers.IntegerField(default=0)
+
     class Meta:
         model = AiGoal
-        fields = ['title', 'description']  # Include only fields that are necessary for goal creation
+        fields = ['title', 'description', 'category', 'progress']
 
     def create(self, validated_data):
-        # You can assign the user here if you're using Django's authentication system
-        validated_data["user"] = self.context["request"].user  # Ensure user is explicitly set
-        return AiGoal.objects.create(**validated_data) 
-
+        request_user = self.context["request"].user
+        ai_goal = validated_data.get("title")  # Use the goal title for insights
+        
+        # Fetch AI insights
+        insights = get_insights(ai_goal)  # This should return a dictionary
+        
+        # Add logging to debug the insights
+        print("Insights fetched:", insights)
+        
+        if isinstance(insights, dict) and "goal_category" in insights:
+            print("AI Category:", insights["goal_category"])  # Debugging step
+            validated_data["category"] = insights["goal_category"]
+        else:
+            print("No valid AI category found in insights")
+        
+        validated_data["user"] = request_user
+        return AiGoal.objects.create(**validated_data)
 
 class AiGoalSerializer(serializers.ModelSerializer):
-    ai_tasks = AiTaskSerializer(many=True, read_only=True)  
+    ai_tasks = AiTaskSerializer(many=True, read_only=True)
+    category = serializers.ChoiceField(choices=AiGoal.CATEGORY_CHOICES, required=False, allow_null=True, default=None)
+    progress = serializers.IntegerField(default=0)
+    
 
     class Meta:
         model = AiGoal
         fields = [
-            'id', 
-            'user', 
-            'title', 
-            'description', 
-            'created_at', 
+            'id',
+            'user',
+            'title',
+            'description',
+            'category',
+            'progress',
+            'created_at',
             'updated_at',
             'ai_tasks'
+        ]
 
-            ]
 
 class CreateAiTaskSerializer(serializers.ModelSerializer):
     class Meta:
         model = AiTask
-        fields = ['ai_goal', 'title', 'due_date', 'status']  # Include fields necessary for task creation
-    
+        fields = ['ai_goal', 'title', 'due_date', 'status']
+
     def to_internal_value(self, data):
         if data.get('ai_goal') == 0:
             data['ai_goal'] = None
@@ -148,14 +183,12 @@ class CreateAiTaskSerializer(serializers.ModelSerializer):
 
     def validate(self, data):
         if not data.get('reminder_time') and data.get('due_date'):
-            data['reminder_time'] = (data['due_date'] - timedelta(minutes=30)).time()  # Default: 30 min before due date
+            data['reminder_time'] = (data['due_date'] - timedelta(minutes=30)).time()
         return data
 
     def create(self, validated_data):
         ai_task = AiTask.objects.create(**validated_data)
         return ai_task
-
-
 
 
 class UserProfileSerializer(serializers.ModelSerializer):
@@ -168,7 +201,8 @@ class UserProfileSerializer(serializers.ModelSerializer):
         model = User
         fields = ['id', 'username', 'email', 'goals', 'tasks', 'ai_goals', 'ai_tasks']
 
+
 class UpdateAiGoalSerializer(serializers.ModelSerializer):
     class Meta:
         model = AiGoal
-        fields = ['title', 'description']
+        fields = ['title', 'description', 'category', 'progress']

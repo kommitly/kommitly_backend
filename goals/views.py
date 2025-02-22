@@ -140,6 +140,8 @@ class GenerateAIInsightsView(APIView):
                             properties={
                                 'title': openapi.Schema(type=openapi.TYPE_STRING),
                                 'description': openapi.Schema(type=openapi.TYPE_STRING),
+                                'category': openapi.Schema(type=openapi.TYPE_STRING),
+                                'progress': openapi.Schema(type=openapi.TYPE_STRING),
                             }
                         ),
                         "ai_tasks": openapi.Schema(
@@ -181,13 +183,14 @@ class GenerateAIInsightsView(APIView):
                 # Print the insights for debugging
                 print("Goal Title:", goal_data['title'])
                 print("Insights:", insights)
+            
 
                 if not insights:
                     return Response({"error": "No insights returned from AI service."}, status=status.HTTP_400_BAD_REQUEST)
 
                 # Generate tasks from insights
                 ai_tasks = []
-                for step in insights:
+                for step in insights.get("tasks", []): 
                     task_data = {
                         "title": step.get("task_title"),
                         "due_date": None,  # Handle missing due_date
@@ -202,6 +205,8 @@ class GenerateAIInsightsView(APIView):
                     "ai_goal": {
                         "title": goal_data['title'],
                         "description": goal_data['description'],
+                        "category": insights.get("goal_category", "Uncategorized"), 
+                        "progress": goal_data.get('progress', '0%'),
                     },
                     "ai_tasks": ai_tasks,
                 }

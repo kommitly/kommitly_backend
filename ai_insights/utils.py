@@ -12,11 +12,25 @@ def get_insights(ai_goal):
         # Make the API call to Groq
         completion = client.chat.completions.create(
             model="llama3-70b-8192",
+           # messages=[
+           #     {
+            #        "role": "user",
+            #        "content": f"my goal is {ai_goal}, how do I get there...break down this goal for me into actionable tasks with realistic timelines. Please provide the response in the exact format below, with no additional text outside the specified structure:\n\n
+            # **Step 1: [Title] (X-X weeks)**\n1. **[Subtask Title]**: [Details about the subtask with timeline (X-X days/weeks/months)]\n\n**Step 2: [Title] (X-X weeks)**\n1. **[Subtask Title]**: [Details about the subtask with timeline (X-X days/weeks/months)]\n\nEnsure every step has a title, timeline, and clear subtasks with detailed timelines."
+            #
+            #               }
+            #          ],
+
             messages=[
                 {
                     "role": "user",
-                    "content": f"my goal is {ai_goal}, how do I get there...break down this goal for me into actionable tasks with realistic timelines. Please provide the response in the exact format below, with no additional text outside the specified structure:\n\n**Step 1: [Title] (X-X weeks)**\n1. **[Subtask Title]**: [Details about the subtask with timeline (X-X days/weeks/months)]\n\n**Step 2: [Title] (X-X weeks)**\n1. **[Subtask Title]**: [Details about the subtask with timeline (X-X days/weeks/months)]\n\nEnsure every step has a title, timeline, and clear subtasks with detailed timelines."
-
+                    "content": f"My goal is {ai_goal}. First, classify this goal into one of the following categories: 'High Priority', 'Weekly', 'Monthly', or 'Yearly'. Then, break it down into actionable tasks with realistic timelines. Ensure the response follows this exact format:\n\n"
+                            "**Goal Category: [High Priority / Weekly / Monthly / Yearly]**\n\n"
+                            "**Step 1: [Title] (X-X weeks/months/years)**\n"
+                            "1. **[Subtask Title]**: [Details about the subtask with timeline (X-X days/weeks/months/years)]\n\n"
+                            "**Step 2: [Title] (X-X weeks/months/years)**\n"
+                            "1. **[Subtask Title]**: [Details about the subtask with timeline (X-X days/weeks/months/years)]\n\n"
+                            "Ensure each goal has a category, and each step has a title, timeline, and clear subtasks with detailed timelines."
                 }
             ],
             temperature=1,
@@ -46,6 +60,9 @@ def parse_insights(response):
     """
     Parses the AI response into a structured list of steps.
     """
+    category_match = re.search(r'\*\*Goal Category:\s*(High Priority|Weekly|Monthly|Yearly)\*\*', response)
+    goal_category = category_match.group(1) if category_match else "Uncategorized"
+
     # Split the response into steps based on the format "**Step X: [Title] (X-X weeks)**"
     steps = re.split(r'\*\*Step \d+:\s*', response)
     parsed_steps = []
@@ -82,4 +99,7 @@ def parse_insights(response):
             "actionable_steps": actionable_steps,
         })
 
-    return parsed_steps
+    return {
+        "goal_category": goal_category,
+        "tasks": parsed_steps
+    }
