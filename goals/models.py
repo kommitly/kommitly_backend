@@ -119,23 +119,25 @@ class AiTask(models.Model):
         super().save(*args, **kwargs)  # Save the current task
 
         if self.ai_goal:
-            tasks = self.ai_goal.ai_tasks.order_by('id')  # Ensure tasks are ordered by creation
+            tasks = list(self.ai_goal.ai_tasks.order_by('id')) # convert to list to use index
 
-            # Ensure only the first task is always in-progress
-            first_task = tasks.first()
-            if first_task and first_task.status == 'pending':
-                first_task.status = 'in-progress'
-                first_task.save(update_fields=['status'])
-                
-
-             # When a task is completed, update the next pending task (only one)
             if self.status == 'completed':
-                next_task = tasks.filter(status='pending').first()
-                if next_task:
-                    next_task.status = 'in-progress'
-                    next_task.save(update_fields=['status'])
-                    
+                try:
+                    current_index = tasks.index(self)
+                    if current_index + 1 < len(tasks):
+                        next_task = tasks[current_index + 1]
+                        if next_task.status == 'pending':
+                            next_task.status = 'in-progress'
+                            next_task.save(update_fields=['status'])
+                except ValueError: #if the current task is not in the list.
+                    pass #do nothing.
 
+            # Ensure only the first task is always in-progress if there are no in progress tasks.
+            if not self.ai_goal.ai_tasks.filter(status='in-progress').exists():
+                first_task = self.ai_goal.ai_tasks.order_by('id').first()
+                if first_task and first_task.status == 'pending':
+                    first_task.status = 'in-progress'
+                    first_task.save(update_fields=['status'])
 
     def __str__(self):
         return self.title
