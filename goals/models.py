@@ -104,7 +104,8 @@ class AiTask(models.Model):
     task_timeline = models.CharField(max_length=255, null=True, blank=True)
     reminder_time = models.TimeField(null=True, blank=True)
     last_updated = models.DateTimeField(auto_now=True)  # Track updates
-
+    order = models.IntegerField(default=0)  # Add the order field
+    
     def save(self, *args, **kwargs):
         """
         Override save method to manage task statuses.

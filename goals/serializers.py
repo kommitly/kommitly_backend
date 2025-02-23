@@ -78,7 +78,8 @@ class AiTaskSerializer(serializers.ModelSerializer):
             'completed_at',
             'actionable_steps',
             'task_timeline',
-            'reminder_time'
+            'reminder_time',
+            'order'
         ]
 
     def get_user_timezone(self, obj):
@@ -124,7 +125,7 @@ class AiTaskSerializer(serializers.ModelSerializer):
 
         instance = super().update(instance, validated_data)
         instance.save(update_fields=['status', 'completed_at'])  # Ensure status is saved
-        
+
         if instance.ai_goal:
             instance.ai_goal.update_progress()  # Ensure progress is updated
         return instance
@@ -205,7 +206,7 @@ class CreateAiGoalSerializer(serializers.ModelSerializer):
 
     
 class AiGoalSerializer(serializers.ModelSerializer):
-    ai_tasks = AiTaskSerializer(many=True, read_only=True)
+    ai_tasks = AiTaskSerializer(many=True, read_only=True).order_by('order')
     category = serializers.ChoiceField(choices=AiGoal.CATEGORY_CHOICES, required=False, allow_null=True, default=None)
     progress = serializers.IntegerField(default=0)
     
