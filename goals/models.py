@@ -108,21 +108,21 @@ class AiTask(models.Model):
         """
         Override save method to update goal progress when task status changes.
         """
-        is_being_completed = self.status == 'completed' and self.completed_at is None
-        if is_being_completed:
+        if self.status == 'completed' and self.completed_at is None:
             self.completed_at = now()  # Set completion timestamp
 
         """Automatically update status based on task activity."""
         if self.due_date and now() > self.due_date and self.status in ['pending', 'in-progress']:
             self.status = 'overdue'
 
-        # If task is being updated but not completed, mark as "In-Progress"
-        if self.status == 'pending' and self.pk:  # Only for existing tasks
+        # Ensure transition from pending → in-progress only if no new status is explicitly set
+        if self.pk and self.status == 'pending' and not kwargs.get('update_fields', {}).get('status'):
             self.status = 'in-progress'
 
         super().save(*args, **kwargs)  # Save task first
         if self.ai_goal:
             self.ai_goal.update_progress()  # Update goal progress
+
 
     def __str__(self):
         return self.title
