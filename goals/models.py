@@ -116,27 +116,21 @@ class AiTask(models.Model):
         if self.due_date and now() > self.due_date and self.status in ['pending', 'in-progress']:
             self.status = 'overdue'
 
-        super().save(*args, **kwargs)  # Save current task
+        super().save(*args, **kwargs)  # Save the current task
 
         if self.ai_goal:
-            tasks = self.ai_goal.ai_tasks.order_by('id')  # Ensure tasks are ordered
+            tasks = self.ai_goal.ai_tasks.order_by('id')  # Ensure tasks are ordered by creation
 
-            # Check if this is the first task being created for the goal
-            if tasks.count() == 1 and self.status == 'pending':
-                self.status = 'in-progress'
-                super().save(update_fields=['status'])
+            # Ensure only the first task is always in-progress
+            first_task = tasks.first()
+            if first_task and first_task.status == 'pending':
+                first_task.status = 'in-progress'
+                first_task.save(update_fields=['status'])
 
             # When a task is completed, set the next pending task to in-progress
-            pending_tasks = tasks.filter(status='pending').order_by('id')
-            
-            if self.status == 'completed' and pending_tasks.exists():
-                next_task = pending_tasks.first()
-                next_task.status = 'in-progress'
-                next_task.save(update_fields=['status'])
-
-            self.ai_goal.update_progress()  # Update goal progress
-
-
+            if self.status == 'completed':
+                pending_tasks = tasks.filter(status='pending').order_by('id')
+                
 
 
     def __str__(self):
