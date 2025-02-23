@@ -172,7 +172,6 @@ class GoalSerializer(serializers.ModelSerializer):
             'tasks'
         ]
 
-
 class CreateAiGoalSerializer(serializers.ModelSerializer):
     category = serializers.ChoiceField(choices=AiGoal.CATEGORY_CHOICES, required=False, allow_null=True, default=None)
     progress = serializers.IntegerField(default=0)
@@ -181,27 +180,28 @@ class CreateAiGoalSerializer(serializers.ModelSerializer):
         model = AiGoal
         fields = ['title', 'description', 'category', 'progress']
 
+    
+
     def create(self, validated_data):
         request_user = self.context["request"].user
-        ai_goal = validated_data.get("title")  # Use the goal title for insights
-        
+        ai_goal = validated_data.get("title")
+
         # Fetch AI insights
-        insights = get_insights(ai_goal)  # This should return a dictionary
-        
-        # Add logging to debug the insights
-        print("Insights fetched:", insights)
-        
+        insights = get_insights(ai_goal)
+
+       # Ensure AI-provided category is valid
         if isinstance(insights, dict) and "goal_category" in insights:
             category = insights["goal_category"].lower()  # Convert to lowercase
-            if category in dict(AiGoal.CATEGORY_CHOICES):  # Ensure it's a valid choice
+            if category in dict(AiGoal.CATEGORY_CHOICES):
                 validated_data["category"] = category
             else:
-                print(f"Invalid category received: {category}")
+                raise serializers.ValidationError({"category": [f"'{insights['goal_category']}' is not a valid choice. Please select from {', '.join([choice[1] for choice in AiGoal.CATEGORY_CHOICES])}."] })
 
-        
         validated_data["user"] = request_user
         return AiGoal.objects.create(**validated_data)
 
+
+    
 class AiGoalSerializer(serializers.ModelSerializer):
     ai_tasks = AiTaskSerializer(many=True, read_only=True)
     category = serializers.ChoiceField(choices=AiGoal.CATEGORY_CHOICES, required=False, allow_null=True, default=None)

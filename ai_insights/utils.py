@@ -61,7 +61,7 @@ def parse_insights(response):
     Parses the AI response into a structured list of steps.
     """
     category_match = re.search(r'\*\*Goal Category:\s*(Weekly|Monthly|Yearly)\*\*', response)
-    goal_category = category_match.group(1) if category_match else "Uncategorized"
+    goal_category = category_match.group(1).lower()  if category_match else "Uncategorized"
 
     # Split the response into steps based on the format "**Step X: [Title] (X-X weeks)**"
     steps = re.split(r'\*\*Step \d+:\s*', response)
