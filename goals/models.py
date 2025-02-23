@@ -106,22 +106,37 @@ class AiTask(models.Model):
 
     def save(self, *args, **kwargs):
         """
-        Override save method to update goal progress when task status changes.
+        Override save method to manage task statuses.
         """
         if self.status == 'completed' and self.completed_at is None:
             self.completed_at = now()  # Set completion timestamp
 
-        """Automatically update status based on task activity."""
+        # Automatically update overdue tasks
         if self.due_date and now() > self.due_date and self.status in ['pending', 'in-progress']:
             self.status = 'overdue'
 
-        # Ensure transition from pending → in-progress only if no new status is explicitly set
-        if self.pk and self.status == 'pending' and not kwargs.get('update_fields', {}).get('status'):
-            self.status = 'in-progress'
+        super().save(*args, **kwargs)  # Save current task
 
-        super().save(*args, **kwargs)  # Save task first
         if self.ai_goal:
+            tasks = self.ai_goal.ai_tasks.order_by('id')  # Ensure tasks are ordered
+            first_task = tasks.first()
+
+            # Set first task to in-progress if it's pending
+            if first_task and first_task.status == 'pending':
+                first_task.status = 'in-progress'
+                first_task.save(update_fields=['status'])
+
+            # When a task is completed, set the next pending task to in-progress
+            completed_tasks = tasks.filter(status='completed').count()
+            pending_tasks = tasks.filter(status='pending').order_by('id')
+            
+            if self.status == 'completed' and pending_tasks.exists():
+                next_task = pending_tasks.first()
+                next_task.status = 'in-progress'
+                next_task.save(update_fields=['status'])
+
             self.ai_goal.update_progress()  # Update goal progress
+
 
 
     def __str__(self):
