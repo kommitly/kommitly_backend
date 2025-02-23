@@ -6,6 +6,7 @@ from datetime import timedelta
 import pytz
 from ai_insights.utils import get_insights
 from django.utils.timezone import localtime
+from django.utils.timezone import now
 
 
 class CreateTaskSerializer(serializers.ModelSerializer):
@@ -101,15 +102,41 @@ class AiTaskSerializer(serializers.ModelSerializer):
     def update(self, instance, validated_data):
         """
         When task status is updated, trigger progress recalculation.
-        """
+      
         instance.status = validated_data.get('status', instance.status)
         instance.save()  # This automatically updates AiGoal progress
         return instance
+          """
+        
+        """
+        Handle status transitions and update goal progress.
+        """
+        previous_status = instance.status
+        new_status = validated_data.get('status', instance.status)
+
+        # If task was pending and gets modified, mark it as "in-progress"
+        if previous_status == 'pending' and new_status not in ['completed', 'overdue']:
+            validated_data['status'] = 'in-progress'
+
+        # If marked as completed, set completion timestamp
+        if new_status == 'completed' and instance.completed_at is None:
+            instance.completed_at = now()
+
+        instance = super().update(instance, validated_data)
+        if instance.ai_goal:
+            instance.ai_goal.update_progress()  # Ensure progress is updated
+        return instance
 
     def validate(self, data):
-        """Ensure reminder_time is set to 30 minutes before due_date if not provided."""
+        """Ensure valid status transitions and default reminder time."""
         if "reminder_time" not in data and "due_date" in data:
             data["reminder_time"] = (data["due_date"] - timedelta(minutes=30)).time()
+
+        # Prevent moving backwards in status
+        if self.instance:
+            if self.instance.status == 'completed' and data.get('status') != 'completed':
+                raise serializers.ValidationError("Cannot move a completed task back to another status.")
+
         return data
 
 class CreateGoalSerializer(serializers.ModelSerializer):

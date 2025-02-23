@@ -68,6 +68,7 @@ class Task(models.Model):
         max_length=20,
         choices=[
             ('pending', 'Pending'),
+            ('in-progress', 'In Progress'),
             ('completed', 'Completed'),
             ('overdue', 'Overdue'),
         ],
@@ -77,6 +78,7 @@ class Task(models.Model):
     actionable_steps = models.JSONField(default=dict)
     task_timeline = models.CharField(max_length=255, null=True, blank=True)
     reminder_time = models.TimeField(null=True, blank=True)
+    last_updated = models.DateTimeField(auto_now=True)  # Track updates
 
     def __str__(self):
         return self.title
@@ -90,6 +92,7 @@ class AiTask(models.Model):
         max_length=20,
         choices=[
             ('pending', 'Pending'),
+            ('in-progress', 'In Progress'),
             ('completed', 'Completed'),
             ('overdue', 'Overdue'),
         ],
@@ -99,6 +102,7 @@ class AiTask(models.Model):
     actionable_steps = models.JSONField(default=dict)
     task_timeline = models.CharField(max_length=255, null=True, blank=True)
     reminder_time = models.TimeField(null=True, blank=True)
+    last_updated = models.DateTimeField(auto_now=True)  # Track updates
 
     def save(self, *args, **kwargs):
         """
@@ -107,6 +111,14 @@ class AiTask(models.Model):
         is_being_completed = self.status == 'completed' and self.completed_at is None
         if is_being_completed:
             self.completed_at = now()  # Set completion timestamp
+
+        """Automatically update status based on task activity."""
+        if self.due_date and now() > self.due_date and self.status in ['pending', 'in-progress']:
+            self.status = 'overdue'
+
+        # If task is being updated but not completed, mark as "In-Progress"
+        if self.status == 'pending' and self.pk:  # Only for existing tasks
+            self.status = 'in-progress'
 
         super().save(*args, **kwargs)  # Save task first
         if self.ai_goal:
