@@ -121,7 +121,7 @@ class AiTask(models.Model):
         if self.ai_goal:
             tasks = self.ai_goal.ai_tasks.order_by('id')  # Ensure tasks are ordered by creation
 
-            # Ensure only the first task is always in-progress
+            # Ensure the first task is always in-progress
             first_task = tasks.first()
             if first_task and first_task.status == 'pending':
                 first_task.status = 'in-progress'
@@ -130,6 +130,11 @@ class AiTask(models.Model):
             # When a task is completed, set the next pending task to in-progress
             if self.status == 'completed':
                 pending_tasks = tasks.filter(status='pending').order_by('id')
+                if pending_tasks.exists():
+                    next_task = pending_tasks.first()
+                    next_task.status = 'in-progress'
+                    next_task.save(update_fields=['status'])
+
                 
 
 
