@@ -40,14 +40,7 @@ class AiGoal(models.Model):
     progress = models.IntegerField(default=0)  # Added progress field
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-
-    def set_initial_task_status(self):
-        tasks = self.ai_tasks.order_by('id')
-        if tasks.exists():
-            first_task = tasks.first()
-            if first_task.status == 'pending':
-                first_task.status = 'in-progress'
-                first_task.save(update_fields=['status'])
+    
 
     def update_progress(self):
         """
@@ -125,14 +118,24 @@ class AiTask(models.Model):
 
         super().save(*args, **kwargs)  # Save current task
 
+        if self.ai_goal:
+            tasks = self.ai_goal.ai_tasks.order_by('id')  # Ensure tasks are ordered
 
-         # Only handle moving to next task when a task is completed
-        if self.status == 'completed' and self.ai_goal:
-            pending_tasks = self.ai_goal.ai_tasks.filter(status='pending').order_by('id')
-            if pending_tasks.exists():
+            # Check if this is the first task being created for the goal
+            if tasks.count() == 1 and self.status == 'pending':
+                self.status = 'in-progress'
+                super().save(update_fields=['status'])
+
+            # When a task is completed, set the next pending task to in-progress
+            pending_tasks = tasks.filter(status='pending').order_by('id')
+            
+            if self.status == 'completed' and pending_tasks.exists():
                 next_task = pending_tasks.first()
                 next_task.status = 'in-progress'
                 next_task.save(update_fields=['status'])
+
+            self.ai_goal.update_progress()  # Update goal progress
+
 
 
 
