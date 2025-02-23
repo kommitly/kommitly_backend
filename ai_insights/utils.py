@@ -24,8 +24,8 @@ def get_insights(ai_goal):
             messages=[
                 {
                     "role": "user",
-                    "content": f"My goal is {ai_goal}. First, classify this goal into one of the following categories: 'High Priority', 'Weekly', 'Monthly', or 'Yearly'. Then, break it down into actionable tasks with realistic timelines. Ensure the response follows this exact format:\n\n"
-                            "**Goal Category: [High Priority / Weekly / Monthly / Yearly]**\n\n"
+                    "content": f"My goal is {ai_goal}. First, classify this goal into one of the following categories:  'Weekly', 'Monthly', or 'Yearly'. Then, break it down into actionable tasks with realistic timelines. Ensure the response follows this exact format:\n\n"
+                            "**Goal Category: [ Weekly / Monthly / Yearly]**\n\n"
                             "**Step 1: [Title] (X-X weeks/months/years)**\n"
                             "1. **[Subtask Title]**: [Details about the subtask with timeline (X-X days/weeks/months/years)]\n\n"
                             "**Step 2: [Title] (X-X weeks/months/years)**\n"
@@ -60,7 +60,7 @@ def parse_insights(response):
     """
     Parses the AI response into a structured list of steps.
     """
-    category_match = re.search(r'\*\*Goal Category:\s*(High Priority|Weekly|Monthly|Yearly)\*\*', response)
+    category_match = re.search(r'\*\*Goal Category:\s*(Weekly|Monthly|Yearly)\*\*', response)
     goal_category = category_match.group(1) if category_match else "Uncategorized"
 
     # Split the response into steps based on the format "**Step X: [Title] (X-X weeks)**"

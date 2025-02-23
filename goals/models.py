@@ -7,7 +7,7 @@ class Goal(models.Model):
         ('weekly', 'Weekly'),
         ('monthly', 'Monthly'),
         ('yearly', 'Yearly'),
-        ('priority', 'Priority'),
+      
     ]
 
     user = models.ForeignKey('users.User', on_delete=models.CASCADE, related_name='goals')
@@ -28,7 +28,7 @@ class AiGoal(models.Model):
         ('weekly', 'Weekly'),
         ('monthly', 'Monthly'),
         ('yearly', 'Yearly'),
-        ('priority', 'Priority'),
+       
     ]
 
     user = models.ForeignKey('users.User', on_delete=models.CASCADE, related_name='ai_goals')

@@ -192,10 +192,12 @@ class CreateAiGoalSerializer(serializers.ModelSerializer):
         print("Insights fetched:", insights)
         
         if isinstance(insights, dict) and "goal_category" in insights:
-            print("AI Category:", insights["goal_category"])  # Debugging step
-            validated_data["category"] = insights["goal_category"]
-        else:
-            print("No valid AI category found in insights")
+            category = insights["goal_category"].lower()  # Convert to lowercase
+            if category in dict(AiGoal.CATEGORY_CHOICES):  # Ensure it's a valid choice
+                validated_data["category"] = category
+            else:
+                print(f"Invalid category received: {category}")
+
         
         validated_data["user"] = request_user
         return AiGoal.objects.create(**validated_data)
