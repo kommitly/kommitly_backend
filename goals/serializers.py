@@ -79,7 +79,7 @@ class AiTaskSerializer(serializers.ModelSerializer):
             'actionable_steps',
             'task_timeline',
             'reminder_time',
-            'order'
+           
         ]
 
     def get_user_timezone(self, obj):
@@ -206,7 +206,7 @@ class CreateAiGoalSerializer(serializers.ModelSerializer):
 
     
 class AiGoalSerializer(serializers.ModelSerializer):
-    ai_tasks = AiTaskSerializer(many=True, read_only=True).order_by('order')
+    ai_tasks = AiTaskSerializer(many=True, read_only=True)
     category = serializers.ChoiceField(choices=AiGoal.CATEGORY_CHOICES, required=False, allow_null=True, default=None)
     progress = serializers.IntegerField(default=0)
     

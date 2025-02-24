@@ -12,6 +12,8 @@ from ai_insights.utils import get_insights
 from drf_yasg import openapi
 from users.models import User
 from django.http import Http404
+from django.db.models import Prefetch
+
 
 # Configure logging
 logger = logging.getLogger(__name__)
@@ -704,8 +706,13 @@ class GetAiGoalByIdView(APIView):
     )
     def get(self, request, goal_id, *args, **kwargs):
         try:
-            # Fetch the goal by ID
-            ai_goal = AiGoal.objects.prefetch_related('ai_tasks').get(id=goal_id)
+            # Fetch the goal by ID with prefetch and ordering by id
+            ai_goal = AiGoal.objects.prefetch_related(
+                Prefetch(
+                    'ai_tasks',
+                    queryset=AiTask.objects.order_by('id') # Order by id
+                )
+            ).get(id=goal_id)
 
             # Check if the goal belongs to the authenticated user
             if ai_goal.user != request.user:
