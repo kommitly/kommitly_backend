@@ -9,10 +9,16 @@ from django.utils.timezone import localtime
 from django.utils.timezone import now
 
 
+from datetime import datetime, timedelta
+import pytz
+from django.utils.timezone import make_aware
+from rest_framework import serializers
+from .models import Task  # Adjust the import based on your project structure
+
 class CreateTaskSerializer(serializers.ModelSerializer):
     class Meta:
         model = Task
-        fields = ['goal', 'title', 'due_date', 'status', 'reminder_time']
+        fields = ['goal', 'title']
 
     def to_internal_value(self, data):
         if data.get('goal') == 0:
@@ -20,25 +26,28 @@ class CreateTaskSerializer(serializers.ModelSerializer):
         return super().to_internal_value(data)
 
     def validate(self, data):
-        if not data.get('reminder_time') and data.get('due_date'):
-            data['reminder_time'] = (data['due_date'] - timedelta(minutes=30)).time()  # Fix timedelta usage
+        due_date = data.get('due_date')
+        if due_date and 'reminder_time' not in data:
+            data['reminder_time'] = (due_date - timedelta(minutes=30)).time()
         return data
 
     def create(self, validated_data):
         request = self.context.get('request')
         user = request.user if request else None
-        user_timezone = pytz.timezone(user.timezone) if user else pytz.UTC
+        user_timezone = pytz.timezone(user.timezone) if user and user.timezone else pytz.UTC
 
-        # Convert due_date and reminder_time to UTC
-        due_date = validated_data['due_date']
-        reminder_time = validated_data['reminder_time']
-        reminder_datetime = datetime.combine(due_date.date(), reminder_time)
-        reminder_datetime = make_aware(reminder_datetime, user_timezone)
-        validated_data['due_date'] = reminder_datetime.astimezone(pytz.UTC)
-        validated_data['reminder_time'] = reminder_datetime.astimezone(pytz.UTC).time()
+        due_date = validated_data.get('due_date')
+        reminder_time = validated_data.get('reminder_time')
+
+        if due_date and reminder_time:
+            reminder_datetime = datetime.combine(due_date.date(), reminder_time)
+            reminder_datetime = make_aware(reminder_datetime, user_timezone)
+            validated_data['due_date'] = reminder_datetime.astimezone(pytz.UTC)
+            validated_data['reminder_time'] = reminder_datetime.astimezone(pytz.UTC).time()
 
         task = Task.objects.create(user=user, **validated_data)
         return task
+
 
 
 class TaskSerializer(serializers.ModelSerializer):
@@ -54,7 +63,8 @@ class TaskSerializer(serializers.ModelSerializer):
             'completed_at',
             'actionable_steps',
             'task_timeline',
-            'reminder_time'
+            'reminder_time',
+            'last_updated',
         ]
 
     def validate(self, data):
