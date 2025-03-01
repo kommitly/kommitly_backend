@@ -12,6 +12,8 @@ from ai_insights.utils import get_insights
 from drf_yasg import openapi
 from users.models import User
 from django.http import Http404
+from django.db.models import Prefetch
+
 
 # Configure logging
 logger = logging.getLogger(__name__)
@@ -140,6 +142,8 @@ class GenerateAIInsightsView(APIView):
                             properties={
                                 'title': openapi.Schema(type=openapi.TYPE_STRING),
                                 'description': openapi.Schema(type=openapi.TYPE_STRING),
+                                'category': openapi.Schema(type=openapi.TYPE_STRING),
+                                'progress': openapi.Schema(type=openapi.TYPE_STRING),
                             }
                         ),
                         "ai_tasks": openapi.Schema(
@@ -181,13 +185,14 @@ class GenerateAIInsightsView(APIView):
                 # Print the insights for debugging
                 print("Goal Title:", goal_data['title'])
                 print("Insights:", insights)
+            
 
                 if not insights:
                     return Response({"error": "No insights returned from AI service."}, status=status.HTTP_400_BAD_REQUEST)
 
                 # Generate tasks from insights
                 ai_tasks = []
-                for step in insights:
+                for step in insights.get("tasks", []): 
                     task_data = {
                         "title": step.get("task_title"),
                         "due_date": None,  # Handle missing due_date
@@ -202,6 +207,8 @@ class GenerateAIInsightsView(APIView):
                     "ai_goal": {
                         "title": goal_data['title'],
                         "description": goal_data['description'],
+                        "category": insights.get("goal_category", "Uncategorized"), 
+                        "progress": goal_data.get('progress', '0%'),
                     },
                     "ai_tasks": ai_tasks,
                 }
@@ -621,49 +628,31 @@ class UpdateAuthenticatedTaskView(APIView):
         
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-
 class UpdateAuthenticatedAiTaskView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
-    @swagger_auto_schema(
-        tags=["AI Goals"],
-        request_body=AiTaskSerializer,
-        responses={
-            200: AiTaskSerializer,
-            400: "Validation error",
-            404: "Task not found",
-            500: "Unexpected error",
-        },
-        operation_description="Update Ai task for the authenticated user",
-    )
     def patch(self, request, *args, **kwargs):
-        
-        # Check if the user exists
-        try:
-            user = User.objects.get(id=user.id)
-        except User.DoesNotExist:
-            return Response({"error": "User does not exist."}, status=status.HTTP_404_NOT_FOUND)
-
-
         task_id = kwargs.get("id")  # Extract task ID from URL
         if not task_id:
             return Response({"error": "Task ID is required."}, status=status.HTTP_400_BAD_REQUEST)
-        
+
         try:
             # Fetch the task that belongs to the authenticated user
-            ai_task = AiTask.objects.get(id=task_id, user=request.user)
+            ai_task = AiTask.objects.get(id=task_id)
         except AiTask.DoesNotExist:
             return Response({"error": "Task not found or does not belong to the user."}, status=status.HTTP_404_NOT_FOUND)
-        
+
+        # Debugging: Log request data
+        print("Received request data:", request.data)
+
         # Update task using serializer
         serializer = AiTaskSerializer(ai_task, data=request.data, partial=True)
         if serializer.is_valid():
-            updated_task = serializer.save()
-            return Response(AiTaskSerializer(updated_task).data, status=status.HTTP_200_OK)
-        
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+
+        print("Serializer errors:", serializer.errors)  # Debugging
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
 
 class GetGoalByIdView(APIView):
     permission_classes = [permissions.IsAuthenticated]
@@ -717,8 +706,13 @@ class GetAiGoalByIdView(APIView):
     )
     def get(self, request, goal_id, *args, **kwargs):
         try:
-            # Fetch the goal by ID
-            ai_goal = AiGoal.objects.prefetch_related('ai_tasks').get(id=goal_id)
+            # Fetch the goal by ID with prefetch and ordering by id
+            ai_goal = AiGoal.objects.prefetch_related(
+                Prefetch(
+                    'ai_tasks',
+                    queryset=AiTask.objects.order_by('id') # Order by id
+                )
+            ).get(id=goal_id)
 
             # Check if the goal belongs to the authenticated user
             if ai_goal.user != request.user:
