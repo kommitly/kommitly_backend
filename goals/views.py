@@ -772,6 +772,41 @@ class GetTaskByIdView(APIView):
             )
 
 
+class GetTasksByGoalIdView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    @swagger_auto_schema(
+        tags=["Tasks"],
+        responses={
+            200: TaskSerializer(many=True),
+            404: "Goal not found",
+            401: "Unauthorized",
+        },
+        operation_description="Fetch all tasks for a goal by its ID"
+    )
+    def get(self, request, goal_id, *args, **kwargs):
+        try:
+            # Check if the goal exists and belongs to the authenticated user
+            goal = Goal.objects.get(id=goal_id, user=request.user)
+
+            # Fetch tasks related to the goal
+            tasks = Task.objects.filter(goal=goal)
+
+            # Serialize and return the tasks
+            task_serializer = TaskSerializer(tasks, many=True)
+            return Response(task_serializer.data, status=status.HTTP_200_OK)
+
+        except Goal.DoesNotExist:
+            raise Http404("Goal not found.")
+
+        except Exception as e:
+            return Response(
+                {"error": "An unexpected error occurred", "details": str(e)},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
+
+
+
 class GetAiTaskByIdView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 

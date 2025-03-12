@@ -23,7 +23,8 @@ from .views import (
     TriggerTaskRemindersView,
     TriggerAiTaskRemindersView,
     DeleteAllUserTasksView,
-    GetAllUserTasksView
+    GetAllUserTasksView,
+    GetTasksByGoalIdView
     
 )
 
@@ -53,6 +54,7 @@ urlpatterns= [
     path('tasks/trigger-ai-task-reminders/', TriggerAiTaskRemindersView.as_view(), name='trigger_ai_task_reminders'),
     path('tasks/delete-all/', DeleteAllUserTasksView.as_view(), name='delete_all_user_tasks'),
     path('tasks/', GetAllUserTasksView.as_view(), name='get_all_user_tasks'),
+    path('goals/<int:goal_id>/tasks/', GetTasksByGoalIdView.as_view(), name='get_tasks_by_goal_id')
     
     
     
