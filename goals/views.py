@@ -602,21 +602,18 @@ class UpdateAuthenticatedTaskView(APIView):
         operation_description="Update a task for the authenticated user",
     )
     def patch(self, request, *args, **kwargs):
-        
-        # Check if the user exists
-        try:
-            user = User.objects.get(id=user.id)
-        except User.DoesNotExist:
-            return Response({"error": "User does not exist."}, status=status.HTTP_404_NOT_FOUND)
-
-
         task_id = kwargs.get("id")  # Extract task ID from URL
+        logger.debug(f"Task ID from URL: {task_id}")  # Debugging line
+        logger.debug(f"Request data: {request.data}")  # Debugging line
+       
         if not task_id:
             return Response({"error": "Task ID is required."}, status=status.HTTP_400_BAD_REQUEST)
         
         try:
             # Fetch the task that belongs to the authenticated user
-            task = Task.objects.get(id=task_id, user=request.user)
+            task = Task.objects.get(id=task_id, user=request.user) # Filter by user
+            logger.debug(f"Task found: {task}")  # Debugging line
+          
         except Task.DoesNotExist:
             return Response({"error": "Task not found or does not belong to the user."}, status=status.HTTP_404_NOT_FOUND)
         
