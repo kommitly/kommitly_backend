@@ -52,7 +52,7 @@ class CreateUserView(APIView):
                 user.save()
 
                 # Send verification email
-                verification_link = f"https://kommitly-backend.onrender.com/api/verify/{user.verification_token}"
+                verification_link = f"https://kommitly-frontend.vercel.app/verify-email/{user.verification_token}"
                 send_mail(
                     subject="Verify your Kommitly Account",
                     message=f"Hi {user.first_name},\n\nClick the link below to verify your account:\n{verification_link}",
