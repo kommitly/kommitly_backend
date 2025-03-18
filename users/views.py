@@ -10,6 +10,9 @@ from drf_yasg.utils import swagger_auto_schema
 from django.core.exceptions import ValidationError
 from django.core.mail import send_mail
 from django.shortcuts import get_object_or_404
+from asgiref.sync import async_to_sync
+from channels.layers import get_channel_layer
+
 
 
 #Configure logging
@@ -100,6 +103,9 @@ class VerifyUserView(APIView):
             user.is_verified = True
             user.verification_token = None  # Clear the token after verification
             user.save()
+
+             # ✅ Get the WebSocket channel layer
+            channel_layer = get_channel_layer()
 
            # Notify WebSocket clients about verification
             async_to_sync(channel_layer.group_send)(
