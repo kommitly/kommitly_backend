@@ -101,7 +101,7 @@ class VerifyUserView(APIView):
         """
         Verify a user using a unique token.
         """
-         try:
+        try:
             # ✅ Decode the JWT token
             decoded_token = AccessToken(token)
             user_id = decoded_token["user_id"]
