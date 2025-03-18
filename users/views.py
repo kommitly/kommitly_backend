@@ -57,7 +57,7 @@ class CreateUserView(APIView):
                 user.save()
 
                 # ✅ Generate JWT token for verification
-                 token = RefreshToken.for_user(user).access_token
+                token = RefreshToken.for_user(user).access_token
 
                 # Send verification email
                 verification_link = f"https://kommitly-backend.onrender.com/api/verify/{token}/"
