@@ -47,7 +47,7 @@ class CreateUserView(APIView):
                     first_name = validated_data["first_name"],
                     last_name = validated_data["last_name"],
                     email = validated_data["email"],
-                    timezone = validated_data["timezone"]
+                    timezone = validated_data["timezone"],
                     is_verified=False,
 
                 )
