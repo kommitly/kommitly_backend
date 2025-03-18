@@ -52,7 +52,7 @@ class CreateUserView(APIView):
                 user.save()
 
                 # Send verification email
-                verification_link = f"https://kommitly-frontend.vercel.app/verify-email/{user.verification_token}"
+                verification_link = f"https://kommitly-backend.onrender.com/api/verify/{user.verification_token}/"
                 send_mail(
                     subject="Verify your Kommitly Account",
                     message=f"Hi {user.first_name},\n\nClick the link below to verify your account:\n{verification_link}",
@@ -100,6 +100,17 @@ class VerifyUserView(APIView):
             user.is_verified = True
             user.verification_token = None  # Clear the token after verification
             user.save()
+
+           # Notify WebSocket clients about verification
+            async_to_sync(channel_layer.group_send)(
+                f"user_{user.id}",  # Unique WebSocket group per user
+                {
+                    "type": "user_verified",  # FIX: This must match the consumer's method name
+                    "message": "User verified successfully",
+                    "verified": True  # FIX: Send verification status
+                },
+            )
+
 
             # Optional: Redirect user to a confirmation page
             return Response(

@@ -215,6 +215,8 @@ EMAIL_HOST_PASSWORD = config("EMAIL_HOST_PASSWORD")
 
 GROQ_API_KEY = config("GROQ_API_KEY")
 
+
+'''
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
@@ -239,7 +241,7 @@ LOGGING = {
         },
     },
 }
-
+'''
 
 CACHES = {
     "default": {
