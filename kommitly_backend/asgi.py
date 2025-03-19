@@ -14,6 +14,7 @@ from channels.auth import AuthMiddlewareStack
 from . import routing  # Import your routing module
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'kommitly_backend.settings')
+django_asgi_app = get_asgi_application()
 
 application = ProtocolTypeRouter({
     "http": get_asgi_application(),

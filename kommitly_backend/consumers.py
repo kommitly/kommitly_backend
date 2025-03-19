@@ -1,10 +1,18 @@
 from channels.generic.websocket import AsyncWebsocketConsumer
 from asgiref.sync import sync_to_async
 import json
+import logging
+from django.contrib.auth import get_user_model
+
+User = get_user_model()
+logger = logging.getLogger(__name__)
+
 
 class VerificationConsumer(AsyncWebsocketConsumer):
+    
     async def connect(self):
         self.token = self.scope["url_route"]["kwargs"]["token"]
+        logger.info(f"Token: {self.token}")
         self.user = await sync_to_async(User.objects.filter(verification_token=self.token).first)()
 
         await self.accept()
