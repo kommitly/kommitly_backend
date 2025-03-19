@@ -3,7 +3,7 @@ from django.shortcuts import render
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status, permissions
-from .models import User
+
 from .serializers import CreateUserSerializer, UserSerializer
 import kommitly_backend.settings as st
 from drf_yasg.utils import swagger_auto_schema
@@ -14,6 +14,7 @@ from asgiref.sync import async_to_sync
 from channels.layers import get_channel_layer
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.tokens import AccessToken
+from .models import User, generate_verification_token
 
 
 
@@ -56,6 +57,7 @@ class CreateUserView(APIView):
 
                 # Hash password
                 user.set_password(validated_data["password"])
+                user.verification_token = generate_verification_token() #Generate token here.
                 user.save()
 
                 
