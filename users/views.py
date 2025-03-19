@@ -126,7 +126,7 @@ class VerifyUserView(APIView):
                 logger.error(f"Error saving user: {str(save_err)}")
                 return Response({"error": "Error saving user during verification."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-            """ # ✅ Get the WebSocket channel layer
+             # ✅ Get the WebSocket channel layer
             channel_layer = get_channel_layer()
 
            # Notify WebSocket clients about verification
@@ -138,7 +138,7 @@ class VerifyUserView(APIView):
                     "verified": True  # FIX: Send verification status
                 },
             )
-"""
+
 
             # Optional: Redirect user to a confirmation page
             return Response(
