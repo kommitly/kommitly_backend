@@ -103,51 +103,41 @@ class VerifyUserView(APIView):
         """
         Verify a user using a unique token.
         """
+        
+        user = User.objects.filter(verification_token=token).first()
+
+        if not user:
+            return Response({"error": "Invalid or expired verification token."}, status=status.HTTP_400_BAD_REQUEST)
+
+        if user.is_verified:
+            return Response({"message": "User already verified"}, status=status.HTTP_200_OK)
+
+        user.is_verified = True
+        user.verification_token = None  # Clear the token after verification
+        user.save()
+        
+        
+
+        
         try:
-          
-           
-
-            # ✅ Fetch the user
-            user = get_object_or_404(User, verification_token=token)
-
-            if user.is_verified:
-                return Response({"message": "User already verified"}, status=status.HTTP_200_OK)
-            user.is_verified = True
-
-            try:
-                user.full_clean() #validate the user object.
-                user.save()
-                user.verification_token = None  # Clear the token after verification
-                user.save()
-            except ValidationError as e:
-                logger.error(f"Validation error during user save: {str(e)}")
-                return Response({"error": "Validation error during user save."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-            except Exception as save_err:
-                logger.error(f"Error saving user: {str(save_err)}")
-                return Response({"error": "Error saving user during verification."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-             # ✅ Get the WebSocket channel layer
             channel_layer = get_channel_layer()
-
-           # Notify WebSocket clients about verification
             async_to_sync(channel_layer.group_send)(
-                f"user_{user.id}",  # Unique WebSocket group per user
+                f"user_{user.id}",  
                 {
-                    "type": "user_verified",  # FIX: This must match the consumer's method name
+                    "type": "user_verified",  # Ensure this matches the WebSocket consumer method
                     "message": "User verified successfully",
-                    "verified": True  # FIX: Send verification status
+                    "verified": True  
                 },
             )
-
-
-            # Optional: Redirect user to a confirmation page
-            return Response(
-                {"message": "User verified successfully. You can now log in."},
-                status=status.HTTP_200_OK,
-            )
         except Exception as e:
-            logger.error(f"Error verifying user: {str(e)}")
-            return Response({"error": "Invalid or expired verification token."}, status=status.HTTP_400_BAD_REQUEST)
+            logger.error(f"WebSocket notification failed: {e}")
+                
+
+        # Optional: Redirect user to a confirmation page
+        return Response(
+            {"message": "User verified successfully. You can now log in."},
+            status=status.HTTP_200_OK,
+        )
 
 
 # Get user details
