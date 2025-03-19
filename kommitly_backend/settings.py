@@ -242,11 +242,12 @@ LOGGING = {
     },
 }
 '''
+REDIS_URL = os.getenv("REDIS_URL", "redis://localhost:6379")  # Fallback to local Redis
 
 CACHES = {
     "default": {
         "BACKEND": "django_redis.cache.RedisCache",
-        "LOCATION": os.getenv("REDIS_URL"),  # Use env variable
+        "LOCATION": REDIS_URL,
         "OPTIONS": {
             "CLIENT_CLASS": "django_redis.client.DefaultClient",
         }
@@ -257,7 +258,7 @@ CHANNEL_LAYERS = {
     "default": {
         "BACKEND": "channels_redis.core.RedisChannelLayer",
         "CONFIG": {
-             "hosts": [os.getenv("REDIS_URL")], 
+            "hosts": [REDIS_URL],
         },
     },
 }
