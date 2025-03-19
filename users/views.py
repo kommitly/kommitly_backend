@@ -114,7 +114,15 @@ class VerifyUserView(APIView):
                 return Response({"message": "User already verified"}, status=status.HTTP_200_OK)
             user.is_verified = True
             user.verification_token = None  # Clear the token after verification
-            user.save()
+            try:
+                user.full_clean() #validate the user object.
+                user.save()
+            except ValidationError as e:
+                logger.error(f"Validation error during user save: {str(e)}")
+                return Response({"error": "Validation error during user save."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            except Exception as save_err:
+                logger.error(f"Error saving user: {str(save_err)}")
+                return Response({"error": "Error saving user during verification."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
             """ # ✅ Get the WebSocket channel layer
             channel_layer = get_channel_layer()
