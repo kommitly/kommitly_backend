@@ -113,9 +113,11 @@ class VerifyUserView(APIView):
             if user.is_verified:
                 return Response({"message": "User already verified"}, status=status.HTTP_200_OK)
             user.is_verified = True
-            user.verification_token = None  # Clear the token after verification
+
             try:
                 user.full_clean() #validate the user object.
+                user.save()
+                user.verification_token = None  # Clear the token after verification
                 user.save()
             except ValidationError as e:
                 logger.error(f"Validation error during user save: {str(e)}")
