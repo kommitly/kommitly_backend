@@ -114,7 +114,7 @@ class VerifyUserView(APIView):
             user.verification_token = None  # Clear the token after verification
             user.save()
 
-             # ✅ Get the WebSocket channel layer
+            """ # ✅ Get the WebSocket channel layer
             channel_layer = get_channel_layer()
 
            # Notify WebSocket clients about verification
@@ -126,7 +126,7 @@ class VerifyUserView(APIView):
                     "verified": True  # FIX: Send verification status
                 },
             )
-
+"""
 
             # Optional: Redirect user to a confirmation page
             return Response(
