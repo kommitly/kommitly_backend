@@ -242,7 +242,7 @@ LOGGING = {
     },
 }
 '''
-REDIS_URL = os.getenv("REDIS_URL", "redis://localhost:6379")  # Fallback to local Redis
+REDIS_URL = os.getenv("REDIS_URL")  # Fallback to local Redis
 
 CACHES = {
     "default": {
