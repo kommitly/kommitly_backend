@@ -58,11 +58,9 @@ class CreateUserView(APIView):
                 user.set_password(validated_data["password"])
                 user.save()
 
-                # ✅ Generate JWT token for verification
-                token = RefreshToken.for_user(user).access_token
-
+                
                 # Send verification email
-                verification_link = f"https://kommitly-backend.onrender.com/api/verify/{token}/"
+                verification_link = f"https://kommitly-backend.onrender.com/api/verify/{user.verification_token}/"
                 send_mail(
                     subject="Verify your Kommitly Account",
                     message=f"Hi {user.first_name},\n\nClick the link below to verify your account:\n{verification_link}",
@@ -104,12 +102,11 @@ class VerifyUserView(APIView):
         Verify a user using a unique token.
         """
         try:
-            # ✅ Decode the JWT token
-            decoded_token = AccessToken(token)
-            user_id = decoded_token["user_id"]
+          
+           
 
             # ✅ Fetch the user
-            user = get_object_or_404(User, id=user_id)
+            user = get_object_or_404(User, verification_token=token)
 
             if user.is_verified:
                 return Response({"message": "User already verified"}, status=status.HTTP_200_OK)
