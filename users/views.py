@@ -86,7 +86,6 @@ class CreateUserView(APIView):
         else: 
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         
-   
 class VerifyUserView(APIView):
     permission_classes = [permissions.AllowAny]
 
@@ -116,28 +115,49 @@ class VerifyUserView(APIView):
         user.verification_token = None  # Clear the token after verification
         user.save()
         
-        
-
-        
-        try:
-            channel_layer = get_channel_layer()
-            async_to_sync(channel_layer.group_send)(
-                f"user_{user.id}",  
-                {
-                    "type": "user_verified",  # Ensure this matches the WebSocket consumer method
-                    "message": "User verified successfully",
-                    "verified": True  
-                },
-            )
-        except Exception as e:
-            logger.error(f"WebSocket notification failed: {e}")
+        # WebSocket notification (not needed for polling)
+        # try:
+        #     channel_layer = get_channel_layer()
+        #     async_to_sync(channel_layer.group_send)(
+        #         f"user_{user.id}",  
+        #         {
+        #             "type": "user_verified",  # Ensure this matches the WebSocket consumer method
+        #             "message": "User verified successfully",
+        #             "verified": True  
+        #         },
+        #     )
+        # except Exception as e:
+        #     logger.error(f"WebSocket notification failed: {e}")
                 
-
-        # Optional: Redirect user to a confirmation page
         return Response(
             {"message": "User verified successfully. You can now log in."},
             status=status.HTTP_200_OK,
         )
+class CheckVerificationStatusView(APIView):
+    permission_classes = [permissions.AllowAny]
+
+    @swagger_auto_schema(
+        tags=["User"],
+        responses={
+            200: "Verification status returned",
+            404: "User not found",
+        },
+        operation_description="Check if a user is verified using their email",
+    )
+    def get(self, request, email, *args, **kwargs):
+        """
+        Check if a user is verified using their email.
+        """
+        try:
+            user = User.objects.get(email=email)
+        except User.DoesNotExist:
+            return Response(
+                f"User with email {email} not found",
+                status=status.HTTP_404_NOT_FOUND,
+            )
+
+        return Response({"verified": user.is_verified}, status=status.HTTP_200_OK)
+
 
 
 # Get user details
