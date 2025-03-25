@@ -3,8 +3,8 @@ from django.shortcuts import render
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status, permissions
-from .models import Goal, Task, AiGoal, AiTask
-from .serializers import GoalSerializer, TaskSerializer, CreateGoalSerializer, CreateTaskSerializer, AiGoalSerializer, AiTaskSerializer, CreateAiGoalSerializer, UserProfileSerializer, UpdateAiGoalSerializer
+from .models import Goal, Task, AiGoal, AiTask, SubTask, AiSubTask
+from .serializers import GoalSerializer, TaskSerializer, CreateGoalSerializer, CreateTaskSerializer, CreateAiTaskSerializer,AiGoalSerializer, AiTaskSerializer, CreateAiGoalSerializer, UserProfileSerializer, UpdateAiGoalSerializer, SubTaskSerializer, AiSubTaskSerializer
 import kommitly_backend.settings as st
 from drf_yasg.utils import swagger_auto_schema
 from django.core.exceptions import ValidationError
@@ -154,8 +154,19 @@ class GenerateAIInsightsView(APIView):
                                     'title': openapi.Schema(type=openapi.TYPE_STRING),
                                     'due_date': openapi.Schema(type=openapi.TYPE_STRING, format='date'),
                                     'status': openapi.Schema(type=openapi.TYPE_STRING),
-                                    'actionable_steps': openapi.Schema(type=openapi.TYPE_STRING),
                                     'task_timeline': openapi.Schema(type=openapi.TYPE_STRING),
+                                    'ai_subtasks': openapi.Schema(
+                                        type=openapi.TYPE_ARRAY,
+                                        items=openapi.Schema(
+                                            type=openapi.TYPE_OBJECT,
+                                            properties={
+                                                'title': openapi.Schema(type=openapi.TYPE_STRING),
+                                                'description': openapi.Schema(type=openapi.TYPE_STRING),
+                                                'due_date': openapi.Schema(type=openapi.TYPE_STRING, format='date'),
+                                                'status': openapi.Schema(type=openapi.TYPE_STRING),
+                                            }
+                                        )
+                                    ),
                                 }
                             )
                         ),
@@ -193,12 +204,21 @@ class GenerateAIInsightsView(APIView):
                 # Generate tasks from insights
                 ai_tasks = []
                 for step in insights.get("tasks", []): 
+                    ai_subtasks = [
+                        {
+                            "title": ai_subtask.get("subtask_title"),
+                            "description": ai_subtask.get("description"),
+                            "due_date": ai_subtask.get("due_date"),
+                            "status": "pending"
+                        }
+                        for ai_subtask in step.get("ai_subtasks", [])
+                    ]
                     task_data = {
                         "title": step.get("task_title"),
-                        "due_date": None,  # Handle missing due_date
+                        "due_date": None,
                         "status": "pending",
-                        "actionable_steps": step.get("actionable_steps"),  # Include actionable steps
-                        "task_timeline": step.get("task_timeline")  # Include task timeline
+                        "task_timeline": step.get("task_timeline"),
+                        "ai_subtasks": ai_subtasks  
                     }
                     ai_tasks.append(task_data)
 
@@ -211,6 +231,7 @@ class GenerateAIInsightsView(APIView):
                         "progress": goal_data.get('progress', '0%'),
                     },
                     "ai_tasks": ai_tasks,
+                  
                 }
                 return Response(response_data, status=status.HTTP_200_OK)
 
@@ -218,6 +239,8 @@ class GenerateAIInsightsView(APIView):
                 return Response({"error": f"An error occurred while generating insights: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         
         return Response(goal_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
 
 # Create goal with AI insights and store in the database
 class CreateGoalWithAIInsightsView(APIView):
@@ -243,8 +266,19 @@ class CreateGoalWithAIInsightsView(APIView):
                             'title': openapi.Schema(type=openapi.TYPE_STRING),
                             'due_date': openapi.Schema(type=openapi.TYPE_STRING, format='date'),
                             'status': openapi.Schema(type=openapi.TYPE_STRING),
-                            'actionable_steps': openapi.Schema(type=openapi.TYPE_STRING),
                             'task_timeline': openapi.Schema(type=openapi.TYPE_STRING),
+                            'ai_subtasks': openapi.Schema(
+                                        type=openapi.TYPE_ARRAY,
+                                        items=openapi.Schema(
+                                            type=openapi.TYPE_OBJECT,
+                                            properties={
+                                                'title': openapi.Schema(type=openapi.TYPE_STRING),
+                                                'description': openapi.Schema(type=openapi.TYPE_STRING),
+                                                'due_date': openapi.Schema(type=openapi.TYPE_STRING, format='date'),
+                                                'status': openapi.Schema(type=openapi.TYPE_STRING),
+                                            }
+                                        )
+                                    ),
                         }
                     )
                 ),
@@ -277,7 +311,21 @@ class CreateGoalWithAIInsightsView(APIView):
                                     'title': openapi.Schema(type=openapi.TYPE_STRING),
                                     'due_date': openapi.Schema(type=openapi.TYPE_STRING, format='date'),
                                     'status': openapi.Schema(type=openapi.TYPE_STRING),
+                                    "task_timeline": openapi.Schema(type=openapi.TYPE_STRING),
                                     'completed_at': openapi.Schema(type=openapi.TYPE_STRING, format='date-time'),
+                                    "ai_subtasks": openapi.Schema(
+                                        type=openapi.TYPE_ARRAY,
+                                        items=openapi.Schema(
+                                            type=openapi.TYPE_OBJECT,
+                                            properties={
+                                                "id": openapi.Schema(type=openapi.TYPE_INTEGER),
+                                                "title": openapi.Schema(type=openapi.TYPE_STRING, nullable=True),
+                                                "description": openapi.Schema(type=openapi.TYPE_STRING),
+                                                "due_date": openapi.Schema(type=openapi.TYPE_STRING, format="date", nullable=True),
+                                                "status": openapi.Schema(type=openapi.TYPE_STRING),
+                                            }
+                                        )
+                                    ),
                                 }
                             )
                         ),
@@ -304,6 +352,7 @@ class CreateGoalWithAIInsightsView(APIView):
         # Deserialize the goal data
         goal_serializer = CreateAiGoalSerializer(data=ai_goal_data, context={"request": request})
         
+        
         if goal_serializer.is_valid():
             # Save the goal to the database
             ai_goal = goal_serializer.save(user=user)
@@ -311,27 +360,47 @@ class CreateGoalWithAIInsightsView(APIView):
             try:
                 # Save tasks to the database
                 ai_tasks = []
+                print(f"AI tasks data: {ai_tasks_data}")
                 for task_data in ai_tasks_data:
                     task_data['ai_goal'] = ai_goal.id
+                    subtasks_data = task_data.pop("ai_subtasks", [])
+                    print(f"Task data: {subtasks_data}")
+
                     task_serializer = AiTaskSerializer(data=task_data)
-        
+
+
                     if task_serializer.is_valid():
                         task = task_serializer.save()
                         ai_tasks.append(task)
+
+                        
+                       
+                        for subtask_data in subtasks_data:
+                            subtask_data["ai_task"] = task.id
+                            subtask_serializer = AiSubTaskSerializer(data=subtask_data)
+
+                            if subtask_serializer.is_valid():
+                                subtask_serializer.save()
+                            else:
+                                return Response(subtask_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
                     else:
                         return Response(task_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
                 # Prepare response data
                 response_data = {
                     "ai_goal": AiGoalSerializer(ai_goal).data,
-                    "ai_tasks": AiTaskSerializer(ai_tasks, many=True).data,
+                 
                 }
+
                 return Response(response_data, status=status.HTTP_201_CREATED)
 
             except Exception as e:
                 return Response({"error": f"An error occurred while saving tasks: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         
         return Response(goal_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
 
 class CreateGoalView(APIView):
 
@@ -358,7 +427,6 @@ class CreateGoalView(APIView):
 
 
 
-        serialize
         
  
 class CreateTaskView(APIView):
@@ -374,6 +442,7 @@ class CreateTaskView(APIView):
         },
         operation_description="Register a Task",
     )
+    
 
 
 
@@ -628,14 +697,31 @@ class UpdateAuthenticatedTaskView(APIView):
 class UpdateAuthenticatedAiTaskView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
+    @swagger_auto_schema(
+        tags=["Ai Tasks"],
+        request_body=AiTaskSerializer,
+        responses={
+            200: AiTaskSerializer,
+            400: "Validation error",
+            404: "Task not found",
+            500: "Unexpected error",
+        },
+        operation_description="Update a task for the authenticated user",
+    )
+
+
     def patch(self, request, *args, **kwargs):
         task_id = kwargs.get("id")  # Extract task ID from URL
+        logger.debug(f"Task ID from URL: {task_id}")  # Debugging line
+        logger.debug(f"Request data: {request.data}")  # Debugging line
+
         if not task_id:
             return Response({"error": "Task ID is required."}, status=status.HTTP_400_BAD_REQUEST)
 
         try:
             # Fetch the task that belongs to the authenticated user
             ai_task = AiTask.objects.get(id=task_id)
+            logger.debug(f"Task found: {ai_task}")  # Debugging line
         except AiTask.DoesNotExist:
             return Response({"error": "Task not found or does not belong to the user."}, status=status.HTTP_404_NOT_FOUND)
 
@@ -645,10 +731,9 @@ class UpdateAuthenticatedAiTaskView(APIView):
         # Update task using serializer
         serializer = AiTaskSerializer(ai_task, data=request.data, partial=True)
         if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_200_OK)
-
-        print("Serializer errors:", serializer.errors)  # Debugging
+            updated_task = serializer.save()
+            return Response(AiTaskSerializer(updated_task).data, status=status.HTTP_200_OK)
+            
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class GetGoalByIdView(APIView):
@@ -833,7 +918,7 @@ class GetAiTaskByIdView(APIView):
                 )
 
             # Serialize the task data
-            task_serializer = AiTaskSerializer(ai_task)
+            task_serializer = AiTaskSerializer(ai_task, context={"include_subtasks": True})
             return Response(task_serializer.data, status=status.HTTP_200_OK)
 
         except AiTask.DoesNotExist:
@@ -1158,3 +1243,193 @@ class DeleteAllUserTasksView(APIView):
         tasks_deleted, _ = Task.objects.filter(user=user).delete()
         logger.info(f"Deleted {tasks_deleted} tasks for user: {user.email}")
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+class CreateAiTaskView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    @swagger_auto_schema(
+        tags=["AI Goals"],
+        request_body=CreateAiTaskSerializer,
+        responses={
+            201: AiTaskSerializer,
+            400: "Validation error",
+            404: "Goal Not Found",
+            500: "Unexpected error",
+        },
+        operation_description="Create a new AI Task under an AI Goal",
+    )
+
+    def post(self, request, *args, **kwargs):
+        goal_id = kwargs.get("id")
+
+        if not goal_id:
+            return Response({"error": "Goal ID is required."}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            ai_goal = AiGoal.objects.get(id=goal_id, user=request.user)
+        except AiGoal.DoesNotExist:
+            return Response(
+                {"error": f"AI Goal with ID {goal_id} not found."},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+
+        data = request.data.copy()
+        data["goal"] = ai_goal.id  # Associate task with goal
+        serializer = CreateAiTaskSerializer(data=data)
+
+        if serializer.is_valid():
+            ai_task = serializer.save()
+            return Response(AiTaskSerializer(ai_task).data, status=status.HTTP_201_CREATED)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+
+class CreateSubtaskView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    @swagger_auto_schema(
+        tags=["Tasks"],
+        request_body=SubTaskSerializer,
+        responses={
+            201: SubTaskSerializer,
+            400: "Validation error",
+            404: "Task not found",
+            500: "Unexpected error",
+        },
+        operation_description="Create a new subtask for a task",
+    )
+    def post(self, request, *args, **kwargs):
+        task_id = kwargs.get("task_id")
+
+        if not task_id:
+            return Response({"error": "Task ID is required."}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            task = Task.objects.get(id=task_id, user=request.user)
+        except Task.DoesNotExist:
+            return Response(
+                {"error": f"Task with ID {task_id} not found."},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+
+        data = request.data.copy()
+        data["task"] = task.id  # Associate subtask with task
+        serializer = SubTaskSerializer(data=data)
+
+        if serializer.is_valid():
+            subtask = serializer.save()
+            return Response(SubTaskSerializer(subtask).data, status=status.HTTP_201_CREATED)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class CreateAiSubtaskView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    @swagger_auto_schema(
+        tags=["Ai Tasks"],
+        request_body=AiSubTaskSerializer,
+        responses={
+            201: AiSubTaskSerializer,
+            400: "Validation error",
+            404: "AI Task not found",
+            500: "Unexpected error",
+        },
+        operation_description="Create an AI subtask for a given AI task",
+    )
+    def post(self, request, *args, **kwargs):
+        task_id = kwargs.get("task_id")
+
+        try:
+            ai_task = AiTask.objects.get(id=task_id, ai_goal__user=request.user)
+        except AiTask.DoesNotExist:
+            return Response({"error": "AI Task not found"}, status=status.HTTP_404_NOT_FOUND)
+
+        data = request.data.copy()
+        data["ai_task"] = ai_task.id  # Assign the AiTask to the subtask
+
+        serializer = AiSubTaskSerializer(data=data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class UpdateAiSubtaskView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    @swagger_auto_schema(
+        tags=["Ai Tasks"],
+        request_body=AiSubTaskSerializer,
+        responses={
+            200: AiSubTaskSerializer,
+            400: "Validation error",
+            404: "Task or Subtask not found",
+            500: "Unexpected error",
+        },
+        operation_description="Update an AI subtask within a specific AI task",
+    )
+    def patch(self, request, *args, **kwargs):
+        task_id = kwargs.get("task_id")  # Extract AiTask ID from URL
+        subtask_id = kwargs.get("subtask_id")  # Extract AiSubTask ID from URL
+
+        try:
+            # Ensure the AiTask belongs to the authenticated user
+            task = AiTask.objects.get(id=task_id, ai_goal__user=request.user)
+        except AiTask.DoesNotExist:
+            return Response({"error": "AI Task not found"}, status=status.HTTP_404_NOT_FOUND)
+
+        try:
+            # Ensure the AiSubTask belongs to the given AiTask
+            subtask = AiSubTask.objects.get(id=subtask_id, ai_task=task)
+        except AiSubTask.DoesNotExist:
+            return Response({"error": "AI Subtask not found"}, status=status.HTTP_404_NOT_FOUND)
+
+        serializer = AiSubTaskSerializer(subtask, data=request.data, partial=True)  # Allow partial updates
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class UpdateSubtaskView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    @swagger_auto_schema(
+        tags=["Tasks"],
+        request_body=SubTaskSerializer,
+        responses={
+            200: SubTaskSerializer,
+            400: "Validation error",
+            404: "Task or Subtask not found",
+            500: "Unexpected error",
+        },
+        operation_description="Update an AI subtask within a specific AI task",
+    )
+    def patch(self, request, *args, **kwargs):
+        task_id = kwargs.get("task_id")  # Extract AiTask ID from URL
+        subtask_id = kwargs.get("subtask_id")  # Extract AiSubTask ID from URL
+
+        try:
+            # Ensure the AiTask belongs to the authenticated user
+            task = Task.objects.filter(id=task_id, user=request.user).first()  # Updated filter query
+            if not task:
+                return Response({"error": "Task not found"}, status=status.HTTP_404_NOT_FOUND)
+        except Task.DoesNotExist:
+            return Response({"error": "Task not found"}, status=status.HTTP_404_NOT_FOUND)
+
+        try:
+            # Ensure the AiSubTask belongs to the given AiTask
+            subtask = SubTask.objects.get(id=subtask_id, task=task)
+        except SubTask.DoesNotExist:
+            return Response({"error": "Subtask not found"}, status=status.HTTP_404_NOT_FOUND)
+
+        serializer = SubTaskSerializer(subtask, data=request.data, partial=True)  # Allow partial updates
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

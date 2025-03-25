@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Goal, Task, AiGoal, AiTask
+from .models import Goal, Task, AiGoal, AiTask, SubTask, AiSubTask
 from users.models import User
 from django.utils.timezone import make_aware, datetime
 from datetime import timedelta
@@ -7,13 +7,62 @@ import pytz
 from ai_insights.utils import get_insights
 from django.utils.timezone import localtime
 from django.utils.timezone import now
-
-
 from datetime import datetime, timedelta
 import pytz
 from django.utils.timezone import make_aware
 from rest_framework import serializers
 from .models import Task  # Adjust the import based on your project structure
+
+class SubTaskSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SubTask
+        fields = ['id', 'task', 'title', 'description', 'due_date', 'status']
+
+class AiSubTaskSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = AiSubTask
+        fields = ['id', 'title', 'description', 'due_date', 'status']
+    
+    def create(self, validated_data):
+        # Assuming the ai_task ID is passed in the URL, and you can retrieve it from the context
+        ai_task = self.context['view'].kwargs['task_id']  # Or use self.context['request'].parser_context['kwargs'] if needed
+        validated_data['ai_task'] = ai_task
+        return super().create(validated_data)
+
+    def update(self, instance, validated_data):
+        # Handle update if necessary
+        return super().update(instance, validated_data)
+
+
+
+class CreateAiTaskSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = AiTask
+        fields = [
+            'ai_goal',
+          
+            'title',
+            'description',
+            'due_date',
+            'status',
+            'completed_at',
+            'task_timeline',
+            'reminder_time', ]
+
+    def to_internal_value(self, data):
+        if data.get('ai_goal') == 0:
+            data['ai_goal'] = None
+        return super().to_internal_value(data)
+
+    def validate(self, data):
+        if not data.get('reminder_time') and data.get('due_date'):
+            data['reminder_time'] = (data['due_date'] - timedelta(minutes=30)).time()
+        return data
+
+    def create(self, validated_data):
+        ai_task = AiTask.objects.create(**validated_data)
+        return ai_task
+
 
 class CreateTaskSerializer(serializers.ModelSerializer):
     class Meta:
@@ -51,6 +100,8 @@ class CreateTaskSerializer(serializers.ModelSerializer):
 
 
 class TaskSerializer(serializers.ModelSerializer):
+    subtasks = SubTaskSerializer(many=True, read_only=True)  
+
     class Meta:
         model = Task
         fields = [
@@ -58,10 +109,11 @@ class TaskSerializer(serializers.ModelSerializer):
             'goal',
             'user',
             'title',
+            'description',
             'due_date',
             'status',
             'completed_at',
-            'actionable_steps',
+            'subtasks',
             'task_timeline',
             'reminder_time',
             'last_updated',
@@ -72,7 +124,9 @@ class TaskSerializer(serializers.ModelSerializer):
             data['reminder_time'] = (data['due_date'] - timedelta(minutes=30)).time()
         return data
 
+
 class AiTaskSerializer(serializers.ModelSerializer):
+    ai_subtasks = AiSubTaskSerializer(many=True, read_only=True)  
     completed_at = serializers.SerializerMethodField()
     due_date = serializers.SerializerMethodField()
     reminder_time = serializers.SerializerMethodField()
@@ -83,10 +137,11 @@ class AiTaskSerializer(serializers.ModelSerializer):
             'id',
             'ai_goal',
             'title',
+            'description',
             'due_date',
             'status',
             'completed_at',
-            'actionable_steps',
+            'ai_subtasks',
             'task_timeline',
             'reminder_time',
            
@@ -151,6 +206,14 @@ class AiTaskSerializer(serializers.ModelSerializer):
                 raise serializers.ValidationError("Cannot move a completed task back to another status.")
 
         return data
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        # Ensure that the ai_subtasks are included when the context flag is set
+        if self.context.get("include_subtasks", False):  # Only include subtasks if flag is passed
+            data["ai_subtasks"] = AiSubTaskSerializer(instance.ai_subtasks.all(), many=True).data
+        return data
+
 
 class CreateGoalSerializer(serializers.ModelSerializer):
     category = serializers.ChoiceField(choices=AiGoal.CATEGORY_CHOICES, required=False, allow_null=True, default=None)
@@ -236,24 +299,6 @@ class AiGoalSerializer(serializers.ModelSerializer):
         ]
 
 
-class CreateAiTaskSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = AiTask
-        fields = ['ai_goal', 'title', 'due_date', 'status']
-
-    def to_internal_value(self, data):
-        if data.get('ai_goal') == 0:
-            data['ai_goal'] = None
-        return super().to_internal_value(data)
-
-    def validate(self, data):
-        if not data.get('reminder_time') and data.get('due_date'):
-            data['reminder_time'] = (data['due_date'] - timedelta(minutes=30)).time()
-        return data
-
-    def create(self, validated_data):
-        ai_task = AiTask.objects.create(**validated_data)
-        return ai_task
 
 
 class UserProfileSerializer(serializers.ModelSerializer):

@@ -242,6 +242,7 @@ LOGGING = {
     },
 }
 
+
 REDIS_URL = os.getenv("REDIS_URL")  # Fallback to local Redis
 
 CACHES = {

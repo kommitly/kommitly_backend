@@ -24,7 +24,12 @@ from .views import (
     TriggerAiTaskRemindersView,
     DeleteAllUserTasksView,
     GetAllUserTasksView,
-    GetTasksByGoalIdView
+    GetTasksByGoalIdView,
+    CreateAiTaskView,
+    UpdateAiSubtaskView,
+    CreateAiSubtaskView,
+    CreateSubtaskView,
+    UpdateSubtaskView,
     
 )
 
@@ -54,7 +59,13 @@ urlpatterns= [
     path('tasks/trigger-ai-task-reminders/', TriggerAiTaskRemindersView.as_view(), name='trigger_ai_task_reminders'),
     path('tasks/delete-all/', DeleteAllUserTasksView.as_view(), name='delete_all_user_tasks'),
     path('tasks/', GetAllUserTasksView.as_view(), name='get_all_user_tasks'),
-    path('goals/<int:goal_id>/tasks/', GetTasksByGoalIdView.as_view(), name='get_tasks_by_goal_id')
+    path('goals/<int:goal_id>/tasks/', GetTasksByGoalIdView.as_view(), name='get_tasks_by_goal_id'),
+    path('goals/<int:id>/ai-tasks/create/', CreateAiTaskView.as_view(), name='create_ai_task'),
+    path('tasks/<int:task_id>/ai-subtasks/<int:subtask_id>/', UpdateAiSubtaskView.as_view(), name='update_ai_subtask'),
+    path('tasks/<int:task_id>/create-ai-subtask/', CreateAiSubtaskView.as_view(), name='create_ai_subtask'),
+    path('tasks/<int:task_id>/create-subtask/', CreateSubtaskView.as_view(), name='create_subtask'),
+    path('tasks/<int:task_id>/subtasks/<int:subtask_id>/', UpdateSubtaskView.as_view(), name='update_subtask'),
+
     
     
     

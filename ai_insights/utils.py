@@ -77,26 +77,27 @@ def parse_insights(response):
             continue  # Skip if no title or timeline is found
 
         # Extract actionable steps using bullet points and subtasks format
-        actionable_steps_matches = re.findall(
+        subtask_matches = re.findall(
             r'\d+\.\s\*\*(.+?)\*\*:\s*(.+?)(?=\n\d+\.\s\*\*|$)', 
             step, 
             re.DOTALL
         )
-        actionable_steps = []
 
-        for match in actionable_steps_matches:
+        ai_subtasks = []
+
+        for match in subtask_matches:
             subtask_title = match[0].strip()
             details = match[1].strip()
-            actionable_steps.append({
+            ai_subtasks.append({
                 "subtask_title": subtask_title,
-                "details": details,
+                "description": details,
             })
 
         # Append the parsed step into the list
         parsed_steps.append({
             "task_title": title,
             "task_timeline": task_timeline,
-            "actionable_steps": actionable_steps,
+            "ai_subtasks": ai_subtasks,
         })
 
     return {
