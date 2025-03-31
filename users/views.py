@@ -3,7 +3,7 @@ from django.shortcuts import render
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status, permissions
-
+from drf_yasg import openapi
 from .serializers import CreateUserSerializer, UserSerializer
 import kommitly_backend.settings as st
 from drf_yasg.utils import swagger_auto_schema
@@ -157,6 +157,75 @@ class CheckVerificationStatusView(APIView):
             )
 
         return Response({"verified": user.is_verified}, status=status.HTTP_200_OK)
+
+
+class LoginUserView(APIView):
+    permission_classes = [permissions.AllowAny]
+
+    @swagger_auto_schema(
+        tags=["User"],
+        request_body=openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            required=["email", "password"],
+            properties={
+                "email": openapi.Schema(type=openapi.TYPE_STRING, format="email"),
+                "password": openapi.Schema(type=openapi.TYPE_STRING, format="password"),
+            },
+        ),
+        responses={
+            200: "Login successful",
+            400: "Bad request",
+            401: "User not verified",
+            404: "User not found",
+        },
+        operation_description="Login a User",
+    )
+    def post(self, request, *args, **kwargs):
+        """
+        Login a user (only verified users)
+        """
+        email = request.data.get("email")
+        password = request.data.get("password")
+
+        if not email or not password:
+            return Response(
+                {"error": "Email and password are required."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        try:
+            user = User.objects.get(email=email)
+        except User.DoesNotExist:
+            return Response(
+                {"error": "Invalid email or password."},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+
+        if not user.check_password(password):
+            return Response(
+                {"error": "Invalid email or password."},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+
+        # Check if the user is verified
+        if not user.is_verified:
+            return Response(
+                {"error": "User account is not verified. Please verify your email."},
+                status=status.HTTP_401_UNAUTHORIZED,
+            )
+
+        refresh = RefreshToken.for_user(user)
+        access = refresh.access_token
+
+        return Response(
+            {
+                "message": "Login successful",
+                "refresh": str(refresh),
+                "access": str(access),
+                "user": UserSerializer(user).data,
+            },
+            status=status.HTTP_200_OK,
+        )
 
 
 
