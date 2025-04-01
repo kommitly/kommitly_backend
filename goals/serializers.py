@@ -22,16 +22,17 @@ class AiSubTaskSerializer(serializers.ModelSerializer):
     class Meta:
         model = AiSubTask
         fields = ['id', 'title', 'description', 'due_date', 'status']
-    
+
     def create(self, validated_data):
-        # Assuming the ai_task ID is passed in the URL, and you can retrieve it from the context
-        ai_task = self.context['view'].kwargs['task_id']  # Or use self.context['request'].parser_context['kwargs'] if needed
-        validated_data['ai_task'] = ai_task
+        ai_task_id = self.context.get('ai_task_id') #get the ai_task_id from the context
+        if ai_task_id is None:
+            raise serializers.ValidationError({"ai_task_id":"ai_task_id is required"})
+        validated_data['ai_task_id'] = ai_task_id # add the ai_task_id to the validated data
         return super().create(validated_data)
 
     def update(self, instance, validated_data):
-        # Handle update if necessary
         return super().update(instance, validated_data)
+
 
 
 

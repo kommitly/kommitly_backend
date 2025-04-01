@@ -309,6 +309,7 @@ class CreateGoalWithAIInsightsView(APIView):
                                     'id': openapi.Schema(type=openapi.TYPE_INTEGER),
                                     'ai_goal': openapi.Schema(type=openapi.TYPE_INTEGER),
                                     'title': openapi.Schema(type=openapi.TYPE_STRING),
+                                    'description': openapi.Schema(type=openapi.TYPE_STRING),
                                     'due_date': openapi.Schema(type=openapi.TYPE_STRING, format='date'),
                                     'status': openapi.Schema(type=openapi.TYPE_STRING),
                                     "task_timeline": openapi.Schema(type=openapi.TYPE_STRING),
@@ -377,7 +378,9 @@ class CreateGoalWithAIInsightsView(APIView):
                        
                         for subtask_data in subtasks_data:
                             subtask_data["ai_task"] = task.id
-                            subtask_serializer = AiSubTaskSerializer(data=subtask_data)
+                            print(f"Subtask data: {subtask_data}")
+                            subtask_serializer = AiSubTaskSerializer(data=subtask_data, context = {"ai_task_id":task.id}) # pass the current task id to the subtask serializer.
+
 
                             if subtask_serializer.is_valid():
                                 subtask_serializer.save()
@@ -396,7 +399,8 @@ class CreateGoalWithAIInsightsView(APIView):
                 return Response(response_data, status=status.HTTP_201_CREATED)
 
             except Exception as e:
-                return Response({"error": f"An error occurred while saving tasks: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+                return Response({"error": f"An error occurred while saving tasks: {str(e)}", "details": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
         
         return Response(goal_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -1433,3 +1437,5 @@ class UpdateSubtaskView(APIView):
             return Response(serializer.data, status=status.HTTP_200_OK)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
