@@ -30,6 +30,8 @@ from .views import (
     CreateAiSubtaskView,
     CreateSubtaskView,
     UpdateSubtaskView,
+    DeleteSubtaskView,
+    DeleteAiSubtaskView,
     
 )
 
@@ -65,6 +67,8 @@ urlpatterns= [
     path('tasks/<int:task_id>/create-ai-subtask/', CreateAiSubtaskView.as_view(), name='create_ai_subtask'),
     path('tasks/<int:task_id>/create-subtask/', CreateSubtaskView.as_view(), name='create_subtask'),
     path('tasks/<int:task_id>/subtasks/<int:subtask_id>/', UpdateSubtaskView.as_view(), name='update_subtask'),
+    path('tasks/subtasks/<int:subtask_id>/delete/', DeleteSubtaskView.as_view(), name='delete-subtask'),
+    path('tasks/ai-subtasks/<int:ai_subtask_id>/delete/', DeleteAiSubtaskView.as_view(), name='delete-ai-subtask'),
 
     
     

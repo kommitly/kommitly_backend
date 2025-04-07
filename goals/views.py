@@ -1439,3 +1439,45 @@ class UpdateSubtaskView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+class DeleteSubtaskView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    @swagger_auto_schema(
+        tags=["Tasks"],
+        operation_description="Delete a subtask by ID",
+        responses={
+            204: "Subtask deleted successfully",
+            404: "Subtask not found",
+            403: "Forbidden",
+        }
+    )
+    def delete(self, request, subtask_id, *args, **kwargs):
+        try:
+            subtask = SubTask.objects.get(id=subtask_id, task__user=request.user)
+        except SubTask.DoesNotExist:
+            return Response({"error": "Subtask not found."}, status=status.HTTP_404_NOT_FOUND)
+
+        subtask.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class DeleteAiSubtaskView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    @swagger_auto_schema(
+        tags=["Ai Tasks"],
+        operation_description="Delete an AI subtask by ID",
+        responses={
+            204: "AI Subtask deleted successfully",
+            404: "AI Subtask not found",
+            403: "Forbidden",
+        }
+    )
+    def delete(self, request, ai_subtask_id, *args, **kwargs):
+        try:
+            ai_subtask = AiSubTask.objects.get(id=ai_subtask_id, ai_task__ai_goal__user=request.user)
+        except AiSubTask.DoesNotExist:
+            return Response({"error": "AI Subtask not found."}, status=status.HTTP_404_NOT_FOUND)
+
+        ai_subtask.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
