@@ -80,7 +80,7 @@ ROOT_URLCONF = 'kommitly_backend.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [os.path.join(BASE_DIR, 'templates')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -215,8 +215,8 @@ EMAIL_HOST_PASSWORD = config("EMAIL_HOST_PASSWORD")
 
 GROQ_API_KEY = config("GROQ_API_KEY")
 
-
 """
+
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,

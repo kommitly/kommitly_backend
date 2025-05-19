@@ -13,7 +13,7 @@ from drf_yasg import openapi
 from users.models import User
 from django.http import Http404
 from django.db.models import Prefetch
-
+from .tasks import send_task_reminders
 
 # Configure logging
 logger = logging.getLogger(__name__)
@@ -267,6 +267,7 @@ class CreateGoalWithAIInsightsView(APIView):
                             'due_date': openapi.Schema(type=openapi.TYPE_STRING, format='date'),
                             'status': openapi.Schema(type=openapi.TYPE_STRING),
                             'task_timeline': openapi.Schema(type=openapi.TYPE_STRING),
+
                             'ai_subtasks': openapi.Schema(
                                         type=openapi.TYPE_ARRAY,
                                         items=openapi.Schema(
@@ -314,6 +315,9 @@ class CreateGoalWithAIInsightsView(APIView):
                                     'status': openapi.Schema(type=openapi.TYPE_STRING),
                                     "task_timeline": openapi.Schema(type=openapi.TYPE_STRING),
                                     'completed_at': openapi.Schema(type=openapi.TYPE_STRING, format='date-time'),
+                                    'reminder_sent': openapi.Schema(type=openapi.TYPE_BOOLEAN),
+                                    'reminder_time': openapi.Schema(type=openapi.TYPE_STRING, format='time'),
+                                    'last_updated': openapi.Schema(type=openapi.TYPE_STRING, format='date-time'),
                                     "ai_subtasks": openapi.Schema(
                                         type=openapi.TYPE_ARRAY,
                                         items=openapi.Schema(
@@ -324,6 +328,10 @@ class CreateGoalWithAIInsightsView(APIView):
                                                 "description": openapi.Schema(type=openapi.TYPE_STRING),
                                                 "due_date": openapi.Schema(type=openapi.TYPE_STRING, format="date", nullable=True),
                                                 "status": openapi.Schema(type=openapi.TYPE_STRING),
+                                                'completed_at': openapi.Schema(type=openapi.TYPE_STRING, format='date-time'),
+                                                'reminder_sent': openapi.Schema(type=openapi.TYPE_BOOLEAN),
+                                                'reminder_time': openapi.Schema(type=openapi.TYPE_STRING, format='time'),
+                                                'last_updated': openapi.Schema(type=openapi.TYPE_STRING, format='date-time'),
                                             }
                                         )
                                     ),
@@ -645,6 +653,7 @@ class UserAuthenticatedProfileView(APIView):
                     "email": user.email,
                     "first_name": user.first_name,
                     "last_name": user.last_name,
+                    "timezone": user.timezone
                 },
                 "goals": goal_serializer.data,
                 "tasks": task_serializer.data,
@@ -1160,11 +1169,20 @@ class UserGoalsView(APIView):
             )
 
 
+
 class TriggerTaskRemindersView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
     @swagger_auto_schema(
         tags=["Tasks"],
+        request_body=openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            properties={
+                "task_id": openapi.Schema(type=openapi.TYPE_INTEGER),
+                "due_date": openapi.Schema(type=openapi.TYPE_STRING, format="date"),
+                "reminder_time": openapi.Schema(type=openapi.TYPE_STRING, format="time"),
+            },
+        ),
         responses={
             200: openapi.Response(
                 description="Task reminders triggered successfully",
@@ -1180,10 +1198,106 @@ class TriggerTaskRemindersView(APIView):
         },
         operation_description="Manually trigger task reminders",
     )
+    def post(self, request):
+        task_id = request.data.get("task_id")
+        due_date = request.data.get("due_date")
+        reminder_time = request.data.get("reminder_time")
+
+        if not task_id:
+            return Response({"error": "task_id is required"}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            task = Task.objects.get(id=task_id, user=request.user)
+
+            # Update due_date and reminder_time if provided
+            if due_date is not None:
+                task.due_date = due_date
+            if reminder_time is not None:
+                task.reminder_time = reminder_time
+
+            task.save()
+
+            # Check if both are now set
+            if not task.due_date or not task.reminder_time:
+                return Response(
+                    {"error": "Task must have both due_date and reminder_time to trigger reminders."},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+
+         
+            return Response({"message": "Task reminders triggered successfully"}, status=status.HTTP_200_OK)
+
+        except Task.DoesNotExist:
+            return Response({"error": "Task not found"}, status=status.HTTP_404_NOT_FOUND)
+
+
+class TriggerAiSubTaskRemindersView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    @swagger_auto_schema(
+        tags=["Tasks"],
+         request_body=openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            properties={
+                "subtask_id": openapi.Schema(type=openapi.TYPE_INTEGER),
+                "due_date": openapi.Schema(type=openapi.TYPE_STRING, format="date"),
+                "reminder_time": openapi.Schema(type=openapi.TYPE_STRING, format="time"),
+            },
+        ),
+        responses={
+            200: openapi.Response(
+                description="AI task reminders triggered successfully",
+                schema=openapi.Schema(
+                    type=openapi.TYPE_OBJECT,
+                    properties={
+                        "message": openapi.Schema(type=openapi.TYPE_STRING),
+                    },
+                ),
+            ),
+            403: "Forbidden",
+            500: "Unexpected error",
+        },
+        operation_description="Manually trigger AI subtask reminders",
+    )
+
 
     def post(self, request):
-        send_task_reminders.delay()
-        return Response({"message": "Task reminders triggered successfully"}, status=status.HTTP_200_OK)
+        subtask_id = request.data.get("subtask_id")
+        due_date = request.data.get("due_date")
+        reminder_time = request.data.get("reminder_time")
+
+
+
+        if not subtask_id:
+            return Response({"error": "subtask_id is required"}, status=status.HTTP_400_BAD_REQUEST)
+
+       
+
+        try:
+            ai_subtask = AiSubTask.objects.get(id=subtask_id, user=request.user)
+
+            # Update due_date and reminder_time if provided
+            if due_date is not None:
+                ai_subtask.due_date = due_date
+            if reminder_time is not None:
+                ai_subtask.reminder_time = reminder_time
+
+            ai_subtask.save()
+
+            # Check if both are now set
+            if not ai_subtask.due_date or not ai_subtask.reminder_time:
+                return Response(
+                    {"error": "Ai Task must have both due_date and reminder_time to trigger reminders."},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+
+         
+            return Response({"message": "Ai subtask reminders triggered successfully"}, status=status.HTTP_200_OK)
+
+        except AiSubTask.DoesNotExist:
+            return Response({"error": " Ai subtask not found"}, status=status.HTTP_404_NOT_FOUND)
+
+
 
 
 class TriggerAiTaskRemindersView(APIView):
@@ -1191,6 +1305,14 @@ class TriggerAiTaskRemindersView(APIView):
 
     @swagger_auto_schema(
         tags=["Tasks"],
+         request_body=openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            properties={
+                "task_id": openapi.Schema(type=openapi.TYPE_INTEGER),
+                "due_date": openapi.Schema(type=openapi.TYPE_STRING, format="date"),
+                "reminder_time": openapi.Schema(type=openapi.TYPE_STRING, format="time"),
+            },
+        ),
         responses={
             200: openapi.Response(
                 description="AI task reminders triggered successfully",
@@ -1206,9 +1328,76 @@ class TriggerAiTaskRemindersView(APIView):
         },
         operation_description="Manually trigger AI task reminders",
     )
+
+
     def post(self, request):
-        send_ai_task_reminders.delay()
-        return Response({"message": "AI task reminders triggered successfully"}, status=status.HTTP_200_OK)
+        task_id = request.data.get("task_id")
+        due_date = request.data.get("due_date")
+        reminder_time = request.data.get("reminder_time")
+
+
+
+        if not task_id:
+            return Response({"error": "task_id is required"}, status=status.HTTP_400_BAD_REQUEST)
+
+        item_type = request.data.get("type", "task")  # default to task
+
+        if item_type == "subtask":
+            try:
+                subtask = AiSubTask.objects.get(id=task_id, ai_task__ai_goal__user=request.user)
+                if due_date is not None:
+                    subtask.due_date = due_date
+                if reminder_time is not None:
+                    subtask.reminder_time = reminder_time
+                subtask.save()
+
+                if not subtask.due_date or not subtask.reminder_time:
+                    return Response(
+                        {"error": "Subtask must have both due_date and reminder_time to trigger reminders."},
+                        status=status.HTTP_400_BAD_REQUEST
+                    )
+
+                return Response({"message": "Ai Subtask reminder scheduled successfully"}, status=status.HTTP_200_OK)
+
+            except AiSubTask.DoesNotExist:
+                return Response({"error": "Ai Subtask not found"}, status=status.HTTP_404_NOT_FOUND)
+
+
+
+
+
+
+
+
+        try:
+            ai_task = AiTask.objects.get(id=task_id, user=request.user)
+
+            # Update due_date and reminder_time if provided
+            if due_date is not None:
+                ai_task.due_date = due_date
+            if reminder_time is not None:
+                ai_task.reminder_time = reminder_time
+
+            ai_task.save()
+
+            # Check if both are now set
+            if not ai_task.due_date or not ai_task.reminder_time:
+                return Response(
+                    {"error": "Ai Task must have both due_date and reminder_time to trigger reminders."},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+
+         
+            return Response({"message": "Ai Task reminders triggered successfully"}, status=status.HTTP_200_OK)
+
+        except AiTask.DoesNotExist:
+            return Response({"error": " Ai Task not found"}, status=status.HTTP_404_NOT_FOUND)
+
+
+
+
+
+
 
 class GetAllUserTasksView(APIView):
     permission_classes = [permissions.IsAuthenticated]

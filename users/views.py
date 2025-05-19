@@ -15,6 +15,7 @@ from channels.layers import get_channel_layer
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.tokens import AccessToken
 from .models import User, generate_verification_token
+from timezonefinder import TimezoneFinder
 
 
 
@@ -429,4 +430,37 @@ class DeleteUserByEmailView(APIView):
                 {"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
         
+class GetTimezoneView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    @swagger_auto_schema(
+        operation_description="Determine and update the user's timezone based on lat/lng.",
+        request_body=openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            required=["latitude", "longitude"],
+            properties={
+                "latitude": openapi.Schema(type=openapi.TYPE_NUMBER),
+                "longitude": openapi.Schema(type=openapi.TYPE_NUMBER),
+            },
+        ),
+        responses={200: openapi.Response("Timezone updated")},
+        tags=["User"],
+    )
+    def post(self, request):
+        try:
+            latitude = request.data.get("latitude")
+            longitude = request.data.get("longitude")
+
+            tf = TimezoneFinder()
+            timezone = tf.timezone_at(lat=latitude, lng=longitude)
+
+            if timezone:
+                request.user.timezone = timezone
+                request.user.save()
+                return Response({"timezone": timezone}, status=status.HTTP_200_OK)
+            else:
+                return Response({"error": "Could not determine timezone"}, status=status.HTTP_400_BAD_REQUEST)
+
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 

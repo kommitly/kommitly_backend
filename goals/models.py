@@ -1,5 +1,7 @@
 from django.db import models
-from django.utils.timezone import now
+from django.utils.timezone import now, make_aware
+from datetime import datetime
+
 
 # Create your models here.
 class Goal(models.Model):
@@ -80,17 +82,34 @@ class Task(models.Model):
     completed_at = models.DateTimeField(blank=True, null=True)
     task_timeline = models.CharField(max_length=255, null=True, blank=True)
     reminder_time = models.TimeField(null=True, blank=True)
+    reminder_sent = models.BooleanField(default=False)
     last_updated = models.DateTimeField(auto_now=True)  # Track updates
 
     def save(self, *args, **kwargs):
         """
         Override save method to manage task statuses.
         """
+        if isinstance(self.due_date, str):
+            try:
+                self.due_date = make_aware(datetime.fromisoformat(self.due_date))
+            except ValueError:
+                pass  # Handle invalid date format if needed
+
+        if isinstance(self.reminder_time, str):
+            try:
+                self.reminder_time = datetime.strptime(self.reminder_time, "%H:%M:%S").time()
+            except ValueError:
+                pass
+
         if self.status == 'completed' and self.completed_at is None:
             self.completed_at = now()
 
-        if self.due_date and now() > self.due_date and self.status in ['pending', 'in-progress']:
-            self.status = 'overdue'
+        if self.due_date:
+            if now() > self.due_date and self.status in ['pending', 'in-progress']:
+                self.status = 'overdue'
+            elif now() <= self.due_date and self.status == 'overdue':
+                self.status = 'pending'  # or 'in-progress' based on your logic
+
 
         super().save(*args, **kwargs)
 
@@ -121,6 +140,7 @@ class AiTask(models.Model):
     completed_at = models.DateTimeField(blank=True, null=True)
     task_timeline = models.CharField(max_length=255, null=True, blank=True)
     reminder_time = models.TimeField(null=True, blank=True)
+    reminder_sent = models.BooleanField(default=False)
     last_updated = models.DateTimeField(auto_now=True)  # Track updates
     
     def save(self, *args, **kwargs):
@@ -138,9 +158,11 @@ class AiTask(models.Model):
             self.completed_at = now()
 
 
-        # Automatically update overdue tasks
-        if self.due_date and now() > self.due_date and self.status in ['pending', 'in-progress']:
-            self.status = 'overdue'
+        if self.due_date:
+            if now() > self.due_date and self.status in ['pending', 'in-progress']:
+                self.status = 'overdue'
+            elif now() <= self.due_date and self.status == 'overdue':
+                self.status = 'pending'  # or 'in-progress' based on your logic
 
         super().save(*args, **kwargs)  # Save the current task
 
@@ -190,8 +212,10 @@ class SubTask(models.Model):
     description = models.TextField(blank=True, null=True)
     due_date = models.DateField(blank=True, null=True)
     reminder_time = models.TimeField(blank=True, null=True)
+    reminder_sent = models.BooleanField(default=False)
+    completed_at = models.DateTimeField(blank=True, null=True)
     status = models.CharField(max_length=20, choices=[("pending", "Pending"), ("completed", "Completed")], default="pending")
-
+    last_updated = models.DateTimeField(auto_now=True) 
     def __str__(self):
         return self.title
 
@@ -203,8 +227,10 @@ class AiSubTask(models.Model):
     description = models.TextField(blank=True, null=True)
     due_date = models.DateField(blank=True, null=True)
     reminder_time = models.TimeField(blank=True, null=True)
+    reminder_sent = models.BooleanField(default=False)
     status = models.CharField(max_length=20, choices=[("pending", "Pending"), ("completed", "Completed")], default="pending")
-
+    completed_at = models.DateTimeField(blank=True, null=True)
+    last_updated = models.DateTimeField(auto_now=True) 
     def save(self, *args, **kwargs):
 
         """

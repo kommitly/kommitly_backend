@@ -16,12 +16,12 @@ from .models import Task  # Adjust the import based on your project structure
 class SubTaskSerializer(serializers.ModelSerializer):
     class Meta:
         model = SubTask
-        fields = ['id', 'task', 'title', 'description', 'due_date', 'status']
+        fields = ['id', 'task', 'title', 'description', 'due_date', 'status', 'completed_at', 'reminder_time', 'reminder_sent', 'last_updated']
 
 class AiSubTaskSerializer(serializers.ModelSerializer):
     class Meta:
         model = AiSubTask
-        fields = ['id', 'title', 'description', 'due_date', 'status']
+        fields = ['id', 'title', 'description', 'due_date', 'status','completed_at', 'reminder_time', 'reminder_sent', 'last_updated']
 
     def create(self, validated_data):
         ai_task_id = self.context.get('ai_task_id') #get the ai_task_id from the context
@@ -118,6 +118,7 @@ class TaskSerializer(serializers.ModelSerializer):
             'task_timeline',
             'reminder_time',
             'last_updated',
+            'reminder_sent',
         ]
 
     def validate(self, data):
@@ -145,6 +146,8 @@ class AiTaskSerializer(serializers.ModelSerializer):
             'ai_subtasks',
             'task_timeline',
             'reminder_time',
+            'last_updated',
+            'reminder_sent',
            
         ]
 
