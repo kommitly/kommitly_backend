@@ -1,6 +1,8 @@
 from django.db import models
 from django.utils.timezone import now, make_aware
 from datetime import datetime
+from django.core.exceptions import ValidationError
+
 
 
 # Create your models here.
@@ -167,18 +169,7 @@ class AiTask(models.Model):
         super().save(*args, **kwargs)  # Save the current task
 
 
-        # If the task is completed, check and mark subtasks as completed
-        if self.status == 'completed':
-            for subtask in self.ai_subtasks.all():
-                if subtask.status != 'completed':
-                    break
-            else:
-                # All subtasks are completed, mark the task as completed
-                self.status = 'completed'
-                self.save(update_fields=['status', 'completed_at'])
-
-
-
+     
      
 
         if self.ai_goal:
