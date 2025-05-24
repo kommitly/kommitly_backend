@@ -2,7 +2,7 @@ from django.db import models
 from django.utils.timezone import now, make_aware
 from datetime import datetime
 from django.core.exceptions import ValidationError
-
+ from django.db.models import Count, Q
 
 
 # Create your models here.
@@ -47,18 +47,26 @@ class AiGoal(models.Model):
     
 
     def update_progress(self):
-        """
-        Update the progress percentage based on completed tasks.
-        """
-        total_tasks = self.ai_tasks.count()
-        completed_tasks = self.ai_tasks.filter(status='completed').count()
+    """
+    Update the progress percentage based on completed subtasks.
+    """
+   
 
-        if total_tasks > 0:
-            self.progress = int((completed_tasks / total_tasks) * 100)
+        total_subtasks = self.ai_tasks.aggregate(
+            total=Count('ai_subtasks')
+        )['total']
+
+        completed_subtasks = self.ai_tasks.aggregate(
+            completed=Count('ai_subtasks', filter=Q(ai_subtasks__status='completed'))
+        )['completed']
+
+        if total_subtasks > 0:
+            self.progress = int((completed_subtasks / total_subtasks) * 100)
         else:
-            self.progress = 0  # No tasks yet, so progress remains 0%
+            self.progress = 0
 
         self.save()
+
 
         def __str__(self):
             return self.title
