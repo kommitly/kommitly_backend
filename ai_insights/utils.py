@@ -24,7 +24,8 @@ def get_insights(ai_goal):
             messages=[
                 {
                     "role": "user",
-                    "content": f"My goal is {ai_goal}. First, classify this goal into one of the following categories:  'Weekly', 'Monthly', or 'Yearly'. Then, break it down into actionable tasks with realistic timelines. Ensure the response follows this exact format:\n\n"
+                    "content": f"My goal description is {ai_goal}. First, give this goal description a suitable title then classify this goal into one of the following categories:  'Weekly', 'Monthly', or 'Yearly'. Then, break it down into actionable tasks with realistic timelines. Ensure the response follows this exact format:\n\n"
+                            "**Goal Title: [Title]**\n\n"
                             "**Goal Category: [ Weekly / Monthly / Yearly]**\n\n"
                             "**Step 1: [Title] (X-X weeks/months/years)**\n"
                             "1. **[Subtask Title]**: [Details about the subtask with timeline (X-X days/weeks/months/years)]\n\n"
@@ -60,6 +61,8 @@ def parse_insights(response):
     """
     Parses the AI response into a structured list of steps.
     """
+    goal_title_match = re.search(r'\*\*Goal Title:\s*(.+?)\*\*', response)
+    goal_title = goal_title_match.group(1).strip() if goal_title_match else "Untitled Goal"
     category_match = re.search(r'\*\*Goal Category:\s*(Weekly|Monthly|Yearly)\*\*', response)
     goal_category = category_match.group(1).lower()  if category_match else "Uncategorized"
 
@@ -101,6 +104,7 @@ def parse_insights(response):
         })
 
     return {
+        "goal_title": goal_title,
         "goal_category": goal_category,
         "tasks": parsed_steps
     }

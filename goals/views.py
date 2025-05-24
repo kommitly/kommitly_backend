@@ -191,7 +191,7 @@ class GenerateAIInsightsView(APIView):
 
             try:
                 # Call AI insights utility to get actionable steps
-                insights = get_insights(goal_data['title'])
+                insights = get_insights(goal_data['description'])
 
                 # Print the insights for debugging
                 print("Goal Title:", goal_data['title'])
@@ -225,7 +225,7 @@ class GenerateAIInsightsView(APIView):
                 # Prepare response data
                 response_data = {
                     "ai_goal": {
-                        "title": goal_data['title'],
+                        "title": insights.get("goal_title", goal_data['title']),
                         "description": goal_data['description'],
                         "category": insights.get("goal_category", "Uncategorized"), 
                         "progress": goal_data.get('progress', '0%'),
