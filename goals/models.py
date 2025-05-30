@@ -49,17 +49,14 @@ class AiGoal(models.Model):
     
 
     def update_progress(self):
-        """
-        Update the progress percentage based on completed subtasks.
-        """
-   
+        
 
         total_subtasks = self.ai_tasks.aggregate(
             total=Count('ai_subtasks')
         )['total']
 
         completed_subtasks = self.ai_tasks.aggregate(
-            completed=Count('ai_subtasks', filter=Q(ai_subtasks__status='completed'))
+            completed=Count('ai_subtasks', filter=Q(status='completed'))
         )['completed']
 
         if total_subtasks > 0:
