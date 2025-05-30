@@ -2,7 +2,7 @@ from django.db import models
 from django.utils.timezone import now, make_aware
 from datetime import datetime
 from django.core.exceptions import ValidationError
- from django.db.models import Count, Q
+from django.db.models import Count, Q
 
 
 # Create your models here.
@@ -47,9 +47,9 @@ class AiGoal(models.Model):
     
 
     def update_progress(self):
-    """
-    Update the progress percentage based on completed subtasks.
-    """
+        """
+        Update the progress percentage based on completed subtasks.
+        """
    
 
         total_subtasks = self.ai_tasks.aggregate(

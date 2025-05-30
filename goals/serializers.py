@@ -68,7 +68,17 @@ class CreateAiTaskSerializer(serializers.ModelSerializer):
 class CreateTaskSerializer(serializers.ModelSerializer):
     class Meta:
         model = Task
-        fields = ['goal', 'title']
+        fields = [
+            'goal', 
+            'title',
+            'description',
+            'due_date',
+            'status',
+            'subtasks',
+            'task_timeline',
+            'reminder_time',
+         
+           ]
 
     def to_internal_value(self, data):
         if data.get('goal') == 0:
