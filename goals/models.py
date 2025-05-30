@@ -23,6 +23,7 @@ class Goal(models.Model):
     progress = models.IntegerField(default=0)  # Added progress field
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    tag= models.CharField(max_length=255, null=True, blank=True)  # Added tag field
 
     def __str__(self):
         return self.title
@@ -44,6 +45,7 @@ class AiGoal(models.Model):
     progress = models.IntegerField(default=0)  # Added progress field
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    tag = models.CharField(max_length=255, null=True, blank=True)  # Added tag field
     
 
     def update_progress(self):
@@ -78,6 +80,7 @@ class Task(models.Model):
     title = models.CharField(max_length=255)
     due_date = models.DateTimeField(null=True, blank=True)
     description = models.TextField(null=True, blank=True)
+    tag = models.CharField(max_length=255, null=True, blank=True)  # Added tag field
    
     status = models.CharField(
         max_length=20,
@@ -136,7 +139,7 @@ class AiTask(models.Model):
     title = models.CharField(max_length=255)
     due_date = models.DateTimeField(null=True, blank=True)
     description = models.TextField(null=True, blank=True)
-
+  
     status = models.CharField(
         max_length=20,
         choices=[

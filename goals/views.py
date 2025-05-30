@@ -144,6 +144,7 @@ class GenerateAIInsightsView(APIView):
                                 'description': openapi.Schema(type=openapi.TYPE_STRING),
                                 'category': openapi.Schema(type=openapi.TYPE_STRING),
                                 'progress': openapi.Schema(type=openapi.TYPE_STRING),
+                                'tag': openapi.Schema(type=openapi.TYPE_STRING, nullable=True),  # Added tag field
                             }
                         ),
                         "ai_tasks": openapi.Schema(
@@ -227,6 +228,7 @@ class GenerateAIInsightsView(APIView):
                     "ai_goal": {
                         "title": insights.get("goal_title", goal_data['title']),
                         "description": goal_data['description'],
+                        "tag": insights.get('goal_tag', 'No Tag'),  # Include tag if provided
                         "category": insights.get("goal_category", "Uncategorized"), 
                         "progress": goal_data.get('progress', '0%'),
                     },

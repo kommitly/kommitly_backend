@@ -43,6 +43,7 @@ class CreateAiTaskSerializer(serializers.ModelSerializer):
             'ai_goal',
           
             'title',
+       
             'description',
             'due_date',
             'status',
@@ -77,6 +78,7 @@ class CreateTaskSerializer(serializers.ModelSerializer):
             'subtasks',
             'task_timeline',
             'reminder_time',
+            'tag'
          
            ]
 
@@ -129,6 +131,7 @@ class TaskSerializer(serializers.ModelSerializer):
             'reminder_time',
             'last_updated',
             'reminder_sent',
+            'tag'
         ]
 
     def validate(self, data):
@@ -158,6 +161,7 @@ class AiTaskSerializer(serializers.ModelSerializer):
             'reminder_time',
             'last_updated',
             'reminder_sent',
+           
            
         ]
 
@@ -259,7 +263,8 @@ class GoalSerializer(serializers.ModelSerializer):
             'progress',
             'created_at',
             'updated_at',
-            'tasks'
+            'tasks',
+            'tag'
         ]
 
 class CreateAiGoalSerializer(serializers.ModelSerializer):
@@ -309,7 +314,8 @@ class AiGoalSerializer(serializers.ModelSerializer):
             'progress',
             'created_at',
             'updated_at',
-            'ai_tasks'
+            'ai_tasks',
+            'tag'
         ]
 
 
