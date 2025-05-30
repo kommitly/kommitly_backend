@@ -807,7 +807,7 @@ class GetAiGoalByIdView(APIView):
             ai_goal = AiGoal.objects.prefetch_related(
                 Prefetch(
                     'ai_tasks',
-                    queryset=AiTask.objects.order_by('id') # Order by id
+                    queryset=AiTask.objects.order_by('id')  # Order by id
                 )
             ).get(id=goal_id)
 
@@ -817,6 +817,9 @@ class GetAiGoalByIdView(APIView):
                     {"error": "You do not have permission to access this goal."},
                     status=status.HTTP_403_FORBIDDEN
                 )
+
+            # ✅ Update progress before serialization
+            ai_goal.update_progress()
 
             # Serialize the goal data
             goal_serializer = AiGoalSerializer(ai_goal)
@@ -830,6 +833,7 @@ class GetAiGoalByIdView(APIView):
                 {"error": "An unexpected error occurred", "details": str(e)},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR,
             )
+
 
 
 

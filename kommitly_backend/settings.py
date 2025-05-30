@@ -59,6 +59,7 @@ INSTALLED_APPS = [
     'goals',  # Add the goals app here
     'ai_insights',  # Add the ai_insights app here
     'corsheaders',
+    
  
 
 ]

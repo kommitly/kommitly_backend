@@ -269,8 +269,7 @@ class GoalSerializer(serializers.ModelSerializer):
 
 class CreateAiGoalSerializer(serializers.ModelSerializer):
     category = serializers.ChoiceField(choices=AiGoal.CATEGORY_CHOICES, required=False, allow_null=True, default=None)
-    progress = serializers.IntegerField(default=0)
-
+   
     class Meta:
         model = AiGoal
         fields = ['title', 'description', 'category', 'progress']
@@ -300,7 +299,7 @@ class CreateAiGoalSerializer(serializers.ModelSerializer):
 class AiGoalSerializer(serializers.ModelSerializer):
     ai_tasks = AiTaskSerializer(many=True, read_only=True)
     category = serializers.ChoiceField(choices=AiGoal.CATEGORY_CHOICES, required=False, allow_null=True, default=None)
-    progress = serializers.IntegerField(default=0)
+
     
 
     class Meta:
