@@ -230,7 +230,7 @@ class GenerateAIInsightsView(APIView):
                         "description": goal_data['description'],
                         "tag": insights.get('goal_tag', 'No Tag'),  # Include tag if provided
                         "category": insights.get("goal_category", "Uncategorized"), 
-                        "progress": goal_data.get('progress'),
+                        "progress": goal_data.get('progress', "0"),
                     },
                     "ai_tasks": ai_tasks,
                   
