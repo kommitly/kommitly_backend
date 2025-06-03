@@ -4,6 +4,7 @@ from django.core.mail import send_mail
 from .models import Task, AiTask
 import pytz
 from django.utils import timezone
+from notifications.models import Notification
 import logging
 from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
@@ -78,6 +79,15 @@ def send_task_reminders(task_id=None, user_id=None):
                 msg = EmailMultiAlternatives(subject, text_content, from_email, to)
                 msg.attach_alternative(html_content, "text/html")
                 msg.send()
+
+                 # ✅ In-app notification
+                Notification.objects.create(
+                    user=user,
+                    task=task,
+                    message=f"⏰ Reminder: '{task.title}' is due soon.",
+                    link=f"https://kommitly-frontend.vercel.app/dashboard/tasks/{task.id}/",
+                    type="reminder"
+                )
 
                 task.reminder_sent = True
                 task.save()

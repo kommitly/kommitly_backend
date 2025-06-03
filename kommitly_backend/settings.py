@@ -58,6 +58,7 @@ INSTALLED_APPS = [
     "health_check.db",
     'goals',  # Add the goals app here
     'ai_insights',  # Add the ai_insights app here
+    'notifications',  # Add the notifications app here
     'corsheaders',
     
  
