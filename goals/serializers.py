@@ -81,6 +81,16 @@ class CreateTaskSerializer(serializers.ModelSerializer):
             'tag'
          
            ]
+        extra_kwargs = {
+            'goal': {'required': False, 'allow_null': True},
+            'description': {'required': False, 'allow_blank': True},
+            'due_date': {'required': False, 'allow_null': True},
+            'status': {'required': False, 'allow_null': True},
+            'subtasks': {'required': False},
+            'task_timeline': {'required': False, 'allow_null': True},
+            'reminder_time': {'required': False, 'allow_null': True},
+            'tag': {'required': False, 'allow_null': True},
+        }
 
     def to_internal_value(self, data):
         if data.get('goal') == 0:
