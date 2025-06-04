@@ -152,9 +152,9 @@ class TaskSerializer(serializers.ModelSerializer):
 
 class AiTaskSerializer(serializers.ModelSerializer):
     ai_subtasks = AiSubTaskSerializer(many=True, read_only=True)  
-    completed_at = serializers.SerializerMethodField()
-    due_date = serializers.SerializerMethodField()
-    reminder_time = serializers.SerializerMethodField()
+    completed_at = serializers.DateTimeField(required=False, allow_null=True)
+    due_date = serializers.DateTimeField(required=False, allow_null=True)
+    reminder_time = serializers.TimeField(required=False, allow_null=True)
 
     class Meta:
         model = AiTask
@@ -207,6 +207,10 @@ class AiTaskSerializer(serializers.ModelSerializer):
         """
         previous_status = instance.status
         new_status = validated_data.get('status', instance.status)
+        # Update instance with validated fields first
+        instance = super().update(instance, validated_data)
+
+
 
         # If task was pending and gets modified, mark it as "in-progress"
         if previous_status == 'pending' and new_status not in ['completed', 'overdue']:
@@ -216,7 +220,7 @@ class AiTaskSerializer(serializers.ModelSerializer):
         if new_status == 'completed' and instance.completed_at is None:
             instance.completed_at = now()
 
-        instance = super().update(instance, validated_data)
+      
         instance.save(update_fields=['status', 'completed_at'])  # Ensure status is saved
 
         if instance.ai_goal:
