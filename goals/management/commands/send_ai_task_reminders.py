@@ -13,7 +13,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         now_utc = timezone.now()
-        ai_tasks = AiTask.objects.filter(status='pending', reminder_sent=False)
+        ai_tasks = AiTask.objects.filter(status='in-progress')
 
         for ai_task in ai_tasks:
             if not ai_task.due_date or not ai_task.reminder_time:

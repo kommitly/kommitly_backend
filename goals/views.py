@@ -1280,7 +1280,8 @@ class TriggerAiSubTaskRemindersView(APIView):
        
 
         try:
-            ai_subtask = AiSubTask.objects.get(id=subtask_id, user=request.user)
+            ai_subtask = AiSubTask.objects.get(id=subtask_id, ai_task__ai_goal__user=request.user)
+
 
             # Update due_date and reminder_time if provided
             if due_date is not None:
