@@ -15,12 +15,7 @@ class NotificationListView(APIView):
     @swagger_auto_schema(
         operation_description="Retrieve notifications for the current user, optionally filtered by task ID.",
         tags=["Notifications"],
-        manual_parameters=[
-            openapi.Parameter(
-                'task_id', openapi.IN_QUERY, description="Filter notifications by Task ID",
-                type=openapi.TYPE_INTEGER
-            )
-        ],
+      
         responses={
             200: openapi.Response(
                 description="List of notifications",
