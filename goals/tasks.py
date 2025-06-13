@@ -1,7 +1,7 @@
 from celery import shared_task
 from django.utils.timezone import now, timedelta, datetime, make_aware
 from django.core.mail import send_mail
-from .models import Task, AiTask
+from .models import Task, AiTask, AiSubTask,AiGoal
 import pytz
 from django.utils import timezone
 from notifications.models import Notification
@@ -169,14 +169,14 @@ def send_ai_task_reminders(task_id=None, user_id=None):
 
     if task_id:
         try:
-            ai_task = AiTask.objects.get(id=task_id, status='pending')
+            ai_task = AiTask.objects.get(id=task_id, status='in-progress')
             ai_tasks = [ai_task]
         except AiTask.DoesNotExist:
-            logger.warning(f"No pending ai task found with id={task_id}")
+            logger.warning(f"No in-progress ai task found with id={task_id}")
             return
 
     elif user_id:
-        ai_tasks = AiTask.objects.filter(status='pending', user_id=user_id)
+        ai_tasks = AiTask.objects.filter(status='in-progress', user_id=user_id)
         logger.info(f"Sending reminders for user_id: {user_id}")
         logger.debug(f"Tasks for user_id {user_id}: {ai_tasks}")
 
@@ -185,7 +185,7 @@ def send_ai_task_reminders(task_id=None, user_id=None):
 
     for ai_task in ai_tasks:
         try:
-            user = ai_task.user or (ai_task.goal.user if ai_task.goal else None)
+            user = ai_task.ai_goal.user or (ai_task.ai_goal.user if ai_task.ai_goal else None)
 
             if not user:
                 logger.error(f"Task '{ai_task.title}' has no associated user.")
@@ -242,6 +242,7 @@ def send_ai_task_reminders(task_id=None, user_id=None):
 def send_ai_subtask_reminders(subtask_id=None, user_id=None):
     current_time = timezone.now()
     ai_subtasks = []
+    
 
     if subtask_id:
         try:
@@ -261,7 +262,13 @@ def send_ai_subtask_reminders(subtask_id=None, user_id=None):
 
     for ai_subtask in ai_subtasks:
         try:
-            user = ai_subtask.user or (ai_subtask.goal.user if ai_subtask.goal else None)
+            user = ai_subtask.ai_task.ai_goal.user if ai_subtask.ai_task and ai_subtask.ai_task.ai_goal else None
+            ai_task = getattr(ai_subtask, 'ai_task', None)
+            ai_goal = getattr(ai_task, 'ai_goal', None) if ai_task else None
+
+            logger.debug(f"Processing AI subtask: {ai_subtask.title}, AI task: {ai_task.title if ai_task else 'N/A'}, AI goal: {ai_goal.title if ai_goal else 'N/A'}")
+
+
 
             if not user:
                 logger.error(f"Task '{ai_subtask.title}' has no associated user.")
@@ -275,7 +282,10 @@ def send_ai_subtask_reminders(subtask_id=None, user_id=None):
             user_email = user.email
 
             # Combine due date and reminder time into a datetime
-            reminder_local = datetime.combine(ai_subtask.due_date, ai_subtask.reminder_time)
+            reminder_local =  datetime.combine(
+                    ai_subtask.due_date.date(),
+                    ai_subtask.reminder_time
+                )
 
             # Localize if naive
             if timezone.is_naive(reminder_local):
@@ -285,13 +295,15 @@ def send_ai_subtask_reminders(subtask_id=None, user_id=None):
             logger.debug(f"Reminder time (UTC) for ai task '{ai_subtask.title}': {reminder_utc}, current time: {current_time}")
 
             if reminder_utc <= current_time <= reminder_utc + timedelta(minutes=2):
-                subject = "⏰ Task Reminder from Kommitly"
+                subject = "⏰ Upcoming Subtask Due: "f"{ai_subtask.title}"
                 from_email = 'no-reply@kommitly.com'
                 to = [user_email]
                 context = {
-                    'task': ai_subtask,
+                    'ai_subtask': ai_subtask,
+                    'ai_task': ai_task,
+                    'ai_goal': ai_goal,
                     'user': user,
-                    'app_link': f"https://kommitly-frontend.vercel.app/dashboard/tasks/{ai_subtask.id}/"
+                    'app_link': f"https://kommitly-frontend.vercel.app/dashboard/ai-goal/{ai_goal.id}/task/{ai_task.id}/subtask/{ai_subtask.id}"
                 }
                 text_content = f"Reminder: {ai_subtask.title} is due soon! Visit your Kommitly app to manage it."
                 try:

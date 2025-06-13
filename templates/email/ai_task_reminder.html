@@ -13,7 +13,7 @@
         body {
             font-family: Arial, sans-serif;
             background-color: #F4F1FF;
-          
+            color: #000;
             padding: 20px;
             
            
@@ -22,7 +22,7 @@
 </head>
 <body>
     <h2>Hi <span style="color: #4F378A;">{{ user.first_name }} 👋</span>,</h2>
-    <p>This is a friendly reminder that your task <span style="background-color: #D6CFFF; color: #4F378A; border-radius: 4px; padding-top: 5px; padding-bottom: 5px; padding-left: 10px; padding-right: 10px;"><strong>{{ ai_task.title }}</strong></span> is due soon.</p>
+    <p>This is a friendly reminder that your task <span ><strong>{{ task.title }}</strong></span> is due soon.</p>
 
     <p style="margin-bottom: 30px; margin-top: 30px;">
         <a href="{{ app_link }}" class="button" style="background-color: #4F378A; color: #F4F1FF; font-weight: 100; border-radius: 10px; 

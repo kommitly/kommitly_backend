@@ -2,6 +2,7 @@ import logging
 from django.shortcuts import render
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from datetime import datetime
 from rest_framework import status, permissions
 from .models import Goal, Task, AiGoal, AiTask, SubTask, AiSubTask
 from .serializers import GoalSerializer, TaskSerializer, CreateGoalSerializer, CreateTaskSerializer, CreateAiTaskSerializer,AiGoalSerializer, AiTaskSerializer, CreateAiGoalSerializer, UserProfileSerializer, UpdateAiGoalSerializer, SubTaskSerializer, AiSubTaskSerializer
@@ -1220,6 +1221,7 @@ class TriggerTaskRemindersView(APIView):
                 task.due_date = due_date
             if reminder_time is not None:
                 task.reminder_time = reminder_time
+                task.reminder_sent = False 
 
             task.save()
 
@@ -1288,6 +1290,7 @@ class TriggerAiSubTaskRemindersView(APIView):
                 ai_subtask.due_date = due_date
             if reminder_time is not None:
                 ai_subtask.reminder_time = reminder_time
+                ai_subtask.reminder_sent = False 
 
             ai_subtask.save()
 
@@ -1303,7 +1306,6 @@ class TriggerAiSubTaskRemindersView(APIView):
 
         except AiSubTask.DoesNotExist:
             return Response({"error": " Ai subtask not found"}, status=status.HTTP_404_NOT_FOUND)
-
 
 
 
@@ -1347,43 +1349,18 @@ class TriggerAiTaskRemindersView(APIView):
         if not task_id:
             return Response({"error": "task_id is required"}, status=status.HTTP_400_BAD_REQUEST)
 
-        item_type = request.data.get("type", "task")  # default to task
-
-        if item_type == "subtask":
-            try:
-                subtask = AiSubTask.objects.get(id=task_id, ai_task__ai_goal__user=request.user)
-                if due_date is not None:
-                    subtask.due_date = due_date
-                if reminder_time is not None:
-                    subtask.reminder_time = reminder_time
-                subtask.save()
-
-                if not subtask.due_date or not subtask.reminder_time:
-                    return Response(
-                        {"error": "Subtask must have both due_date and reminder_time to trigger reminders."},
-                        status=status.HTTP_400_BAD_REQUEST
-                    )
-
-                return Response({"message": "Ai Subtask reminder scheduled successfully"}, status=status.HTTP_200_OK)
-
-            except AiSubTask.DoesNotExist:
-                return Response({"error": "Ai Subtask not found"}, status=status.HTTP_404_NOT_FOUND)
-
-
-
-
-
-
-
+       
 
         try:
-            ai_task = AiTask.objects.get(id=task_id, user=request.user)
+            ai_task = AiTask.objects.get(id=task_id, ai_goal__user=request.user)
+
 
             # Update due_date and reminder_time if provided
             if due_date is not None:
                 ai_task.due_date = due_date
             if reminder_time is not None:
                 ai_task.reminder_time = reminder_time
+                ai_task.reminder_sent = False 
 
             ai_task.save()
 
@@ -1395,14 +1372,10 @@ class TriggerAiTaskRemindersView(APIView):
                 )
 
          
-            return Response({"message": "Ai Task reminders triggered successfully"}, status=status.HTTP_200_OK)
+            return Response({"message": "Ai task reminders triggered successfully"}, status=status.HTTP_200_OK)
 
         except AiTask.DoesNotExist:
-            return Response({"error": " Ai Task not found"}, status=status.HTTP_404_NOT_FOUND)
-
-
-
-
+            return Response({"error": " Ai task not found"}, status=status.HTTP_404_NOT_FOUND)
 
 
 

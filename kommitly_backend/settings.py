@@ -217,7 +217,7 @@ EMAIL_HOST_PASSWORD = config("EMAIL_HOST_PASSWORD")
 
 GROQ_API_KEY = config("GROQ_API_KEY")
 
-"""
+
 
 LOGGING = {
     'version': 1,
@@ -244,7 +244,6 @@ LOGGING = {
     },
 }
 
-"""
 
 
 REDIS_URL = os.getenv("REDIS_URL")  # Fallback to local Redis

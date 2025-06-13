@@ -1,11 +1,12 @@
 from django.db import models
-from django.utils.timezone import now, make_aware
+from django.utils.timezone import now, make_aware, is_naive
 from datetime import datetime
 from django.core.exceptions import ValidationError
 from django.db.models import Count, Q
 from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
 from django.utils import timezone
+from django.utils.dateparse import parse_datetime
 
 # Create your models here.
 class Goal(models.Model):
@@ -169,11 +170,21 @@ class AiTask(models.Model):
             self.completed_at = now()
 
 
-        if self.due_date:
-            if now() > self.due_date and self.status in ['pending', 'in-progress']:
+        due = self.due_date
+
+        # Convert string to datetime if needed
+        if isinstance(due, str):
+            due = parse_datetime(due)
+
+        # Only proceed if due is now a datetime
+        if due:
+            if is_naive(due):
+                due = make_aware(due)
+
+            if now() > due and self.status in ['pending', 'in-progress']:
                 self.status = 'overdue'
-            elif now() <= self.due_date and self.status == 'overdue':
-                self.status = 'pending'  # or 'in-progress' based on your logic
+            elif now() <= due and self.status == 'overdue':
+                self.status = 'pending'
 
         super().save(*args, **kwargs)  # Save the current task
 

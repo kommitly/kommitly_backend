@@ -43,11 +43,66 @@ class NotificationListView(APIView):
         }
     )
     def get(self, request):
-        task_id = request.query_params.get("task_id")
-        notifications = Notification.objects.filter(user=request.user)
-
-        if task_id:
-            notifications = notifications.filter(task_id=task_id)
-
-        data = NotificationSerializer(notifications.order_by('-created_at'), many=True).data
+        notifications = Notification.objects.filter(user=request.user).order_by('-created_at')
+        data = NotificationSerializer(notifications, many=True).data
         return Response(data, status=status.HTTP_200_OK)
+
+
+
+class SingleTaskNotificationView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    @swagger_auto_schema(
+        operation_description="Get the latest notification for a specific task.",
+        tags=["Notifications"],
+        manual_parameters=[
+            openapi.Parameter(
+                'task_id', openapi.IN_PATH, description="Task ID",
+                type=openapi.TYPE_INTEGER
+            )
+        ],
+        responses={
+            200: openapi.Response(
+                description="Notification for the task",
+                schema=openapi.Schema(
+                    type=openapi.TYPE_OBJECT,
+                    properties={
+                        "id": openapi.Schema(type=openapi.TYPE_INTEGER),
+                        "message": openapi.Schema(type=openapi.TYPE_STRING),
+                        "link": openapi.Schema(type=openapi.TYPE_STRING, format="uri"),
+                        "type": openapi.Schema(type=openapi.TYPE_STRING),
+                        "is_read": openapi.Schema(type=openapi.TYPE_BOOLEAN),
+                        "created_at": openapi.Schema(type=openapi.TYPE_STRING, format="date-time"),
+                    }
+                )
+            ),
+            404: "Notification not found",
+            401: "Unauthorized"
+        }
+    )
+    def get(self, request, task_id):
+        notification = Notification.objects.filter(user=request.user, task_id=task_id).order_by('-created_at').first()
+
+        if not notification:
+            return Response({"detail": "Notification not found for this task."}, status=status.HTTP_404_NOT_FOUND)
+
+        data = NotificationSerializer(notification).data
+        return Response(data, status=status.HTTP_200_OK)
+
+
+class MarkNotificationAsReadView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    @swagger_auto_schema(
+        operation_description="Mark a specific notification as read.",
+        tags=["Notifications"],
+        responses={204: "Marked as read", 404: "Not found", 401: "Unauthorized"}
+    )
+    def patch(self, request, notification_id):
+        try:
+            notification = Notification.objects.get(id=notification_id, user=request.user)
+            notification.is_read = True
+            notification.save()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        except Notification.DoesNotExist:
+            return Response({"detail": "Notification not found."}, status=status.HTTP_404_NOT_FOUND)
