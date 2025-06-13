@@ -952,6 +952,44 @@ class GetAiTaskByIdView(APIView):
 
 
 
+class GetAiSubtaskByIdView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    @swagger_auto_schema(
+        tags=["Subtasks"],
+        responses={
+            200: AiSubTaskSerializer,
+            404: "Subtask not found",
+            403: "Forbidden - You do not own this subtask",
+            500: "Internal Server Error",
+        },
+        operation_description="Fetch a subtask by its ID"
+    )
+    def get(self, request, task_id, subtask_id, *args, **kwargs):
+        try:
+            # Fetch the subtask and related goal via ai_task
+            ai_subtask = AiSubTask.objects.select_related('ai_task__ai_goal').get(
+                id=subtask_id,
+                ai_task_id=task_id
+            )
+
+            # Check ownership
+            if ai_subtask.ai_task.ai_goal.user != request.user:
+                raise PermissionDenied("You do not have permission to access this subtask.")
+
+            # Serialize and return
+            serializer = AiSubTaskSerializer(ai_subtask)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+
+        except AiSubTask.DoesNotExist:
+            raise Http404("Subtask not found.")
+
+        except Exception as e:
+            return Response(
+                {"error": "An unexpected error occurred", "details": str(e)},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
 
 class DeleteGoalView(APIView):
     permission_classes = [permissions.IsAuthenticated]

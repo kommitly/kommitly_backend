@@ -32,7 +32,9 @@ from .views import (
     UpdateSubtaskView,
     DeleteSubtaskView,
     DeleteAiSubtaskView,
-    TriggerAiSubTaskRemindersView
+    TriggerAiSubTaskRemindersView,
+    GetAiSubtaskByIdView
+
     
 )
 
@@ -71,6 +73,8 @@ urlpatterns= [
     path('tasks/subtasks/<int:subtask_id>/delete/', DeleteSubtaskView.as_view(), name='delete-subtask'),
     path('tasks/ai-subtasks/<int:ai_subtask_id>/delete/', DeleteAiSubtaskView.as_view(), name='delete-ai-subtask'),
     path('tasks/trigger-ai-subtask-reminders/', TriggerAiSubTaskRemindersView.as_view(), name='trigger_ai_subtask_reminders'),
+    path('ai-task/<int:task_id>/ai-subtask/<int:subtask_id>/', GetAiSubtaskByIdView.as_view(), name='get_ai_subtask'),
+
  
     
     
