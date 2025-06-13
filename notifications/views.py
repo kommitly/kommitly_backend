@@ -50,12 +50,8 @@ class SingleTaskNotificationView(APIView):
     @swagger_auto_schema(
         operation_description="Get the latest notification for a specific task.",
         tags=["Notifications"],
-        manual_parameters=[
-            openapi.Parameter(
-                'task_id', openapi.IN_PATH, description="Task ID",
-                type=openapi.TYPE_INTEGER
-            )
-        ],
+        
+     
         responses={
             200: openapi.Response(
                 description="Notification for the task",
