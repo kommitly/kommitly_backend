@@ -10,6 +10,9 @@ from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
 from django.template import TemplateDoesNotExist
 from templates import email
+from django.contrib.contenttypes.models import ContentType
+
+
 
 logger = logging.getLogger(__name__)
 
@@ -272,7 +275,7 @@ def send_ai_subtask_reminders(subtask_id=None, user_id=None):
         logger.debug(f"Tasks for user_id {user_id}: {ai_subtasks}")
 
     else:
-        ai_subtasks = AiSubTask.objects.filter(status='pending')
+        ai_subtasks = AiSubTask.objects.filter(status='pending', reminder_sent=False)
 
     for ai_subtask in ai_subtasks:
         try:

@@ -13,30 +13,31 @@ class NotificationListView(APIView):
     permission_classes = [IsAuthenticated]
 
     @swagger_auto_schema(
-        operation_description="Retrieve notifications for the current user, optionally filtered by task ID.",
-        tags=["Notifications"],
-      
-        responses={
-            200: openapi.Response(
-                description="List of notifications",
-                schema=openapi.Schema(
-                    type=openapi.TYPE_ARRAY,
-                    items=openapi.Schema(
-                        type=openapi.TYPE_OBJECT,
-                        properties={
-                            "id": openapi.Schema(type=openapi.TYPE_INTEGER),
-                            "message": openapi.Schema(type=openapi.TYPE_STRING),
-                            "link": openapi.Schema(type=openapi.TYPE_STRING, format="uri"),
-                            "type": openapi.Schema(type=openapi.TYPE_STRING),
-                            "is_read": openapi.Schema(type=openapi.TYPE_BOOLEAN),
-                            "created_at": openapi.Schema(type=openapi.TYPE_STRING, format="date-time"),
-                        },
-                    )
+    operation_description="Retrieve notifications for the current user, optionally filtered by related content.",
+    tags=["Notifications"],
+    responses={
+        200: openapi.Response(
+            description="List of notifications",
+            schema=openapi.Schema(
+                type=openapi.TYPE_ARRAY,
+                items=openapi.Schema(
+                    type=openapi.TYPE_OBJECT,
+                    properties={
+                        "id": openapi.Schema(type=openapi.TYPE_INTEGER),
+                        "message": openapi.Schema(type=openapi.TYPE_STRING),
+                        "link": openapi.Schema(type=openapi.TYPE_STRING, format="uri"),
+                        "type": openapi.Schema(type=openapi.TYPE_STRING),
+                        "is_read": openapi.Schema(type=openapi.TYPE_BOOLEAN),
+                        "created_at": openapi.Schema(type=openapi.TYPE_STRING, format="date-time"),
+                        "content_type": openapi.Schema(type=openapi.TYPE_STRING, description="Model name of related object"),
+                        "object_id": openapi.Schema(type=openapi.TYPE_INTEGER, description="ID of related object"),
+                    },
                 )
-            ),
-            401: "Unauthorized"
-        }
-    )
+            )
+        ),
+        401: "Unauthorized"
+    }
+)
     def get(self, request):
         notifications = Notification.objects.filter(user=request.user).order_by('-created_at')
         data = NotificationSerializer(notifications, many=True).data
@@ -57,14 +58,16 @@ class SingleTaskNotificationView(APIView):
                 description="Notification for the task",
                 schema=openapi.Schema(
                     type=openapi.TYPE_OBJECT,
-                    properties={
+                   properties={
                         "id": openapi.Schema(type=openapi.TYPE_INTEGER),
                         "message": openapi.Schema(type=openapi.TYPE_STRING),
                         "link": openapi.Schema(type=openapi.TYPE_STRING, format="uri"),
                         "type": openapi.Schema(type=openapi.TYPE_STRING),
                         "is_read": openapi.Schema(type=openapi.TYPE_BOOLEAN),
                         "created_at": openapi.Schema(type=openapi.TYPE_STRING, format="date-time"),
-                    }
+                        "content_type": openapi.Schema(type=openapi.TYPE_STRING, description="Model name of related object"),
+                        "object_id": openapi.Schema(type=openapi.TYPE_INTEGER, description="ID of related object"),
+                    },
                 )
             ),
             404: "Notification not found",
