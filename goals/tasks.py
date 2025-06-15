@@ -83,7 +83,8 @@ def send_task_reminders(task_id=None, user_id=None):
                  # ✅ In-app notification
                 Notification.objects.create(
                     user=user,
-                    task=task,
+                    content_type=ContentType.objects.get_for_model(task),
+                    object_id=task.id,
                     message=f"⏰ Reminder: '{task.title}' is due soon.",
                     link=f"https://kommitly-frontend.vercel.app/dashboard/tasks/{task.id}/",
                     type="reminder"
@@ -166,6 +167,7 @@ def send_ai_task_reminders():
 def send_ai_task_reminders(task_id=None, user_id=None):
     current_time = timezone.now()
     ai_tasks = []
+    
 
     if task_id:
         try:
@@ -186,7 +188,7 @@ def send_ai_task_reminders(task_id=None, user_id=None):
     for ai_task in ai_tasks:
         try:
             user = ai_task.ai_goal.user or (ai_task.ai_goal.user if ai_task.ai_goal else None)
-
+            ai_goal = getattr(ai_task, 'ai_goal', None) if ai_task else None
             if not user:
                 logger.error(f"Task '{ai_task.title}' has no associated user.")
                 continue
@@ -215,7 +217,7 @@ def send_ai_task_reminders(task_id=None, user_id=None):
                 context = {
                     'task': ai_task,
                     'user': user,
-                    'app_link': f"https://kommitly-frontend.vercel.app/dashboard/tasks/{ai_task.id}/"
+                    'app_link': f"https://kommitly-frontend.vercel.app/dashboard/ai-goal/{ai_goal.id}"
                 }
                 text_content = f"Reminder: {ai_task.title} is due soon! Visit your Kommitly app to manage it."
                 try:
@@ -227,6 +229,18 @@ def send_ai_task_reminders(task_id=None, user_id=None):
                 msg = EmailMultiAlternatives(subject, text_content, from_email, to)
                 msg.attach_alternative(html_content, "text/html")
                 msg.send()
+
+                       # ✅ In-app notification for ai_task
+                Notification.objects.create(
+                    user=user,
+                    content_type=ContentType.objects.get_for_model(ai_task),
+                    object_id=ai_task.id,
+                    message=f"⏰ Reminder: '{ai_task.title}' is due soon.",
+                    link=f"https://kommitly-frontend.vercel.app/dashboard/ai-goal/{ai_goal.id}",
+                    type="reminder"
+                )
+
+
 
                 ai_task.reminder_sent = True
                 ai_task.save()
@@ -315,6 +329,17 @@ def send_ai_subtask_reminders(subtask_id=None, user_id=None):
                 msg = EmailMultiAlternatives(subject, text_content, from_email, to)
                 msg.attach_alternative(html_content, "text/html")
                 msg.send()
+
+                          # ✅ In-app notification for ai_subtask
+                Notification.objects.create(
+                    user=user,
+                    content_type=ContentType.objects.get_for_model(ai_subtask),
+                    object_id=ai_subtask.id,
+                    message=f"⏰ Reminder: '{ai_subtask.title}' is due soon.",
+                    link=f"https://kommitly-frontend.vercel.app/dashboard/ai-goal/{ai_goal.id}/task/{ai_task.id}/subtask/{ai_subtask.id}",
+                    type="reminder"
+                )
+
 
                 ai_subtask.reminder_sent = True
                 ai_subtask.save()
