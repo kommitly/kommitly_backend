@@ -259,6 +259,10 @@ class CreateGoalWithAIInsightsView(APIView):
                     properties={
                         'title': openapi.Schema(type=openapi.TYPE_STRING),
                         'description': openapi.Schema(type=openapi.TYPE_STRING),
+                        'category': openapi.Schema(type=openapi.TYPE_STRING),
+                        'progress': openapi.Schema(type=openapi.TYPE_STRING),
+                          # Added tag field
+                        
                     }
                 ),
                 "ai_tasks": openapi.Schema(

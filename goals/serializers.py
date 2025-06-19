@@ -12,6 +12,7 @@ import pytz
 from django.utils.timezone import make_aware
 from rest_framework import serializers
 from .models import Task  # Adjust the import based on your project structure
+from django.utils.dateparse import parse_datetime
 
 class SubTaskSerializer(serializers.ModelSerializer):
     class Meta:
@@ -56,9 +57,23 @@ class CreateAiTaskSerializer(serializers.ModelSerializer):
             data['ai_goal'] = None
         return super().to_internal_value(data)
 
+    
     def validate(self, data):
-        if not data.get('reminder_time') and data.get('due_date'):
-            data['reminder_time'] = (data['due_date'] - timedelta(minutes=30)).time()
+        due = data.get('due_date')
+
+        if due:
+            # Parse string if necessary
+            if isinstance(due, str):
+                due = parse_datetime(due)
+
+            if due:
+                data['reminder_time'] = (due - timedelta(minutes=30)).time()
+
+        # Optional: prevent changing status backward
+        if self.instance:
+            if self.instance.status == 'completed' and data.get('status') != 'completed':
+                raise serializers.ValidationError("Cannot move a completed task back to another status.")
+
         return data
 
     def create(self, validated_data):
@@ -227,12 +242,19 @@ class AiTaskSerializer(serializers.ModelSerializer):
             instance.ai_goal.update_progress()  # Ensure progress is updated
         return instance
 
+    
     def validate(self, data):
-        """Ensure valid status transitions and default reminder time."""
-        if "reminder_time" not in data and "due_date" in data:
-            data["reminder_time"] = (data["due_date"] - timedelta(minutes=30)).time()
+        due = data.get('due_date')
 
-        # Prevent moving backwards in status
+        if due:
+            # Parse string if necessary
+            if isinstance(due, str):
+                due = parse_datetime(due)
+
+            if due:
+                data['reminder_time'] = (due - timedelta(minutes=30)).time()
+
+        # Optional: prevent changing status backward
         if self.instance:
             if self.instance.status == 'completed' and data.get('status') != 'completed':
                 raise serializers.ValidationError("Cannot move a completed task back to another status.")
@@ -298,7 +320,8 @@ class CreateAiGoalSerializer(serializers.ModelSerializer):
         insights = get_insights(ai_goal)
 
        # Ensure AI-provided category is valid
-        if isinstance(insights, dict) and "goal_category" in insights:
+        if not validated_data.get("category") and isinstance(insights, dict) and "goal_category" in insights:
+
             category = insights["goal_category"].lower()  # Convert to lowercase
             if category in dict(AiGoal.CATEGORY_CHOICES):
                 validated_data["category"] = category
