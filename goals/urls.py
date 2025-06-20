@@ -33,7 +33,9 @@ from .views import (
     DeleteSubtaskView,
     DeleteAiSubtaskView,
     TriggerAiSubTaskRemindersView,
-    GetAiSubtaskByIdView
+    GetAiSubtaskByIdView,
+    AnswerAiSubtaskQuestionView,
+    AnswerTaskQuestionView
 
     
 )
@@ -74,6 +76,8 @@ urlpatterns= [
     path('tasks/ai-subtasks/<int:ai_subtask_id>/delete/', DeleteAiSubtaskView.as_view(), name='delete-ai-subtask'),
     path('tasks/trigger-ai-subtask-reminders/', TriggerAiSubTaskRemindersView.as_view(), name='trigger_ai_subtask_reminders'),
     path('ai-task/<int:task_id>/ai-subtask/<int:subtask_id>/', GetAiSubtaskByIdView.as_view(), name='get_ai_subtask'),
+    path('tasks/ai-subtask/<int:subtask_id>/answer/', AnswerAiSubtaskQuestionView.as_view(), name='answer_ai_subtask_question'),
+    path('tasks/<int:task_id>/answer/', AnswerTaskQuestionView.as_view(), name='answer_task_question'),
 
  
     

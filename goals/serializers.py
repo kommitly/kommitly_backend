@@ -17,18 +17,22 @@ from django.utils.dateparse import parse_datetime
 class SubTaskSerializer(serializers.ModelSerializer):
     class Meta:
         model = SubTask
-        fields = ['id', 'task', 'title', 'description', 'due_date', 'status', 'completed_at', 'reminder_time', 'reminder_sent', 'last_updated']
+        fields = ['id', 'task', 'title', 'description', 'due_date', 'status', 'completed_at', 'reminder_time', 'reminder_sent', 'last_updated','ai_answer']
 
 class AiSubTaskSerializer(serializers.ModelSerializer):
     class Meta:
         model = AiSubTask
-        fields = ['id', 'title', 'description', 'due_date', 'status','completed_at', 'reminder_time', 'reminder_sent', 'last_updated']
+        fields = ['id', 'title', 'description', 'due_date', 'status','completed_at', 'reminder_time', 'reminder_sent', 'last_updated', 'ai_answer']
 
     def create(self, validated_data):
         ai_task_id = self.context.get('ai_task_id') #get the ai_task_id from the context
+
         if ai_task_id is None:
             raise serializers.ValidationError({"ai_task_id":"ai_task_id is required"})
         validated_data['ai_task_id'] = ai_task_id # add the ai_task_id to the validated data
+        
+
+
         return super().create(validated_data)
 
     def update(self, instance, validated_data):
@@ -156,7 +160,8 @@ class TaskSerializer(serializers.ModelSerializer):
             'reminder_time',
             'last_updated',
             'reminder_sent',
-            'tag'
+            'tag',
+            'ai_answer'
         ]
 
     def validate(self, data):

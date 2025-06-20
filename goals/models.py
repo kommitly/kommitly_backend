@@ -96,6 +96,8 @@ class Task(models.Model):
     reminder_time = models.TimeField(null=True, blank=True)
     reminder_sent = models.BooleanField(default=False)
     last_updated = models.DateTimeField(auto_now=True)  # Track updates
+    ai_answer = models.TextField(null=True, blank=True)
+
 
     def save(self, *args, **kwargs):
         """
@@ -227,6 +229,8 @@ class SubTask(models.Model):
     completed_at = models.DateTimeField(blank=True, null=True)
     status = models.CharField(max_length=20, choices=[("pending", "Pending"), ("completed", "Completed")], default="pending")
     last_updated = models.DateTimeField(auto_now=True) 
+    ai_answer = models.TextField(null=True, blank=True)
+
     def __str__(self):
         return self.title
 
@@ -242,6 +246,8 @@ class AiSubTask(models.Model):
     status = models.CharField(max_length=20, choices=[("pending", "Pending"), ("completed", "Completed")], default="pending")
     completed_at = models.DateTimeField(blank=True, null=True)
     last_updated = models.DateTimeField(auto_now=True) 
+    ai_answer = models.TextField(null=True, blank=True)
+
     def save(self, *args, **kwargs):
         # Store original status to detect changes *before* saving
         original_status = None

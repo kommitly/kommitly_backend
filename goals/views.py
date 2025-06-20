@@ -9,12 +9,13 @@ from .serializers import GoalSerializer, TaskSerializer, CreateGoalSerializer, C
 import kommitly_backend.settings as st
 from drf_yasg.utils import swagger_auto_schema
 from django.core.exceptions import ValidationError
-from ai_insights.utils import get_insights
+from ai_insights.utils import get_insights, answer_subtask_question
 from drf_yasg import openapi
 from users.models import User
 from django.http import Http404
 from django.db.models import Prefetch
 from .tasks import send_task_reminders
+
 
 # Configure logging
 logger = logging.getLogger(__name__)
@@ -1692,3 +1693,69 @@ class DeleteAiSubtaskView(APIView):
 
         ai_subtask.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+class AnswerAiSubtaskQuestionView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    @swagger_auto_schema(
+        tags=["Ai Tasks"],
+        responses={
+            200: openapi.Response(
+                description="Answer to the subtask question",
+                schema=openapi.Schema(
+                    type=openapi.TYPE_OBJECT,
+                    properties={
+                        "answer": openapi.Schema(type=openapi.TYPE_STRING),
+                    },
+                ),
+            ),
+            404: "Subtask not found",
+            401: "Unauthorized",
+        },
+        operation_description="Generate and store an AI answer for a specific AiSubTask"
+    )
+    def post(self, request, subtask_id):
+        try:
+            subtask = AiSubTask.objects.get(id=subtask_id, ai_task__ai_goal__user=request.user)
+        except AiSubTask.DoesNotExist:
+            return Response({"error": "Subtask not found"}, status=404)
+
+        answer = answer_subtask_question(subtask.title, subtask.description or "")
+        subtask.ai_answer = answer
+        subtask.save(update_fields=["ai_answer"])
+
+        return Response({"answer": answer}, status=200)
+
+
+
+class AnswerTaskQuestionView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    @swagger_auto_schema(
+        tags=["Tasks"],
+        responses={
+            200: openapi.Response(
+                description="Answer to the task question",
+                schema=openapi.Schema(
+                    type=openapi.TYPE_OBJECT,
+                    properties={
+                        "answer": openapi.Schema(type=openapi.TYPE_STRING),
+                    },
+                ),
+            ),
+            404: "task not found",
+            401: "Unauthorized",
+        },
+        operation_description="Generate and store an AI answer for a specific Task"
+    )
+    def post(self, request, task_id):
+        try:
+            task = Task.objects.get(id=task_id, user=request.user)
+        except Task.DoesNotExist:
+            return Response({"error": "task not found"}, status=404)
+
+        answer = answer_subtask_question(task.title, task.description or "")
+        task.ai_answer = answer
+        task.save(update_fields=["ai_answer"])
+
+        return Response({"answer": answer}, status=200)

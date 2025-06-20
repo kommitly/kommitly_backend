@@ -112,3 +112,34 @@ def parse_insights(response):
         "goal_tag": goal_tag,
         "tasks": parsed_steps
     }
+
+
+
+def answer_subtask_question(title, description):
+    try:
+        print(f"Answering subtask: {title}")
+        client = Groq(api_key=settings.GROQ_API_KEY)
+
+        completion = client.chat.completions.create(
+            model="llama3-70b-8192",
+            messages=[
+                {
+                    "role": "user",
+                    "content": f"Help me tackle this task:\n\n"
+                            f"**Task Title:** {title}\n\n"
+                            f"**Description:** {description}\n\n"
+                        "Give me a clear and complete explanation. Assume I know nothing. Avoid asking me to search or read external resources. Just explain everything I need to know in your own words."
+
+                }
+            ],
+            temperature=0.7,
+            max_tokens=256,
+            top_p=1,
+            stream=False,
+        )
+
+        return completion.choices[0].message.content.strip()
+
+    except Exception as e:
+        print(f"Error answering subtask: {e}")
+        return "No answer available."

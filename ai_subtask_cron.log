@@ -17025,3 +17025,479 @@ AI subtask reminder check complete.
 AI subtask reminder check complete.
 AI subtask reminder check complete.
 AI subtask reminder check complete.
+AI subtask reminder check complete.
+AI subtask reminder check complete.
+AI subtask reminder check complete.
+AI subtask reminder check complete.
+AI subtask reminder check complete.
+AI subtask reminder check complete.
+AI subtask reminder check complete.
+AI subtask reminder check complete.
+AI subtask reminder check complete.
+AI subtask reminder check complete.
+AI subtask reminder check complete.
+AI subtask reminder check complete.
+AI subtask reminder check complete.
+AI subtask reminder check complete.
+AI subtask reminder check complete.
+AI subtask reminder check complete.
+AI subtask reminder check complete.
+AI subtask reminder check complete.
+AI subtask reminder check complete.
+AI subtask reminder check complete.
+AI subtask reminder check complete.
+AI subtask reminder check complete.
+AI subtask reminder check complete.
+AI subtask reminder check complete.
+AI subtask reminder check complete.
+AI subtask reminder check complete.
+AI subtask reminder check complete.
+AI subtask reminder check complete.
+AI subtask reminder check complete.
+AI subtask reminder check complete.
+AI subtask reminder check complete.
+AI subtask reminder check complete.
+AI subtask reminder check complete.
+AI subtask reminder check complete.
+AI subtask reminder check complete.
+AI subtask reminder check complete.
+AI subtask reminder check complete.
+AI subtask reminder check complete.
+AI subtask reminder check complete.
+AI subtask reminder check complete.
+AI subtask reminder check complete.
+AI subtask reminder check complete.
+AI subtask reminder check complete.
+Found 76 AI subtasks pending reminders.
+AI subtask reminder check complete.
+Found 76 AI subtasks pending reminders.
+AI subtask reminder check complete.
+Found 76 AI subtasks pending reminders.
+AI subtask reminder check complete.
+Found 76 AI subtasks pending reminders.
+AI subtask reminder check complete.
+Found 76 AI subtasks pending reminders.
+AI subtask reminder check complete.
+Found 76 AI subtasks pending reminders.
+AI subtask reminder check complete.
+Found 76 AI subtasks pending reminders.
+AI subtask reminder check complete.
+Found 76 AI subtasks pending reminders.
+AI subtask reminder check complete.
+Found 76 AI subtasks pending reminders.
+AI subtask reminder check complete.
+Found 76 AI subtasks pending reminders.
+AI subtask reminder check complete.
+Found 76 AI subtasks pending reminders.
+AI subtask reminder check complete.
+Found 76 AI subtasks pending reminders.
+AI subtask reminder check complete.
+Found 76 AI subtasks pending reminders.
+AI subtask reminder check complete.
+Found 76 AI subtasks pending reminders.
+AI subtask reminder check complete.
+Found 76 AI subtasks pending reminders.
+AI subtask reminder check complete.
+Found 76 AI subtasks pending reminders.
+AI subtask reminder check complete.
+Found 76 AI subtasks pending reminders.
+AI subtask reminder check complete.
+Found 76 AI subtasks pending reminders.
+AI subtask reminder check complete.
+Found 76 AI subtasks pending reminders.
+AI subtask reminder check complete.
+Found 76 AI subtasks pending reminders.
+AI subtask reminder check complete.
+Found 76 AI subtasks pending reminders.
+AI subtask reminder check complete.
+Found 76 AI subtasks pending reminders.
+AI subtask reminder check complete.
+Found 76 AI subtasks pending reminders.
+AI subtask reminder check complete.
+Found 76 AI subtasks pending reminders.
+AI subtask reminder check complete.
+Found 76 AI subtasks pending reminders.
+AI subtask reminder check complete.
+Found 76 AI subtasks pending reminders.
+AI subtask reminder check complete.
+Found 76 AI subtasks pending reminders.
+AI subtask reminder check complete.
+Found 76 AI subtasks pending reminders.
+Traceback (most recent call last):
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/db/backends/utils.py", line 105, in _execute
+    return self.cursor.execute(sql, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+psycopg2.errors.UndefinedColumn: column goals_aisubtask.ai_answer does not exist
+LINE 1: ..."completed_at", "goals_aisubtask"."last_updated", "goals_ais...
+                                                             ^
+
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/shanon/kommitly/kommitly_backend/manage.py", line 22, in <module>
+    main()
+  File "/home/shanon/kommitly/kommitly_backend/manage.py", line 18, in main
+    execute_from_command_line(sys.argv)
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/__init__.py", line 442, in execute_from_command_line
+    utility.execute()
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/__init__.py", line 436, in execute
+    self.fetch_command(subcommand).run_from_argv(self.argv)
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/base.py", line 413, in run_from_argv
+    self.execute(*args, **cmd_options)
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/base.py", line 459, in execute
+    output = self.handle(*args, **options)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/shanon/kommitly/kommitly_backend/goals/management/commands/send_ai_subtask_reminders.py", line 19, in handle
+    for ai_subtask in ai_subtasks:
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/db/models/query.py", line 400, in __iter__
+    self._fetch_all()
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/db/models/query.py", line 1928, in _fetch_all
+    self._result_cache = list(self._iterable_class(self))
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/db/models/query.py", line 91, in __iter__
+    results = compiler.execute_sql(
+              ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/db/models/sql/compiler.py", line 1562, in execute_sql
+    cursor.execute(sql, params)
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/db/backends/utils.py", line 79, in execute
+    return self._execute_with_wrappers(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/db/backends/utils.py", line 92, in _execute_with_wrappers
+    return executor(sql, params, many, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/db/backends/utils.py", line 100, in _execute
+    with self.db.wrap_database_errors:
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/db/utils.py", line 91, in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/db/backends/utils.py", line 105, in _execute
+    return self.cursor.execute(sql, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+django.db.utils.ProgrammingError: column goals_aisubtask.ai_answer does not exist
+LINE 1: ..."completed_at", "goals_aisubtask"."last_updated", "goals_ais...
+                                                             ^
+
+Found 76 AI subtasks pending reminders.
+Traceback (most recent call last):
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/db/backends/utils.py", line 105, in _execute
+    return self.cursor.execute(sql, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+psycopg2.errors.UndefinedColumn: column goals_aisubtask.ai_answer does not exist
+LINE 1: ..."completed_at", "goals_aisubtask"."last_updated", "goals_ais...
+                                                             ^
+
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/shanon/kommitly/kommitly_backend/manage.py", line 22, in <module>
+    main()
+  File "/home/shanon/kommitly/kommitly_backend/manage.py", line 18, in main
+    execute_from_command_line(sys.argv)
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/__init__.py", line 442, in execute_from_command_line
+    utility.execute()
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/__init__.py", line 436, in execute
+    self.fetch_command(subcommand).run_from_argv(self.argv)
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/base.py", line 413, in run_from_argv
+    self.execute(*args, **cmd_options)
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/base.py", line 459, in execute
+    output = self.handle(*args, **options)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/shanon/kommitly/kommitly_backend/goals/management/commands/send_ai_subtask_reminders.py", line 19, in handle
+    for ai_subtask in ai_subtasks:
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/db/models/query.py", line 400, in __iter__
+    self._fetch_all()
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/db/models/query.py", line 1928, in _fetch_all
+    self._result_cache = list(self._iterable_class(self))
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/db/models/query.py", line 91, in __iter__
+    results = compiler.execute_sql(
+              ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/db/models/sql/compiler.py", line 1562, in execute_sql
+    cursor.execute(sql, params)
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/db/backends/utils.py", line 79, in execute
+    return self._execute_with_wrappers(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/db/backends/utils.py", line 92, in _execute_with_wrappers
+    return executor(sql, params, many, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/db/backends/utils.py", line 100, in _execute
+    with self.db.wrap_database_errors:
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/db/utils.py", line 91, in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/db/backends/utils.py", line 105, in _execute
+    return self.cursor.execute(sql, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+django.db.utils.ProgrammingError: column goals_aisubtask.ai_answer does not exist
+LINE 1: ..."completed_at", "goals_aisubtask"."last_updated", "goals_ais...
+                                                             ^
+
+Found 76 AI subtasks pending reminders.
+Traceback (most recent call last):
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/db/backends/utils.py", line 105, in _execute
+    return self.cursor.execute(sql, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+psycopg2.errors.UndefinedColumn: column goals_aisubtask.ai_answer does not exist
+LINE 1: ..."completed_at", "goals_aisubtask"."last_updated", "goals_ais...
+                                                             ^
+
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/shanon/kommitly/kommitly_backend/manage.py", line 22, in <module>
+    main()
+  File "/home/shanon/kommitly/kommitly_backend/manage.py", line 18, in main
+    execute_from_command_line(sys.argv)
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/__init__.py", line 442, in execute_from_command_line
+    utility.execute()
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/__init__.py", line 436, in execute
+    self.fetch_command(subcommand).run_from_argv(self.argv)
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/base.py", line 413, in run_from_argv
+    self.execute(*args, **cmd_options)
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/base.py", line 459, in execute
+    output = self.handle(*args, **options)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/shanon/kommitly/kommitly_backend/goals/management/commands/send_ai_subtask_reminders.py", line 19, in handle
+    for ai_subtask in ai_subtasks:
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/db/models/query.py", line 400, in __iter__
+    self._fetch_all()
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/db/models/query.py", line 1928, in _fetch_all
+    self._result_cache = list(self._iterable_class(self))
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/db/models/query.py", line 91, in __iter__
+    results = compiler.execute_sql(
+              ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/db/models/sql/compiler.py", line 1562, in execute_sql
+    cursor.execute(sql, params)
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/db/backends/utils.py", line 79, in execute
+    return self._execute_with_wrappers(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/db/backends/utils.py", line 92, in _execute_with_wrappers
+    return executor(sql, params, many, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/db/backends/utils.py", line 100, in _execute
+    with self.db.wrap_database_errors:
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/db/utils.py", line 91, in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/db/backends/utils.py", line 105, in _execute
+    return self.cursor.execute(sql, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+django.db.utils.ProgrammingError: column goals_aisubtask.ai_answer does not exist
+LINE 1: ..."completed_at", "goals_aisubtask"."last_updated", "goals_ais...
+                                                             ^
+
+Found 76 AI subtasks pending reminders.
+AI subtask reminder check complete.
+Found 76 AI subtasks pending reminders.
+AI subtask reminder check complete.
+Traceback (most recent call last):
+  File "/home/shanon/kommitly/kommitly_backend/manage.py", line 22, in <module>
+    main()
+  File "/home/shanon/kommitly/kommitly_backend/manage.py", line 18, in main
+    execute_from_command_line(sys.argv)
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/__init__.py", line 442, in execute_from_command_line
+    utility.execute()
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/__init__.py", line 436, in execute
+    self.fetch_command(subcommand).run_from_argv(self.argv)
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/base.py", line 413, in run_from_argv
+    self.execute(*args, **cmd_options)
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/base.py", line 454, in execute
+    self.check()
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/base.py", line 486, in check
+    all_issues = checks.run_checks(
+                 ^^^^^^^^^^^^^^^^^^
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/checks/registry.py", line 88, in run_checks
+    new_errors = check(app_configs=app_configs, databases=databases)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/checks/urls.py", line 42, in check_url_namespaces_unique
+    all_namespaces = _load_all_namespaces(resolver)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/checks/urls.py", line 61, in _load_all_namespaces
+    url_patterns = getattr(resolver, "url_patterns", [])
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/utils/functional.py", line 47, in __get__
+    res = instance.__dict__[self.name] = self.func(instance)
+                                         ^^^^^^^^^^^^^^^^^^^
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/urls/resolvers.py", line 738, in url_patterns
+    patterns = getattr(self.urlconf_module, "urlpatterns", self.urlconf_module)
+                       ^^^^^^^^^^^^^^^^^^^
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/utils/functional.py", line 47, in __get__
+    res = instance.__dict__[self.name] = self.func(instance)
+                                         ^^^^^^^^^^^^^^^^^^^
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/urls/resolvers.py", line 731, in urlconf_module
+    return import_module(self.urlconf_name)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/importlib/__init__.py", line 90, in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<frozen importlib._bootstrap>", line 1387, in _gcd_import
+  File "<frozen importlib._bootstrap>", line 1360, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1331, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 935, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 995, in exec_module
+  File "<frozen importlib._bootstrap>", line 488, in _call_with_frames_removed
+  File "/home/shanon/kommitly/kommitly_backend/kommitly_backend/urls.py", line 48, in <module>
+    path("api/", include("goals.urls")),
+                 ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/urls/conf.py", line 39, in include
+    urlconf_module = import_module(urlconf_module)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/importlib/__init__.py", line 90, in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<frozen importlib._bootstrap>", line 1387, in _gcd_import
+  File "<frozen importlib._bootstrap>", line 1360, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1331, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 935, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 995, in exec_module
+  File "<frozen importlib._bootstrap>", line 488, in _call_with_frames_removed
+  File "/home/shanon/kommitly/kommitly_backend/goals/urls.py", line 2, in <module>
+    from .views import (
+ImportError: cannot import name 'AnswerSubtaskQuestionView' from 'goals.views' (/home/shanon/kommitly/kommitly_backend/goals/views.py). Did you mean: 'AnswerQuestionView'?
+Traceback (most recent call last):
+  File "/home/shanon/kommitly/kommitly_backend/manage.py", line 22, in <module>
+    main()
+  File "/home/shanon/kommitly/kommitly_backend/manage.py", line 18, in main
+    execute_from_command_line(sys.argv)
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/__init__.py", line 442, in execute_from_command_line
+    utility.execute()
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/__init__.py", line 436, in execute
+    self.fetch_command(subcommand).run_from_argv(self.argv)
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/base.py", line 413, in run_from_argv
+    self.execute(*args, **cmd_options)
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/base.py", line 454, in execute
+    self.check()
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/base.py", line 486, in check
+    all_issues = checks.run_checks(
+                 ^^^^^^^^^^^^^^^^^^
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/checks/registry.py", line 88, in run_checks
+    new_errors = check(app_configs=app_configs, databases=databases)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/checks/urls.py", line 42, in check_url_namespaces_unique
+    all_namespaces = _load_all_namespaces(resolver)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/checks/urls.py", line 61, in _load_all_namespaces
+    url_patterns = getattr(resolver, "url_patterns", [])
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/utils/functional.py", line 47, in __get__
+    res = instance.__dict__[self.name] = self.func(instance)
+                                         ^^^^^^^^^^^^^^^^^^^
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/urls/resolvers.py", line 738, in url_patterns
+    patterns = getattr(self.urlconf_module, "urlpatterns", self.urlconf_module)
+                       ^^^^^^^^^^^^^^^^^^^
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/utils/functional.py", line 47, in __get__
+    res = instance.__dict__[self.name] = self.func(instance)
+                                         ^^^^^^^^^^^^^^^^^^^
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/urls/resolvers.py", line 731, in urlconf_module
+    return import_module(self.urlconf_name)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/importlib/__init__.py", line 90, in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<frozen importlib._bootstrap>", line 1387, in _gcd_import
+  File "<frozen importlib._bootstrap>", line 1360, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1331, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 935, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 995, in exec_module
+  File "<frozen importlib._bootstrap>", line 488, in _call_with_frames_removed
+  File "/home/shanon/kommitly/kommitly_backend/kommitly_backend/urls.py", line 48, in <module>
+    path("api/", include("goals.urls")),
+                 ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/urls/conf.py", line 39, in include
+    urlconf_module = import_module(urlconf_module)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/importlib/__init__.py", line 90, in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<frozen importlib._bootstrap>", line 1387, in _gcd_import
+  File "<frozen importlib._bootstrap>", line 1360, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1331, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 935, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 995, in exec_module
+  File "<frozen importlib._bootstrap>", line 488, in _call_with_frames_removed
+  File "/home/shanon/kommitly/kommitly_backend/goals/urls.py", line 2, in <module>
+    from .views import (
+ImportError: cannot import name 'AnswerAiSubtaskQuestionView' from 'goals.views' (/home/shanon/kommitly/kommitly_backend/goals/views.py). Did you mean: 'answer_subtask_question'?
+Traceback (most recent call last):
+  File "/home/shanon/kommitly/kommitly_backend/manage.py", line 22, in <module>
+    main()
+  File "/home/shanon/kommitly/kommitly_backend/manage.py", line 18, in main
+    execute_from_command_line(sys.argv)
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/__init__.py", line 442, in execute_from_command_line
+    utility.execute()
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/__init__.py", line 436, in execute
+    self.fetch_command(subcommand).run_from_argv(self.argv)
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/base.py", line 413, in run_from_argv
+    self.execute(*args, **cmd_options)
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/base.py", line 454, in execute
+    self.check()
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/base.py", line 486, in check
+    all_issues = checks.run_checks(
+                 ^^^^^^^^^^^^^^^^^^
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/checks/registry.py", line 88, in run_checks
+    new_errors = check(app_configs=app_configs, databases=databases)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/checks/urls.py", line 42, in check_url_namespaces_unique
+    all_namespaces = _load_all_namespaces(resolver)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/checks/urls.py", line 61, in _load_all_namespaces
+    url_patterns = getattr(resolver, "url_patterns", [])
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/utils/functional.py", line 47, in __get__
+    res = instance.__dict__[self.name] = self.func(instance)
+                                         ^^^^^^^^^^^^^^^^^^^
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/urls/resolvers.py", line 738, in url_patterns
+    patterns = getattr(self.urlconf_module, "urlpatterns", self.urlconf_module)
+                       ^^^^^^^^^^^^^^^^^^^
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/utils/functional.py", line 47, in __get__
+    res = instance.__dict__[self.name] = self.func(instance)
+                                         ^^^^^^^^^^^^^^^^^^^
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/urls/resolvers.py", line 731, in urlconf_module
+    return import_module(self.urlconf_name)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/importlib/__init__.py", line 90, in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<frozen importlib._bootstrap>", line 1387, in _gcd_import
+  File "<frozen importlib._bootstrap>", line 1360, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1331, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 935, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 995, in exec_module
+  File "<frozen importlib._bootstrap>", line 488, in _call_with_frames_removed
+  File "/home/shanon/kommitly/kommitly_backend/kommitly_backend/urls.py", line 48, in <module>
+    path("api/", include("goals.urls")),
+                 ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/urls/conf.py", line 39, in include
+    urlconf_module = import_module(urlconf_module)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/importlib/__init__.py", line 90, in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<frozen importlib._bootstrap>", line 1387, in _gcd_import
+  File "<frozen importlib._bootstrap>", line 1360, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1331, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 935, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 995, in exec_module
+  File "<frozen importlib._bootstrap>", line 488, in _call_with_frames_removed
+  File "/home/shanon/kommitly/kommitly_backend/goals/urls.py", line 2, in <module>
+    from .views import (
+ImportError: cannot import name 'AnswerAiSubtaskQuestionView' from 'goals.views' (/home/shanon/kommitly/kommitly_backend/goals/views.py). Did you mean: 'answer_subtask_question'?
+Found 76 AI subtasks pending reminders.
+AI subtask reminder check complete.
+Found 76 AI subtasks pending reminders.
+AI subtask reminder check complete.
+Found 76 AI subtasks pending reminders.
+AI subtask reminder check complete.
+Found 76 AI subtasks pending reminders.
+AI subtask reminder check complete.
+Found 76 AI subtasks pending reminders.
+AI subtask reminder check complete.
+Found 76 AI subtasks pending reminders.
+AI subtask reminder check complete.
+Found 76 AI subtasks pending reminders.
+AI subtask reminder check complete.
+Found 76 AI subtasks pending reminders.
+AI subtask reminder check complete.
+Found 76 AI subtasks pending reminders.
+AI subtask reminder check complete.
