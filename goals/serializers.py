@@ -310,10 +310,11 @@ class GoalSerializer(serializers.ModelSerializer):
 
 class CreateAiGoalSerializer(serializers.ModelSerializer):
     category = serializers.ChoiceField(choices=AiGoal.CATEGORY_CHOICES, required=False, allow_null=True, default=None)
-   
+    tag = serializers.CharField(required=False, allow_blank=True, allow_null=True)  # ✅ Add this line
+
     class Meta:
         model = AiGoal
-        fields = ['title', 'description', 'category', 'progress']
+        fields = ['title', 'description', 'category', 'progress', 'tag']
 
     
 

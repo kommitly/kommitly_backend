@@ -262,7 +262,7 @@ class CreateGoalWithAIInsightsView(APIView):
                         'description': openapi.Schema(type=openapi.TYPE_STRING),
                         'category': openapi.Schema(type=openapi.TYPE_STRING),
                         'progress': openapi.Schema(type=openapi.TYPE_STRING),
-                          # Added tag field
+                        
                         
                     }
                 ),
@@ -272,7 +272,7 @@ class CreateGoalWithAIInsightsView(APIView):
                         type=openapi.TYPE_OBJECT,
                         properties={
                             'title': openapi.Schema(type=openapi.TYPE_STRING),
-                            'due_date': openapi.Schema(type=openapi.TYPE_STRING, format='date'),
+                            'due_date': openapi.Schema(type=openapi.TYPE_STRING, format='date-time'),
                             'status': openapi.Schema(type=openapi.TYPE_STRING),
                             'task_timeline': openapi.Schema(type=openapi.TYPE_STRING),
 
@@ -283,7 +283,7 @@ class CreateGoalWithAIInsightsView(APIView):
                                             properties={
                                                 'title': openapi.Schema(type=openapi.TYPE_STRING),
                                                 'description': openapi.Schema(type=openapi.TYPE_STRING),
-                                                'due_date': openapi.Schema(type=openapi.TYPE_STRING, format='date'),
+                                                'due_date': openapi.Schema(type=openapi.TYPE_STRING, format='date-time'),
                                                 'status': openapi.Schema(type=openapi.TYPE_STRING),
                                             }
                                         )
@@ -319,7 +319,7 @@ class CreateGoalWithAIInsightsView(APIView):
                                     'ai_goal': openapi.Schema(type=openapi.TYPE_INTEGER),
                                     'title': openapi.Schema(type=openapi.TYPE_STRING),
                                     'description': openapi.Schema(type=openapi.TYPE_STRING),
-                                    'due_date': openapi.Schema(type=openapi.TYPE_STRING, format='date'),
+                                    'due_date': openapi.Schema(type=openapi.TYPE_STRING, format='date-time'),
                                     'status': openapi.Schema(type=openapi.TYPE_STRING),
                                     "task_timeline": openapi.Schema(type=openapi.TYPE_STRING),
                                     'completed_at': openapi.Schema(type=openapi.TYPE_STRING, format='date-time'),
@@ -334,7 +334,7 @@ class CreateGoalWithAIInsightsView(APIView):
                                                 "id": openapi.Schema(type=openapi.TYPE_INTEGER),
                                                 "title": openapi.Schema(type=openapi.TYPE_STRING, nullable=True),
                                                 "description": openapi.Schema(type=openapi.TYPE_STRING),
-                                                "due_date": openapi.Schema(type=openapi.TYPE_STRING, format="date", nullable=True),
+                                                "due_date": openapi.Schema(type=openapi.TYPE_STRING, format="date-time", nullable=True),
                                                 "status": openapi.Schema(type=openapi.TYPE_STRING),
                                                 'completed_at': openapi.Schema(type=openapi.TYPE_STRING, format='date-time'),
                                                 'reminder_sent': openapi.Schema(type=openapi.TYPE_BOOLEAN),
