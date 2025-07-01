@@ -34787,3 +34787,1931 @@ Found 135 AI subtasks pending reminders.
 AI subtask reminder check complete.
 Found 127 AI subtasks pending reminders.
 AI subtask reminder check complete.
+Found 127 AI subtasks pending reminders.
+AI subtask reminder check complete.
+Found 127 AI subtasks pending reminders.
+AI subtask reminder check complete.
+Found 127 AI subtasks pending reminders.
+AI subtask reminder check complete.
+Found 127 AI subtasks pending reminders.
+AI subtask reminder check complete.
+Found 127 AI subtasks pending reminders.
+AI subtask reminder check complete.
+Found 127 AI subtasks pending reminders.
+AI subtask reminder check complete.
+Found 127 AI subtasks pending reminders.
+AI subtask reminder check complete.
+Found 127 AI subtasks pending reminders.
+AI subtask reminder check complete.
+Found 127 AI subtasks pending reminders.
+AI subtask reminder check complete.
+Found 127 AI subtasks pending reminders.
+AI subtask reminder check complete.
+Found 127 AI subtasks pending reminders.
+AI subtask reminder check complete.
+Found 127 AI subtasks pending reminders.
+AI subtask reminder check complete.
+Found 127 AI subtasks pending reminders.
+AI subtask reminder check complete.
+Found 127 AI subtasks pending reminders.
+AI subtask reminder check complete.
+Found 127 AI subtasks pending reminders.
+AI subtask reminder check complete.
+Found 127 AI subtasks pending reminders.
+AI subtask reminder check complete.
+Found 127 AI subtasks pending reminders.
+AI subtask reminder check complete.
+Found 127 AI subtasks pending reminders.
+AI subtask reminder check complete.
+Found 127 AI subtasks pending reminders.
+AI subtask reminder check complete.
+Found 127 AI subtasks pending reminders.
+AI subtask reminder check complete.
+Found 127 AI subtasks pending reminders.
+AI subtask reminder check complete.
+Found 127 AI subtasks pending reminders.
+AI subtask reminder check complete.
+Found 127 AI subtasks pending reminders.
+AI subtask reminder check complete.
+Found 49 AI subtasks pending reminders.
+AI subtask reminder check complete.
+Found 49 AI subtasks pending reminders.
+AI subtask reminder check complete.
+Found 49 AI subtasks pending reminders.
+AI subtask reminder check complete.
+Found 49 AI subtasks pending reminders.
+AI subtask reminder check complete.
+Found 49 AI subtasks pending reminders.
+AI subtask reminder check complete.
+Found 49 AI subtasks pending reminders.
+AI subtask reminder check complete.
+Found 49 AI subtasks pending reminders.
+AI subtask reminder check complete.
+Found 49 AI subtasks pending reminders.
+AI subtask reminder check complete.
+Found 49 AI subtasks pending reminders.
+AI subtask reminder check complete.
+Found 49 AI subtasks pending reminders.
+AI subtask reminder check complete.
+Found 49 AI subtasks pending reminders.
+AI subtask reminder check complete.
+Found 49 AI subtasks pending reminders.
+AI subtask reminder check complete.
+Found 49 AI subtasks pending reminders.
+AI subtask reminder check complete.
+Found 49 AI subtasks pending reminders.
+AI subtask reminder check complete.
+Found 49 AI subtasks pending reminders.
+AI subtask reminder check complete.
+Found 49 AI subtasks pending reminders.
+AI subtask reminder check complete.
+Found 49 AI subtasks pending reminders.
+AI subtask reminder check complete.
+Found 49 AI subtasks pending reminders.
+AI subtask reminder check complete.
+Traceback (most recent call last):
+  File "/home/shanon/kommitly/kommitly_backend/manage.py", line 22, in <module>
+    main()
+  File "/home/shanon/kommitly/kommitly_backend/manage.py", line 18, in main
+    execute_from_command_line(sys.argv)
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/__init__.py", line 442, in execute_from_command_line
+    utility.execute()
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/__init__.py", line 416, in execute
+    django.setup()
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/__init__.py", line 24, in setup
+    apps.populate(settings.INSTALLED_APPS)
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/apps/registry.py", line 124, in populate
+    app_config.ready()
+  File "/home/shanon/kommitly/kommitly_backend/goals/apps.py", line 10, in ready
+    import goals.signals
+  File "/home/shanon/kommitly/kommitly_backend/goals/signals.py", line 18, in <module>
+    @receiver(pre_delete, sender=AiSubTask)
+              ^^^^^^^^^^
+NameError: name 'pre_delete' is not defined. Did you mean: 'post_delete'?
+Traceback (most recent call last):
+  File "/home/shanon/kommitly/kommitly_backend/manage.py", line 22, in <module>
+    main()
+  File "/home/shanon/kommitly/kommitly_backend/manage.py", line 18, in main
+    execute_from_command_line(sys.argv)
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/__init__.py", line 442, in execute_from_command_line
+    utility.execute()
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/__init__.py", line 416, in execute
+    django.setup()
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/__init__.py", line 24, in setup
+    apps.populate(settings.INSTALLED_APPS)
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/apps/registry.py", line 124, in populate
+    app_config.ready()
+  File "/home/shanon/kommitly/kommitly_backend/goals/apps.py", line 10, in ready
+    import goals.signals
+  File "/home/shanon/kommitly/kommitly_backend/goals/signals.py", line 18, in <module>
+    @receiver(pre_delete, sender=AiSubTask)
+              ^^^^^^^^^^
+NameError: name 'pre_delete' is not defined. Did you mean: 'post_delete'?
+Traceback (most recent call last):
+  File "/home/shanon/kommitly/kommitly_backend/manage.py", line 22, in <module>
+    main()
+  File "/home/shanon/kommitly/kommitly_backend/manage.py", line 18, in main
+    execute_from_command_line(sys.argv)
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/__init__.py", line 442, in execute_from_command_line
+    utility.execute()
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/__init__.py", line 416, in execute
+    django.setup()
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/__init__.py", line 24, in setup
+    apps.populate(settings.INSTALLED_APPS)
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/apps/registry.py", line 124, in populate
+    app_config.ready()
+  File "/home/shanon/kommitly/kommitly_backend/goals/apps.py", line 10, in ready
+    import goals.signals
+  File "/home/shanon/kommitly/kommitly_backend/goals/signals.py", line 18, in <module>
+    @receiver(pre_delete, sender=AiSubTask)
+              ^^^^^^^^^^
+NameError: name 'pre_delete' is not defined. Did you mean: 'post_delete'?
+Traceback (most recent call last):
+  File "/home/shanon/kommitly/kommitly_backend/manage.py", line 22, in <module>
+    main()
+  File "/home/shanon/kommitly/kommitly_backend/manage.py", line 18, in main
+    execute_from_command_line(sys.argv)
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/__init__.py", line 442, in execute_from_command_line
+    utility.execute()
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/__init__.py", line 416, in execute
+    django.setup()
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/__init__.py", line 24, in setup
+    apps.populate(settings.INSTALLED_APPS)
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/apps/registry.py", line 124, in populate
+    app_config.ready()
+  File "/home/shanon/kommitly/kommitly_backend/goals/apps.py", line 10, in ready
+    import goals.signals
+  File "/home/shanon/kommitly/kommitly_backend/goals/signals.py", line 18, in <module>
+    @receiver(pre_delete, sender=AiSubTask)
+              ^^^^^^^^^^
+NameError: name 'pre_delete' is not defined. Did you mean: 'post_delete'?
+Traceback (most recent call last):
+  File "/home/shanon/kommitly/kommitly_backend/manage.py", line 22, in <module>
+    main()
+  File "/home/shanon/kommitly/kommitly_backend/manage.py", line 18, in main
+    execute_from_command_line(sys.argv)
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/__init__.py", line 442, in execute_from_command_line
+    utility.execute()
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/__init__.py", line 416, in execute
+    django.setup()
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/__init__.py", line 24, in setup
+    apps.populate(settings.INSTALLED_APPS)
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/apps/registry.py", line 124, in populate
+    app_config.ready()
+  File "/home/shanon/kommitly/kommitly_backend/goals/apps.py", line 10, in ready
+    import goals.signals
+  File "/home/shanon/kommitly/kommitly_backend/goals/signals.py", line 18, in <module>
+    @receiver(pre_delete, sender=AiSubTask)
+              ^^^^^^^^^^
+NameError: name 'pre_delete' is not defined. Did you mean: 'post_delete'?
+Traceback (most recent call last):
+  File "/home/shanon/kommitly/kommitly_backend/manage.py", line 22, in <module>
+    main()
+  File "/home/shanon/kommitly/kommitly_backend/manage.py", line 18, in main
+    execute_from_command_line(sys.argv)
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/__init__.py", line 442, in execute_from_command_line
+    utility.execute()
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/__init__.py", line 416, in execute
+    django.setup()
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/__init__.py", line 24, in setup
+    apps.populate(settings.INSTALLED_APPS)
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/apps/registry.py", line 124, in populate
+    app_config.ready()
+  File "/home/shanon/kommitly/kommitly_backend/goals/apps.py", line 10, in ready
+    import goals.signals
+  File "/home/shanon/kommitly/kommitly_backend/goals/signals.py", line 18, in <module>
+    @receiver(pre_delete, sender=AiSubTask)
+              ^^^^^^^^^^
+NameError: name 'pre_delete' is not defined. Did you mean: 'post_delete'?
+Traceback (most recent call last):
+  File "/home/shanon/kommitly/kommitly_backend/manage.py", line 22, in <module>
+    main()
+  File "/home/shanon/kommitly/kommitly_backend/manage.py", line 18, in main
+    execute_from_command_line(sys.argv)
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/__init__.py", line 442, in execute_from_command_line
+    utility.execute()
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/__init__.py", line 416, in execute
+    django.setup()
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/__init__.py", line 24, in setup
+    apps.populate(settings.INSTALLED_APPS)
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/apps/registry.py", line 124, in populate
+    app_config.ready()
+  File "/home/shanon/kommitly/kommitly_backend/goals/apps.py", line 10, in ready
+    import goals.signals
+  File "/home/shanon/kommitly/kommitly_backend/goals/signals.py", line 18, in <module>
+    @receiver(pre_delete, sender=AiSubTask)
+              ^^^^^^^^^^
+NameError: name 'pre_delete' is not defined. Did you mean: 'post_delete'?
+Traceback (most recent call last):
+  File "/home/shanon/kommitly/kommitly_backend/manage.py", line 22, in <module>
+    main()
+  File "/home/shanon/kommitly/kommitly_backend/manage.py", line 18, in main
+    execute_from_command_line(sys.argv)
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/__init__.py", line 442, in execute_from_command_line
+    utility.execute()
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/__init__.py", line 416, in execute
+    django.setup()
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/__init__.py", line 24, in setup
+    apps.populate(settings.INSTALLED_APPS)
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/apps/registry.py", line 124, in populate
+    app_config.ready()
+  File "/home/shanon/kommitly/kommitly_backend/goals/apps.py", line 10, in ready
+    import goals.signals
+  File "/home/shanon/kommitly/kommitly_backend/goals/signals.py", line 18, in <module>
+    @receiver(pre_delete, sender=AiSubTask)
+              ^^^^^^^^^^
+NameError: name 'pre_delete' is not defined. Did you mean: 'post_delete'?
+Traceback (most recent call last):
+  File "/home/shanon/kommitly/kommitly_backend/manage.py", line 22, in <module>
+    main()
+  File "/home/shanon/kommitly/kommitly_backend/manage.py", line 18, in main
+    execute_from_command_line(sys.argv)
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/__init__.py", line 442, in execute_from_command_line
+    utility.execute()
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/__init__.py", line 416, in execute
+    django.setup()
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/__init__.py", line 24, in setup
+    apps.populate(settings.INSTALLED_APPS)
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/apps/registry.py", line 124, in populate
+    app_config.ready()
+  File "/home/shanon/kommitly/kommitly_backend/goals/apps.py", line 10, in ready
+    import goals.signals
+  File "/home/shanon/kommitly/kommitly_backend/goals/signals.py", line 18, in <module>
+    @receiver(pre_delete, sender=AiSubTask)
+              ^^^^^^^^^^
+NameError: name 'pre_delete' is not defined. Did you mean: 'post_delete'?
+Traceback (most recent call last):
+  File "/home/shanon/kommitly/kommitly_backend/manage.py", line 22, in <module>
+    main()
+  File "/home/shanon/kommitly/kommitly_backend/manage.py", line 18, in main
+    execute_from_command_line(sys.argv)
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/__init__.py", line 442, in execute_from_command_line
+    utility.execute()
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/__init__.py", line 416, in execute
+    django.setup()
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/__init__.py", line 24, in setup
+    apps.populate(settings.INSTALLED_APPS)
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/apps/registry.py", line 124, in populate
+    app_config.ready()
+  File "/home/shanon/kommitly/kommitly_backend/goals/apps.py", line 10, in ready
+    import goals.signals
+  File "/home/shanon/kommitly/kommitly_backend/goals/signals.py", line 18, in <module>
+    @receiver(pre_delete, sender=AiSubTask)
+              ^^^^^^^^^^
+NameError: name 'pre_delete' is not defined. Did you mean: 'post_delete'?
+Traceback (most recent call last):
+  File "/home/shanon/kommitly/kommitly_backend/manage.py", line 22, in <module>
+    main()
+  File "/home/shanon/kommitly/kommitly_backend/manage.py", line 18, in main
+    execute_from_command_line(sys.argv)
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/__init__.py", line 442, in execute_from_command_line
+    utility.execute()
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/__init__.py", line 416, in execute
+    django.setup()
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/__init__.py", line 24, in setup
+    apps.populate(settings.INSTALLED_APPS)
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/apps/registry.py", line 124, in populate
+    app_config.ready()
+  File "/home/shanon/kommitly/kommitly_backend/goals/apps.py", line 10, in ready
+    import goals.signals
+  File "/home/shanon/kommitly/kommitly_backend/goals/signals.py", line 18, in <module>
+    @receiver(pre_delete, sender=AiSubTask)
+              ^^^^^^^^^^
+NameError: name 'pre_delete' is not defined. Did you mean: 'post_delete'?
+Traceback (most recent call last):
+  File "/home/shanon/kommitly/kommitly_backend/manage.py", line 22, in <module>
+    main()
+  File "/home/shanon/kommitly/kommitly_backend/manage.py", line 18, in main
+    execute_from_command_line(sys.argv)
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/__init__.py", line 442, in execute_from_command_line
+    utility.execute()
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/__init__.py", line 416, in execute
+    django.setup()
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/__init__.py", line 24, in setup
+    apps.populate(settings.INSTALLED_APPS)
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/apps/registry.py", line 124, in populate
+    app_config.ready()
+  File "/home/shanon/kommitly/kommitly_backend/goals/apps.py", line 10, in ready
+    import goals.signals
+  File "/home/shanon/kommitly/kommitly_backend/goals/signals.py", line 18, in <module>
+    @receiver(pre_delete, sender=AiSubTask)
+              ^^^^^^^^^^
+NameError: name 'pre_delete' is not defined. Did you mean: 'post_delete'?
+Traceback (most recent call last):
+  File "/home/shanon/kommitly/kommitly_backend/manage.py", line 22, in <module>
+    main()
+  File "/home/shanon/kommitly/kommitly_backend/manage.py", line 18, in main
+    execute_from_command_line(sys.argv)
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/__init__.py", line 442, in execute_from_command_line
+    utility.execute()
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/__init__.py", line 416, in execute
+    django.setup()
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/__init__.py", line 24, in setup
+    apps.populate(settings.INSTALLED_APPS)
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/apps/registry.py", line 124, in populate
+    app_config.ready()
+  File "/home/shanon/kommitly/kommitly_backend/goals/apps.py", line 10, in ready
+    import goals.signals
+  File "/home/shanon/kommitly/kommitly_backend/goals/signals.py", line 18, in <module>
+    @receiver(pre_delete, sender=AiSubTask)
+              ^^^^^^^^^^
+NameError: name 'pre_delete' is not defined. Did you mean: 'post_delete'?
+Traceback (most recent call last):
+  File "/home/shanon/kommitly/kommitly_backend/manage.py", line 22, in <module>
+    main()
+  File "/home/shanon/kommitly/kommitly_backend/manage.py", line 18, in main
+    execute_from_command_line(sys.argv)
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/__init__.py", line 442, in execute_from_command_line
+    utility.execute()
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/__init__.py", line 416, in execute
+    django.setup()
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/__init__.py", line 24, in setup
+    apps.populate(settings.INSTALLED_APPS)
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/apps/registry.py", line 124, in populate
+    app_config.ready()
+  File "/home/shanon/kommitly/kommitly_backend/goals/apps.py", line 10, in ready
+    import goals.signals
+  File "/home/shanon/kommitly/kommitly_backend/goals/signals.py", line 18, in <module>
+    @receiver(pre_delete, sender=AiSubTask)
+              ^^^^^^^^^^
+NameError: name 'pre_delete' is not defined. Did you mean: 'post_delete'?
+Traceback (most recent call last):
+  File "/home/shanon/kommitly/kommitly_backend/manage.py", line 22, in <module>
+    main()
+  File "/home/shanon/kommitly/kommitly_backend/manage.py", line 18, in main
+    execute_from_command_line(sys.argv)
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/__init__.py", line 442, in execute_from_command_line
+    utility.execute()
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/__init__.py", line 416, in execute
+    django.setup()
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/__init__.py", line 24, in setup
+    apps.populate(settings.INSTALLED_APPS)
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/apps/registry.py", line 124, in populate
+    app_config.ready()
+  File "/home/shanon/kommitly/kommitly_backend/goals/apps.py", line 10, in ready
+    import goals.signals
+  File "/home/shanon/kommitly/kommitly_backend/goals/signals.py", line 18, in <module>
+    @receiver(pre_delete, sender=AiSubTask)
+              ^^^^^^^^^^
+NameError: name 'pre_delete' is not defined. Did you mean: 'post_delete'?
+Traceback (most recent call last):
+  File "/home/shanon/kommitly/kommitly_backend/manage.py", line 22, in <module>
+    main()
+  File "/home/shanon/kommitly/kommitly_backend/manage.py", line 18, in main
+    execute_from_command_line(sys.argv)
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/__init__.py", line 442, in execute_from_command_line
+    utility.execute()
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/__init__.py", line 416, in execute
+    django.setup()
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/__init__.py", line 24, in setup
+    apps.populate(settings.INSTALLED_APPS)
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/apps/registry.py", line 124, in populate
+    app_config.ready()
+  File "/home/shanon/kommitly/kommitly_backend/goals/apps.py", line 10, in ready
+    import goals.signals
+  File "/home/shanon/kommitly/kommitly_backend/goals/signals.py", line 18, in <module>
+    @receiver(pre_delete, sender=AiSubTask)
+              ^^^^^^^^^^
+NameError: name 'pre_delete' is not defined. Did you mean: 'post_delete'?
+Traceback (most recent call last):
+  File "/home/shanon/kommitly/kommitly_backend/manage.py", line 22, in <module>
+    main()
+  File "/home/shanon/kommitly/kommitly_backend/manage.py", line 18, in main
+    execute_from_command_line(sys.argv)
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/__init__.py", line 442, in execute_from_command_line
+    utility.execute()
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/__init__.py", line 416, in execute
+    django.setup()
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/__init__.py", line 24, in setup
+    apps.populate(settings.INSTALLED_APPS)
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/apps/registry.py", line 124, in populate
+    app_config.ready()
+  File "/home/shanon/kommitly/kommitly_backend/goals/apps.py", line 10, in ready
+    import goals.signals
+  File "/home/shanon/kommitly/kommitly_backend/goals/signals.py", line 18, in <module>
+    @receiver(pre_delete, sender=AiSubTask)
+              ^^^^^^^^^^
+NameError: name 'pre_delete' is not defined. Did you mean: 'post_delete'?
+Traceback (most recent call last):
+  File "/home/shanon/kommitly/kommitly_backend/manage.py", line 22, in <module>
+    main()
+  File "/home/shanon/kommitly/kommitly_backend/manage.py", line 18, in main
+    execute_from_command_line(sys.argv)
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/__init__.py", line 442, in execute_from_command_line
+    utility.execute()
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/__init__.py", line 416, in execute
+    django.setup()
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/__init__.py", line 24, in setup
+    apps.populate(settings.INSTALLED_APPS)
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/apps/registry.py", line 124, in populate
+    app_config.ready()
+  File "/home/shanon/kommitly/kommitly_backend/goals/apps.py", line 10, in ready
+    import goals.signals
+  File "/home/shanon/kommitly/kommitly_backend/goals/signals.py", line 18, in <module>
+    @receiver(pre_delete, sender=AiSubTask)
+              ^^^^^^^^^^
+NameError: name 'pre_delete' is not defined. Did you mean: 'post_delete'?
+Traceback (most recent call last):
+  File "/home/shanon/kommitly/kommitly_backend/manage.py", line 22, in <module>
+    main()
+  File "/home/shanon/kommitly/kommitly_backend/manage.py", line 18, in main
+    execute_from_command_line(sys.argv)
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/__init__.py", line 442, in execute_from_command_line
+    utility.execute()
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/__init__.py", line 416, in execute
+    django.setup()
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/__init__.py", line 24, in setup
+    apps.populate(settings.INSTALLED_APPS)
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/apps/registry.py", line 124, in populate
+    app_config.ready()
+  File "/home/shanon/kommitly/kommitly_backend/goals/apps.py", line 10, in ready
+    import goals.signals
+  File "/home/shanon/kommitly/kommitly_backend/goals/signals.py", line 18, in <module>
+    @receiver(pre_delete, sender=AiSubTask)
+              ^^^^^^^^^^
+NameError: name 'pre_delete' is not defined. Did you mean: 'post_delete'?
+Traceback (most recent call last):
+  File "/home/shanon/kommitly/kommitly_backend/manage.py", line 22, in <module>
+    main()
+  File "/home/shanon/kommitly/kommitly_backend/manage.py", line 18, in main
+    execute_from_command_line(sys.argv)
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/__init__.py", line 442, in execute_from_command_line
+    utility.execute()
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/__init__.py", line 416, in execute
+    django.setup()
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/__init__.py", line 24, in setup
+    apps.populate(settings.INSTALLED_APPS)
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/apps/registry.py", line 124, in populate
+    app_config.ready()
+  File "/home/shanon/kommitly/kommitly_backend/goals/apps.py", line 10, in ready
+    import goals.signals
+  File "/home/shanon/kommitly/kommitly_backend/goals/signals.py", line 18, in <module>
+    @receiver(pre_delete, sender=AiSubTask)
+              ^^^^^^^^^^
+NameError: name 'pre_delete' is not defined. Did you mean: 'post_delete'?
+Traceback (most recent call last):
+  File "/home/shanon/kommitly/kommitly_backend/manage.py", line 22, in <module>
+    main()
+  File "/home/shanon/kommitly/kommitly_backend/manage.py", line 18, in main
+    execute_from_command_line(sys.argv)
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/__init__.py", line 442, in execute_from_command_line
+    utility.execute()
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/__init__.py", line 416, in execute
+    django.setup()
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/__init__.py", line 24, in setup
+    apps.populate(settings.INSTALLED_APPS)
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/apps/registry.py", line 124, in populate
+    app_config.ready()
+  File "/home/shanon/kommitly/kommitly_backend/goals/apps.py", line 10, in ready
+    import goals.signals
+  File "/home/shanon/kommitly/kommitly_backend/goals/signals.py", line 18, in <module>
+    @receiver(pre_delete, sender=AiSubTask)
+              ^^^^^^^^^^
+NameError: name 'pre_delete' is not defined. Did you mean: 'post_delete'?
+Traceback (most recent call last):
+  File "/home/shanon/kommitly/kommitly_backend/manage.py", line 22, in <module>
+    main()
+  File "/home/shanon/kommitly/kommitly_backend/manage.py", line 18, in main
+    execute_from_command_line(sys.argv)
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/__init__.py", line 442, in execute_from_command_line
+    utility.execute()
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/__init__.py", line 416, in execute
+    django.setup()
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/__init__.py", line 24, in setup
+    apps.populate(settings.INSTALLED_APPS)
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/apps/registry.py", line 124, in populate
+    app_config.ready()
+  File "/home/shanon/kommitly/kommitly_backend/goals/apps.py", line 10, in ready
+    import goals.signals
+  File "/home/shanon/kommitly/kommitly_backend/goals/signals.py", line 18, in <module>
+    @receiver(pre_delete, sender=AiSubTask)
+              ^^^^^^^^^^
+NameError: name 'pre_delete' is not defined. Did you mean: 'post_delete'?
+Traceback (most recent call last):
+  File "/home/shanon/kommitly/kommitly_backend/manage.py", line 22, in <module>
+    main()
+  File "/home/shanon/kommitly/kommitly_backend/manage.py", line 18, in main
+    execute_from_command_line(sys.argv)
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/__init__.py", line 442, in execute_from_command_line
+    utility.execute()
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/__init__.py", line 416, in execute
+    django.setup()
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/__init__.py", line 24, in setup
+    apps.populate(settings.INSTALLED_APPS)
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/apps/registry.py", line 124, in populate
+    app_config.ready()
+  File "/home/shanon/kommitly/kommitly_backend/goals/apps.py", line 10, in ready
+    import goals.signals
+  File "/home/shanon/kommitly/kommitly_backend/goals/signals.py", line 18, in <module>
+    @receiver(pre_delete, sender=AiSubTask)
+              ^^^^^^^^^^
+NameError: name 'pre_delete' is not defined. Did you mean: 'post_delete'?
+Traceback (most recent call last):
+  File "/home/shanon/kommitly/kommitly_backend/manage.py", line 22, in <module>
+    main()
+  File "/home/shanon/kommitly/kommitly_backend/manage.py", line 18, in main
+    execute_from_command_line(sys.argv)
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/__init__.py", line 442, in execute_from_command_line
+    utility.execute()
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/__init__.py", line 416, in execute
+    django.setup()
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/__init__.py", line 24, in setup
+    apps.populate(settings.INSTALLED_APPS)
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/apps/registry.py", line 124, in populate
+    app_config.ready()
+  File "/home/shanon/kommitly/kommitly_backend/goals/apps.py", line 10, in ready
+    import goals.signals
+  File "/home/shanon/kommitly/kommitly_backend/goals/signals.py", line 18, in <module>
+    @receiver(pre_delete, sender=AiSubTask)
+              ^^^^^^^^^^
+NameError: name 'pre_delete' is not defined. Did you mean: 'post_delete'?
+Traceback (most recent call last):
+  File "/home/shanon/kommitly/kommitly_backend/manage.py", line 22, in <module>
+    main()
+  File "/home/shanon/kommitly/kommitly_backend/manage.py", line 18, in main
+    execute_from_command_line(sys.argv)
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/__init__.py", line 442, in execute_from_command_line
+    utility.execute()
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/__init__.py", line 416, in execute
+    django.setup()
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/__init__.py", line 24, in setup
+    apps.populate(settings.INSTALLED_APPS)
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/apps/registry.py", line 124, in populate
+    app_config.ready()
+  File "/home/shanon/kommitly/kommitly_backend/goals/apps.py", line 10, in ready
+    import goals.signals
+  File "/home/shanon/kommitly/kommitly_backend/goals/signals.py", line 18, in <module>
+    @receiver(pre_delete, sender=AiSubTask)
+              ^^^^^^^^^^
+NameError: name 'pre_delete' is not defined. Did you mean: 'post_delete'?
+Traceback (most recent call last):
+  File "/home/shanon/kommitly/kommitly_backend/manage.py", line 22, in <module>
+    main()
+  File "/home/shanon/kommitly/kommitly_backend/manage.py", line 18, in main
+    execute_from_command_line(sys.argv)
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/__init__.py", line 442, in execute_from_command_line
+    utility.execute()
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/__init__.py", line 416, in execute
+    django.setup()
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/__init__.py", line 24, in setup
+    apps.populate(settings.INSTALLED_APPS)
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/apps/registry.py", line 124, in populate
+    app_config.ready()
+  File "/home/shanon/kommitly/kommitly_backend/goals/apps.py", line 10, in ready
+    import goals.signals
+  File "/home/shanon/kommitly/kommitly_backend/goals/signals.py", line 18, in <module>
+    @receiver(pre_delete, sender=AiSubTask)
+              ^^^^^^^^^^
+NameError: name 'pre_delete' is not defined. Did you mean: 'post_delete'?
+Traceback (most recent call last):
+  File "/home/shanon/kommitly/kommitly_backend/manage.py", line 22, in <module>
+    main()
+  File "/home/shanon/kommitly/kommitly_backend/manage.py", line 18, in main
+    execute_from_command_line(sys.argv)
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/__init__.py", line 442, in execute_from_command_line
+    utility.execute()
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/__init__.py", line 416, in execute
+    django.setup()
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/__init__.py", line 24, in setup
+    apps.populate(settings.INSTALLED_APPS)
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/apps/registry.py", line 124, in populate
+    app_config.ready()
+  File "/home/shanon/kommitly/kommitly_backend/goals/apps.py", line 10, in ready
+    import goals.signals
+  File "/home/shanon/kommitly/kommitly_backend/goals/signals.py", line 18, in <module>
+    @receiver(pre_delete, sender=AiSubTask)
+              ^^^^^^^^^^
+NameError: name 'pre_delete' is not defined. Did you mean: 'post_delete'?
+Traceback (most recent call last):
+  File "/home/shanon/kommitly/kommitly_backend/manage.py", line 22, in <module>
+    main()
+  File "/home/shanon/kommitly/kommitly_backend/manage.py", line 18, in main
+    execute_from_command_line(sys.argv)
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/__init__.py", line 442, in execute_from_command_line
+    utility.execute()
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/__init__.py", line 416, in execute
+    django.setup()
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/__init__.py", line 24, in setup
+    apps.populate(settings.INSTALLED_APPS)
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/apps/registry.py", line 124, in populate
+    app_config.ready()
+  File "/home/shanon/kommitly/kommitly_backend/goals/apps.py", line 10, in ready
+    import goals.signals
+  File "/home/shanon/kommitly/kommitly_backend/goals/signals.py", line 18, in <module>
+    @receiver(pre_delete, sender=AiSubTask)
+              ^^^^^^^^^^
+NameError: name 'pre_delete' is not defined. Did you mean: 'post_delete'?
+Traceback (most recent call last):
+  File "/home/shanon/kommitly/kommitly_backend/manage.py", line 22, in <module>
+    main()
+  File "/home/shanon/kommitly/kommitly_backend/manage.py", line 18, in main
+    execute_from_command_line(sys.argv)
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/__init__.py", line 442, in execute_from_command_line
+    utility.execute()
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/__init__.py", line 416, in execute
+    django.setup()
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/__init__.py", line 24, in setup
+    apps.populate(settings.INSTALLED_APPS)
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/apps/registry.py", line 124, in populate
+    app_config.ready()
+  File "/home/shanon/kommitly/kommitly_backend/goals/apps.py", line 10, in ready
+    import goals.signals
+  File "/home/shanon/kommitly/kommitly_backend/goals/signals.py", line 18, in <module>
+    @receiver(pre_delete, sender=AiSubTask)
+              ^^^^^^^^^^
+NameError: name 'pre_delete' is not defined. Did you mean: 'post_delete'?
+Traceback (most recent call last):
+  File "/home/shanon/kommitly/kommitly_backend/manage.py", line 22, in <module>
+    main()
+  File "/home/shanon/kommitly/kommitly_backend/manage.py", line 18, in main
+    execute_from_command_line(sys.argv)
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/__init__.py", line 442, in execute_from_command_line
+    utility.execute()
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/__init__.py", line 416, in execute
+    django.setup()
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/__init__.py", line 24, in setup
+    apps.populate(settings.INSTALLED_APPS)
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/apps/registry.py", line 124, in populate
+    app_config.ready()
+  File "/home/shanon/kommitly/kommitly_backend/goals/apps.py", line 10, in ready
+    import goals.signals
+  File "/home/shanon/kommitly/kommitly_backend/goals/signals.py", line 18, in <module>
+    @receiver(pre_delete, sender=AiSubTask)
+              ^^^^^^^^^^
+NameError: name 'pre_delete' is not defined. Did you mean: 'post_delete'?
+Traceback (most recent call last):
+  File "/home/shanon/kommitly/kommitly_backend/manage.py", line 22, in <module>
+    main()
+  File "/home/shanon/kommitly/kommitly_backend/manage.py", line 18, in main
+    execute_from_command_line(sys.argv)
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/__init__.py", line 442, in execute_from_command_line
+    utility.execute()
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/__init__.py", line 416, in execute
+    django.setup()
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/__init__.py", line 24, in setup
+    apps.populate(settings.INSTALLED_APPS)
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/apps/registry.py", line 124, in populate
+    app_config.ready()
+  File "/home/shanon/kommitly/kommitly_backend/goals/apps.py", line 10, in ready
+    import goals.signals
+  File "/home/shanon/kommitly/kommitly_backend/goals/signals.py", line 18, in <module>
+    @receiver(pre_delete, sender=AiSubTask)
+              ^^^^^^^^^^
+NameError: name 'pre_delete' is not defined. Did you mean: 'post_delete'?
+Traceback (most recent call last):
+  File "/home/shanon/kommitly/kommitly_backend/manage.py", line 22, in <module>
+    main()
+  File "/home/shanon/kommitly/kommitly_backend/manage.py", line 18, in main
+    execute_from_command_line(sys.argv)
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/__init__.py", line 442, in execute_from_command_line
+    utility.execute()
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/__init__.py", line 416, in execute
+    django.setup()
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/__init__.py", line 24, in setup
+    apps.populate(settings.INSTALLED_APPS)
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/apps/registry.py", line 124, in populate
+    app_config.ready()
+  File "/home/shanon/kommitly/kommitly_backend/goals/apps.py", line 10, in ready
+    import goals.signals
+  File "/home/shanon/kommitly/kommitly_backend/goals/signals.py", line 18, in <module>
+    @receiver(pre_delete, sender=AiSubTask)
+              ^^^^^^^^^^
+NameError: name 'pre_delete' is not defined. Did you mean: 'post_delete'?
+Traceback (most recent call last):
+  File "/home/shanon/kommitly/kommitly_backend/manage.py", line 22, in <module>
+    main()
+  File "/home/shanon/kommitly/kommitly_backend/manage.py", line 18, in main
+    execute_from_command_line(sys.argv)
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/__init__.py", line 442, in execute_from_command_line
+    utility.execute()
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/__init__.py", line 416, in execute
+    django.setup()
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/__init__.py", line 24, in setup
+    apps.populate(settings.INSTALLED_APPS)
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/apps/registry.py", line 124, in populate
+    app_config.ready()
+  File "/home/shanon/kommitly/kommitly_backend/goals/apps.py", line 10, in ready
+    import goals.signals
+  File "/home/shanon/kommitly/kommitly_backend/goals/signals.py", line 18, in <module>
+    @receiver(pre_delete, sender=AiSubTask)
+              ^^^^^^^^^^
+NameError: name 'pre_delete' is not defined. Did you mean: 'post_delete'?
+Traceback (most recent call last):
+  File "/home/shanon/kommitly/kommitly_backend/manage.py", line 22, in <module>
+    main()
+  File "/home/shanon/kommitly/kommitly_backend/manage.py", line 18, in main
+    execute_from_command_line(sys.argv)
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/__init__.py", line 442, in execute_from_command_line
+    utility.execute()
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/__init__.py", line 416, in execute
+    django.setup()
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/__init__.py", line 24, in setup
+    apps.populate(settings.INSTALLED_APPS)
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/apps/registry.py", line 124, in populate
+    app_config.ready()
+  File "/home/shanon/kommitly/kommitly_backend/goals/apps.py", line 10, in ready
+    import goals.signals
+  File "/home/shanon/kommitly/kommitly_backend/goals/signals.py", line 18, in <module>
+    @receiver(pre_delete, sender=AiSubTask)
+              ^^^^^^^^^^
+NameError: name 'pre_delete' is not defined. Did you mean: 'post_delete'?
+Traceback (most recent call last):
+  File "/home/shanon/kommitly/kommitly_backend/manage.py", line 22, in <module>
+    main()
+  File "/home/shanon/kommitly/kommitly_backend/manage.py", line 18, in main
+    execute_from_command_line(sys.argv)
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/__init__.py", line 442, in execute_from_command_line
+    utility.execute()
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/__init__.py", line 416, in execute
+    django.setup()
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/__init__.py", line 24, in setup
+    apps.populate(settings.INSTALLED_APPS)
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/apps/registry.py", line 124, in populate
+    app_config.ready()
+  File "/home/shanon/kommitly/kommitly_backend/goals/apps.py", line 10, in ready
+    import goals.signals
+  File "/home/shanon/kommitly/kommitly_backend/goals/signals.py", line 18, in <module>
+    @receiver(pre_delete, sender=AiSubTask)
+              ^^^^^^^^^^
+NameError: name 'pre_delete' is not defined. Did you mean: 'post_delete'?
+Traceback (most recent call last):
+  File "/home/shanon/kommitly/kommitly_backend/manage.py", line 22, in <module>
+    main()
+  File "/home/shanon/kommitly/kommitly_backend/manage.py", line 18, in main
+    execute_from_command_line(sys.argv)
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/__init__.py", line 442, in execute_from_command_line
+    utility.execute()
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/__init__.py", line 416, in execute
+    django.setup()
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/__init__.py", line 24, in setup
+    apps.populate(settings.INSTALLED_APPS)
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/apps/registry.py", line 124, in populate
+    app_config.ready()
+  File "/home/shanon/kommitly/kommitly_backend/goals/apps.py", line 10, in ready
+    import goals.signals
+  File "/home/shanon/kommitly/kommitly_backend/goals/signals.py", line 18, in <module>
+    @receiver(pre_delete, sender=AiSubTask)
+              ^^^^^^^^^^
+NameError: name 'pre_delete' is not defined. Did you mean: 'post_delete'?
+Traceback (most recent call last):
+  File "/home/shanon/kommitly/kommitly_backend/manage.py", line 22, in <module>
+    main()
+  File "/home/shanon/kommitly/kommitly_backend/manage.py", line 18, in main
+    execute_from_command_line(sys.argv)
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/__init__.py", line 442, in execute_from_command_line
+    utility.execute()
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/__init__.py", line 416, in execute
+    django.setup()
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/__init__.py", line 24, in setup
+    apps.populate(settings.INSTALLED_APPS)
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/apps/registry.py", line 124, in populate
+    app_config.ready()
+  File "/home/shanon/kommitly/kommitly_backend/goals/apps.py", line 10, in ready
+    import goals.signals
+  File "/home/shanon/kommitly/kommitly_backend/goals/signals.py", line 18, in <module>
+    @receiver(pre_delete, sender=AiSubTask)
+              ^^^^^^^^^^
+NameError: name 'pre_delete' is not defined. Did you mean: 'post_delete'?
+Traceback (most recent call last):
+  File "/home/shanon/kommitly/kommitly_backend/manage.py", line 22, in <module>
+    main()
+  File "/home/shanon/kommitly/kommitly_backend/manage.py", line 18, in main
+    execute_from_command_line(sys.argv)
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/__init__.py", line 442, in execute_from_command_line
+    utility.execute()
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/__init__.py", line 416, in execute
+    django.setup()
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/__init__.py", line 24, in setup
+    apps.populate(settings.INSTALLED_APPS)
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/apps/registry.py", line 124, in populate
+    app_config.ready()
+  File "/home/shanon/kommitly/kommitly_backend/goals/apps.py", line 10, in ready
+    import goals.signals
+  File "/home/shanon/kommitly/kommitly_backend/goals/signals.py", line 18, in <module>
+    @receiver(pre_delete, sender=AiSubTask)
+              ^^^^^^^^^^
+NameError: name 'pre_delete' is not defined. Did you mean: 'post_delete'?
+Traceback (most recent call last):
+  File "/home/shanon/kommitly/kommitly_backend/manage.py", line 22, in <module>
+    main()
+  File "/home/shanon/kommitly/kommitly_backend/manage.py", line 18, in main
+    execute_from_command_line(sys.argv)
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/__init__.py", line 442, in execute_from_command_line
+    utility.execute()
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/__init__.py", line 416, in execute
+    django.setup()
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/__init__.py", line 24, in setup
+    apps.populate(settings.INSTALLED_APPS)
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/apps/registry.py", line 124, in populate
+    app_config.ready()
+  File "/home/shanon/kommitly/kommitly_backend/goals/apps.py", line 10, in ready
+    import goals.signals
+  File "/home/shanon/kommitly/kommitly_backend/goals/signals.py", line 18, in <module>
+    @receiver(pre_delete, sender=AiSubTask)
+              ^^^^^^^^^^
+NameError: name 'pre_delete' is not defined. Did you mean: 'post_delete'?
+Traceback (most recent call last):
+  File "/home/shanon/kommitly/kommitly_backend/manage.py", line 22, in <module>
+    main()
+  File "/home/shanon/kommitly/kommitly_backend/manage.py", line 18, in main
+    execute_from_command_line(sys.argv)
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/__init__.py", line 442, in execute_from_command_line
+    utility.execute()
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/__init__.py", line 416, in execute
+    django.setup()
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/__init__.py", line 24, in setup
+    apps.populate(settings.INSTALLED_APPS)
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/apps/registry.py", line 124, in populate
+    app_config.ready()
+  File "/home/shanon/kommitly/kommitly_backend/goals/apps.py", line 10, in ready
+    import goals.signals
+  File "/home/shanon/kommitly/kommitly_backend/goals/signals.py", line 18, in <module>
+    @receiver(pre_delete, sender=AiSubTask)
+              ^^^^^^^^^^
+NameError: name 'pre_delete' is not defined. Did you mean: 'post_delete'?
+Traceback (most recent call last):
+  File "/home/shanon/kommitly/kommitly_backend/manage.py", line 22, in <module>
+    main()
+  File "/home/shanon/kommitly/kommitly_backend/manage.py", line 18, in main
+    execute_from_command_line(sys.argv)
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/__init__.py", line 442, in execute_from_command_line
+    utility.execute()
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/__init__.py", line 416, in execute
+    django.setup()
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/__init__.py", line 24, in setup
+    apps.populate(settings.INSTALLED_APPS)
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/apps/registry.py", line 124, in populate
+    app_config.ready()
+  File "/home/shanon/kommitly/kommitly_backend/goals/apps.py", line 10, in ready
+    import goals.signals
+  File "/home/shanon/kommitly/kommitly_backend/goals/signals.py", line 18, in <module>
+    @receiver(pre_delete, sender=AiSubTask)
+              ^^^^^^^^^^
+NameError: name 'pre_delete' is not defined. Did you mean: 'post_delete'?
+Traceback (most recent call last):
+  File "/home/shanon/kommitly/kommitly_backend/manage.py", line 22, in <module>
+    main()
+  File "/home/shanon/kommitly/kommitly_backend/manage.py", line 18, in main
+    execute_from_command_line(sys.argv)
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/__init__.py", line 442, in execute_from_command_line
+    utility.execute()
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/__init__.py", line 416, in execute
+    django.setup()
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/__init__.py", line 24, in setup
+    apps.populate(settings.INSTALLED_APPS)
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/apps/registry.py", line 124, in populate
+    app_config.ready()
+  File "/home/shanon/kommitly/kommitly_backend/goals/apps.py", line 10, in ready
+    import goals.signals
+  File "/home/shanon/kommitly/kommitly_backend/goals/signals.py", line 18, in <module>
+    @receiver(pre_delete, sender=AiSubTask)
+              ^^^^^^^^^^
+NameError: name 'pre_delete' is not defined. Did you mean: 'post_delete'?
+Traceback (most recent call last):
+  File "/home/shanon/kommitly/kommitly_backend/manage.py", line 22, in <module>
+    main()
+  File "/home/shanon/kommitly/kommitly_backend/manage.py", line 18, in main
+    execute_from_command_line(sys.argv)
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/__init__.py", line 442, in execute_from_command_line
+    utility.execute()
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/__init__.py", line 416, in execute
+    django.setup()
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/__init__.py", line 24, in setup
+    apps.populate(settings.INSTALLED_APPS)
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/apps/registry.py", line 124, in populate
+    app_config.ready()
+  File "/home/shanon/kommitly/kommitly_backend/goals/apps.py", line 10, in ready
+    import goals.signals
+  File "/home/shanon/kommitly/kommitly_backend/goals/signals.py", line 18, in <module>
+    @receiver(pre_delete, sender=AiSubTask)
+              ^^^^^^^^^^
+NameError: name 'pre_delete' is not defined. Did you mean: 'post_delete'?
+Traceback (most recent call last):
+  File "/home/shanon/kommitly/kommitly_backend/manage.py", line 22, in <module>
+    main()
+  File "/home/shanon/kommitly/kommitly_backend/manage.py", line 18, in main
+    execute_from_command_line(sys.argv)
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/__init__.py", line 442, in execute_from_command_line
+    utility.execute()
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/__init__.py", line 416, in execute
+    django.setup()
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/__init__.py", line 24, in setup
+    apps.populate(settings.INSTALLED_APPS)
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/apps/registry.py", line 124, in populate
+    app_config.ready()
+  File "/home/shanon/kommitly/kommitly_backend/goals/apps.py", line 10, in ready
+    import goals.signals
+  File "/home/shanon/kommitly/kommitly_backend/goals/signals.py", line 18, in <module>
+    @receiver(pre_delete, sender=AiSubTask)
+              ^^^^^^^^^^
+NameError: name 'pre_delete' is not defined. Did you mean: 'post_delete'?
+Traceback (most recent call last):
+  File "/home/shanon/kommitly/kommitly_backend/manage.py", line 22, in <module>
+    main()
+  File "/home/shanon/kommitly/kommitly_backend/manage.py", line 18, in main
+    execute_from_command_line(sys.argv)
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/__init__.py", line 442, in execute_from_command_line
+    utility.execute()
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/__init__.py", line 416, in execute
+    django.setup()
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/__init__.py", line 24, in setup
+    apps.populate(settings.INSTALLED_APPS)
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/apps/registry.py", line 124, in populate
+    app_config.ready()
+  File "/home/shanon/kommitly/kommitly_backend/goals/apps.py", line 10, in ready
+    import goals.signals
+  File "/home/shanon/kommitly/kommitly_backend/goals/signals.py", line 18, in <module>
+    @receiver(pre_delete, sender=AiSubTask)
+              ^^^^^^^^^^
+NameError: name 'pre_delete' is not defined. Did you mean: 'post_delete'?
+Traceback (most recent call last):
+  File "/home/shanon/kommitly/kommitly_backend/manage.py", line 22, in <module>
+    main()
+  File "/home/shanon/kommitly/kommitly_backend/manage.py", line 18, in main
+    execute_from_command_line(sys.argv)
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/__init__.py", line 442, in execute_from_command_line
+    utility.execute()
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/__init__.py", line 416, in execute
+    django.setup()
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/__init__.py", line 24, in setup
+    apps.populate(settings.INSTALLED_APPS)
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/apps/registry.py", line 124, in populate
+    app_config.ready()
+  File "/home/shanon/kommitly/kommitly_backend/goals/apps.py", line 10, in ready
+    import goals.signals
+  File "/home/shanon/kommitly/kommitly_backend/goals/signals.py", line 18, in <module>
+    @receiver(pre_delete, sender=AiSubTask)
+              ^^^^^^^^^^
+NameError: name 'pre_delete' is not defined. Did you mean: 'post_delete'?
+Traceback (most recent call last):
+  File "/home/shanon/kommitly/kommitly_backend/manage.py", line 22, in <module>
+    main()
+  File "/home/shanon/kommitly/kommitly_backend/manage.py", line 18, in main
+    execute_from_command_line(sys.argv)
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/__init__.py", line 442, in execute_from_command_line
+    utility.execute()
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/__init__.py", line 416, in execute
+    django.setup()
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/__init__.py", line 24, in setup
+    apps.populate(settings.INSTALLED_APPS)
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/apps/registry.py", line 124, in populate
+    app_config.ready()
+  File "/home/shanon/kommitly/kommitly_backend/goals/apps.py", line 10, in ready
+    import goals.signals
+  File "/home/shanon/kommitly/kommitly_backend/goals/signals.py", line 18, in <module>
+    @receiver(pre_delete, sender=AiSubTask)
+              ^^^^^^^^^^
+NameError: name 'pre_delete' is not defined. Did you mean: 'post_delete'?
+Traceback (most recent call last):
+  File "/home/shanon/kommitly/kommitly_backend/manage.py", line 22, in <module>
+    main()
+  File "/home/shanon/kommitly/kommitly_backend/manage.py", line 18, in main
+    execute_from_command_line(sys.argv)
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/__init__.py", line 442, in execute_from_command_line
+    utility.execute()
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/__init__.py", line 416, in execute
+    django.setup()
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/__init__.py", line 24, in setup
+    apps.populate(settings.INSTALLED_APPS)
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/apps/registry.py", line 124, in populate
+    app_config.ready()
+  File "/home/shanon/kommitly/kommitly_backend/goals/apps.py", line 10, in ready
+    import goals.signals
+  File "/home/shanon/kommitly/kommitly_backend/goals/signals.py", line 18, in <module>
+    @receiver(pre_delete, sender=AiSubTask)
+              ^^^^^^^^^^
+NameError: name 'pre_delete' is not defined. Did you mean: 'post_delete'?
+Traceback (most recent call last):
+  File "/home/shanon/kommitly/kommitly_backend/manage.py", line 22, in <module>
+    main()
+  File "/home/shanon/kommitly/kommitly_backend/manage.py", line 18, in main
+    execute_from_command_line(sys.argv)
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/__init__.py", line 442, in execute_from_command_line
+    utility.execute()
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/__init__.py", line 416, in execute
+    django.setup()
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/__init__.py", line 24, in setup
+    apps.populate(settings.INSTALLED_APPS)
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/apps/registry.py", line 124, in populate
+    app_config.ready()
+  File "/home/shanon/kommitly/kommitly_backend/goals/apps.py", line 10, in ready
+    import goals.signals
+  File "/home/shanon/kommitly/kommitly_backend/goals/signals.py", line 18, in <module>
+    @receiver(pre_delete, sender=AiSubTask)
+              ^^^^^^^^^^
+NameError: name 'pre_delete' is not defined. Did you mean: 'post_delete'?
+Traceback (most recent call last):
+  File "/home/shanon/kommitly/kommitly_backend/manage.py", line 22, in <module>
+    main()
+  File "/home/shanon/kommitly/kommitly_backend/manage.py", line 18, in main
+    execute_from_command_line(sys.argv)
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/__init__.py", line 442, in execute_from_command_line
+    utility.execute()
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/__init__.py", line 416, in execute
+    django.setup()
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/__init__.py", line 24, in setup
+    apps.populate(settings.INSTALLED_APPS)
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/apps/registry.py", line 124, in populate
+    app_config.ready()
+  File "/home/shanon/kommitly/kommitly_backend/goals/apps.py", line 10, in ready
+    import goals.signals
+  File "/home/shanon/kommitly/kommitly_backend/goals/signals.py", line 18, in <module>
+    @receiver(pre_delete, sender=AiSubTask)
+              ^^^^^^^^^^
+NameError: name 'pre_delete' is not defined. Did you mean: 'post_delete'?
+Traceback (most recent call last):
+  File "/home/shanon/kommitly/kommitly_backend/manage.py", line 22, in <module>
+    main()
+  File "/home/shanon/kommitly/kommitly_backend/manage.py", line 18, in main
+    execute_from_command_line(sys.argv)
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/__init__.py", line 442, in execute_from_command_line
+    utility.execute()
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/__init__.py", line 416, in execute
+    django.setup()
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/__init__.py", line 24, in setup
+    apps.populate(settings.INSTALLED_APPS)
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/apps/registry.py", line 124, in populate
+    app_config.ready()
+  File "/home/shanon/kommitly/kommitly_backend/goals/apps.py", line 10, in ready
+    import goals.signals
+  File "/home/shanon/kommitly/kommitly_backend/goals/signals.py", line 18, in <module>
+    @receiver(pre_delete, sender=AiSubTask)
+              ^^^^^^^^^^
+NameError: name 'pre_delete' is not defined. Did you mean: 'post_delete'?
+Traceback (most recent call last):
+  File "/home/shanon/kommitly/kommitly_backend/manage.py", line 22, in <module>
+    main()
+  File "/home/shanon/kommitly/kommitly_backend/manage.py", line 18, in main
+    execute_from_command_line(sys.argv)
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/__init__.py", line 442, in execute_from_command_line
+    utility.execute()
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/__init__.py", line 416, in execute
+    django.setup()
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/__init__.py", line 24, in setup
+    apps.populate(settings.INSTALLED_APPS)
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/apps/registry.py", line 124, in populate
+    app_config.ready()
+  File "/home/shanon/kommitly/kommitly_backend/goals/apps.py", line 10, in ready
+    import goals.signals
+  File "/home/shanon/kommitly/kommitly_backend/goals/signals.py", line 18, in <module>
+    @receiver(pre_delete, sender=AiSubTask)
+              ^^^^^^^^^^
+NameError: name 'pre_delete' is not defined. Did you mean: 'post_delete'?
+Traceback (most recent call last):
+  File "/home/shanon/kommitly/kommitly_backend/manage.py", line 22, in <module>
+    main()
+  File "/home/shanon/kommitly/kommitly_backend/manage.py", line 18, in main
+    execute_from_command_line(sys.argv)
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/__init__.py", line 442, in execute_from_command_line
+    utility.execute()
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/__init__.py", line 416, in execute
+    django.setup()
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/__init__.py", line 24, in setup
+    apps.populate(settings.INSTALLED_APPS)
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/apps/registry.py", line 124, in populate
+    app_config.ready()
+  File "/home/shanon/kommitly/kommitly_backend/goals/apps.py", line 10, in ready
+    import goals.signals
+  File "/home/shanon/kommitly/kommitly_backend/goals/signals.py", line 18, in <module>
+    @receiver(pre_delete, sender=AiSubTask)
+              ^^^^^^^^^^
+NameError: name 'pre_delete' is not defined. Did you mean: 'post_delete'?
+Traceback (most recent call last):
+  File "/home/shanon/kommitly/kommitly_backend/manage.py", line 22, in <module>
+    main()
+  File "/home/shanon/kommitly/kommitly_backend/manage.py", line 18, in main
+    execute_from_command_line(sys.argv)
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/__init__.py", line 442, in execute_from_command_line
+    utility.execute()
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/__init__.py", line 416, in execute
+    django.setup()
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/__init__.py", line 24, in setup
+    apps.populate(settings.INSTALLED_APPS)
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/apps/registry.py", line 124, in populate
+    app_config.ready()
+  File "/home/shanon/kommitly/kommitly_backend/goals/apps.py", line 10, in ready
+    import goals.signals
+  File "/home/shanon/kommitly/kommitly_backend/goals/signals.py", line 18, in <module>
+    @receiver(pre_delete, sender=AiSubTask)
+              ^^^^^^^^^^
+NameError: name 'pre_delete' is not defined. Did you mean: 'post_delete'?
+Traceback (most recent call last):
+  File "/home/shanon/kommitly/kommitly_backend/manage.py", line 22, in <module>
+    main()
+  File "/home/shanon/kommitly/kommitly_backend/manage.py", line 18, in main
+    execute_from_command_line(sys.argv)
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/__init__.py", line 442, in execute_from_command_line
+    utility.execute()
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/__init__.py", line 416, in execute
+    django.setup()
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/__init__.py", line 24, in setup
+    apps.populate(settings.INSTALLED_APPS)
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/apps/registry.py", line 124, in populate
+    app_config.ready()
+  File "/home/shanon/kommitly/kommitly_backend/goals/apps.py", line 10, in ready
+    import goals.signals
+  File "/home/shanon/kommitly/kommitly_backend/goals/signals.py", line 18, in <module>
+    @receiver(pre_delete, sender=AiSubTask)
+              ^^^^^^^^^^
+NameError: name 'pre_delete' is not defined. Did you mean: 'post_delete'?
+Traceback (most recent call last):
+  File "/home/shanon/kommitly/kommitly_backend/manage.py", line 22, in <module>
+    main()
+  File "/home/shanon/kommitly/kommitly_backend/manage.py", line 18, in main
+    execute_from_command_line(sys.argv)
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/__init__.py", line 442, in execute_from_command_line
+    utility.execute()
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/__init__.py", line 416, in execute
+    django.setup()
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/__init__.py", line 24, in setup
+    apps.populate(settings.INSTALLED_APPS)
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/apps/registry.py", line 124, in populate
+    app_config.ready()
+  File "/home/shanon/kommitly/kommitly_backend/goals/apps.py", line 10, in ready
+    import goals.signals
+  File "/home/shanon/kommitly/kommitly_backend/goals/signals.py", line 18, in <module>
+    @receiver(pre_delete, sender=AiSubTask)
+              ^^^^^^^^^^
+NameError: name 'pre_delete' is not defined. Did you mean: 'post_delete'?
+Traceback (most recent call last):
+  File "/home/shanon/kommitly/kommitly_backend/manage.py", line 22, in <module>
+    main()
+  File "/home/shanon/kommitly/kommitly_backend/manage.py", line 18, in main
+    execute_from_command_line(sys.argv)
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/__init__.py", line 442, in execute_from_command_line
+    utility.execute()
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/__init__.py", line 416, in execute
+    django.setup()
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/__init__.py", line 24, in setup
+    apps.populate(settings.INSTALLED_APPS)
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/apps/registry.py", line 124, in populate
+    app_config.ready()
+  File "/home/shanon/kommitly/kommitly_backend/goals/apps.py", line 10, in ready
+    import goals.signals
+  File "/home/shanon/kommitly/kommitly_backend/goals/signals.py", line 18, in <module>
+    @receiver(pre_delete, sender=AiSubTask)
+              ^^^^^^^^^^
+NameError: name 'pre_delete' is not defined. Did you mean: 'post_delete'?
+Traceback (most recent call last):
+  File "/home/shanon/kommitly/kommitly_backend/manage.py", line 22, in <module>
+    main()
+  File "/home/shanon/kommitly/kommitly_backend/manage.py", line 18, in main
+    execute_from_command_line(sys.argv)
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/__init__.py", line 442, in execute_from_command_line
+    utility.execute()
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/__init__.py", line 416, in execute
+    django.setup()
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/__init__.py", line 24, in setup
+    apps.populate(settings.INSTALLED_APPS)
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/apps/registry.py", line 124, in populate
+    app_config.ready()
+  File "/home/shanon/kommitly/kommitly_backend/goals/apps.py", line 10, in ready
+    import goals.signals
+  File "/home/shanon/kommitly/kommitly_backend/goals/signals.py", line 18, in <module>
+    @receiver(pre_delete, sender=AiSubTask)
+              ^^^^^^^^^^
+NameError: name 'pre_delete' is not defined. Did you mean: 'post_delete'?
+Traceback (most recent call last):
+  File "/home/shanon/kommitly/kommitly_backend/manage.py", line 22, in <module>
+    main()
+  File "/home/shanon/kommitly/kommitly_backend/manage.py", line 18, in main
+    execute_from_command_line(sys.argv)
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/__init__.py", line 442, in execute_from_command_line
+    utility.execute()
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/__init__.py", line 416, in execute
+    django.setup()
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/__init__.py", line 24, in setup
+    apps.populate(settings.INSTALLED_APPS)
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/apps/registry.py", line 124, in populate
+    app_config.ready()
+  File "/home/shanon/kommitly/kommitly_backend/goals/apps.py", line 10, in ready
+    import goals.signals
+  File "/home/shanon/kommitly/kommitly_backend/goals/signals.py", line 18, in <module>
+    @receiver(pre_delete, sender=AiSubTask)
+              ^^^^^^^^^^
+NameError: name 'pre_delete' is not defined. Did you mean: 'post_delete'?
+Traceback (most recent call last):
+  File "/home/shanon/kommitly/kommitly_backend/manage.py", line 22, in <module>
+    main()
+  File "/home/shanon/kommitly/kommitly_backend/manage.py", line 18, in main
+    execute_from_command_line(sys.argv)
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/__init__.py", line 442, in execute_from_command_line
+    utility.execute()
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/__init__.py", line 416, in execute
+    django.setup()
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/__init__.py", line 24, in setup
+    apps.populate(settings.INSTALLED_APPS)
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/apps/registry.py", line 124, in populate
+    app_config.ready()
+  File "/home/shanon/kommitly/kommitly_backend/goals/apps.py", line 10, in ready
+    import goals.signals
+  File "/home/shanon/kommitly/kommitly_backend/goals/signals.py", line 18, in <module>
+    @receiver(pre_delete, sender=AiSubTask)
+              ^^^^^^^^^^
+NameError: name 'pre_delete' is not defined. Did you mean: 'post_delete'?
+Traceback (most recent call last):
+  File "/home/shanon/kommitly/kommitly_backend/manage.py", line 22, in <module>
+    main()
+  File "/home/shanon/kommitly/kommitly_backend/manage.py", line 18, in main
+    execute_from_command_line(sys.argv)
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/__init__.py", line 442, in execute_from_command_line
+    utility.execute()
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/__init__.py", line 416, in execute
+    django.setup()
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/__init__.py", line 24, in setup
+    apps.populate(settings.INSTALLED_APPS)
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/apps/registry.py", line 124, in populate
+    app_config.ready()
+  File "/home/shanon/kommitly/kommitly_backend/goals/apps.py", line 10, in ready
+    import goals.signals
+  File "/home/shanon/kommitly/kommitly_backend/goals/signals.py", line 18, in <module>
+    @receiver(pre_delete, sender=AiSubTask)
+              ^^^^^^^^^^
+NameError: name 'pre_delete' is not defined. Did you mean: 'post_delete'?
+Traceback (most recent call last):
+  File "/home/shanon/kommitly/kommitly_backend/manage.py", line 22, in <module>
+    main()
+  File "/home/shanon/kommitly/kommitly_backend/manage.py", line 18, in main
+    execute_from_command_line(sys.argv)
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/__init__.py", line 442, in execute_from_command_line
+    utility.execute()
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/__init__.py", line 416, in execute
+    django.setup()
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/__init__.py", line 24, in setup
+    apps.populate(settings.INSTALLED_APPS)
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/apps/registry.py", line 124, in populate
+    app_config.ready()
+  File "/home/shanon/kommitly/kommitly_backend/goals/apps.py", line 10, in ready
+    import goals.signals
+  File "/home/shanon/kommitly/kommitly_backend/goals/signals.py", line 18, in <module>
+    @receiver(pre_delete, sender=AiSubTask)
+              ^^^^^^^^^^
+NameError: name 'pre_delete' is not defined. Did you mean: 'post_delete'?
+Traceback (most recent call last):
+  File "/home/shanon/kommitly/kommitly_backend/manage.py", line 22, in <module>
+    main()
+  File "/home/shanon/kommitly/kommitly_backend/manage.py", line 18, in main
+    execute_from_command_line(sys.argv)
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/__init__.py", line 442, in execute_from_command_line
+    utility.execute()
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/__init__.py", line 416, in execute
+    django.setup()
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/__init__.py", line 24, in setup
+    apps.populate(settings.INSTALLED_APPS)
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/apps/registry.py", line 124, in populate
+    app_config.ready()
+  File "/home/shanon/kommitly/kommitly_backend/goals/apps.py", line 10, in ready
+    import goals.signals
+  File "/home/shanon/kommitly/kommitly_backend/goals/signals.py", line 18, in <module>
+    @receiver(pre_delete, sender=AiSubTask)
+              ^^^^^^^^^^
+NameError: name 'pre_delete' is not defined. Did you mean: 'post_delete'?
+Traceback (most recent call last):
+  File "/home/shanon/kommitly/kommitly_backend/manage.py", line 22, in <module>
+    main()
+  File "/home/shanon/kommitly/kommitly_backend/manage.py", line 18, in main
+    execute_from_command_line(sys.argv)
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/__init__.py", line 442, in execute_from_command_line
+    utility.execute()
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/__init__.py", line 416, in execute
+    django.setup()
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/__init__.py", line 24, in setup
+    apps.populate(settings.INSTALLED_APPS)
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/apps/registry.py", line 124, in populate
+    app_config.ready()
+  File "/home/shanon/kommitly/kommitly_backend/goals/apps.py", line 10, in ready
+    import goals.signals
+  File "/home/shanon/kommitly/kommitly_backend/goals/signals.py", line 18, in <module>
+    @receiver(pre_delete, sender=AiSubTask)
+              ^^^^^^^^^^
+NameError: name 'pre_delete' is not defined. Did you mean: 'post_delete'?
+Traceback (most recent call last):
+  File "/home/shanon/kommitly/kommitly_backend/manage.py", line 22, in <module>
+    main()
+  File "/home/shanon/kommitly/kommitly_backend/manage.py", line 18, in main
+    execute_from_command_line(sys.argv)
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/__init__.py", line 442, in execute_from_command_line
+    utility.execute()
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/__init__.py", line 416, in execute
+    django.setup()
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/__init__.py", line 24, in setup
+    apps.populate(settings.INSTALLED_APPS)
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/apps/registry.py", line 124, in populate
+    app_config.ready()
+  File "/home/shanon/kommitly/kommitly_backend/goals/apps.py", line 10, in ready
+    import goals.signals
+  File "/home/shanon/kommitly/kommitly_backend/goals/signals.py", line 18, in <module>
+    @receiver(pre_delete, sender=AiSubTask)
+              ^^^^^^^^^^
+NameError: name 'pre_delete' is not defined. Did you mean: 'post_delete'?
+Traceback (most recent call last):
+  File "/home/shanon/kommitly/kommitly_backend/manage.py", line 22, in <module>
+    main()
+  File "/home/shanon/kommitly/kommitly_backend/manage.py", line 18, in main
+    execute_from_command_line(sys.argv)
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/__init__.py", line 442, in execute_from_command_line
+    utility.execute()
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/__init__.py", line 416, in execute
+    django.setup()
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/__init__.py", line 24, in setup
+    apps.populate(settings.INSTALLED_APPS)
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/apps/registry.py", line 124, in populate
+    app_config.ready()
+  File "/home/shanon/kommitly/kommitly_backend/goals/apps.py", line 10, in ready
+    import goals.signals
+  File "/home/shanon/kommitly/kommitly_backend/goals/signals.py", line 18, in <module>
+    @receiver(pre_delete, sender=AiSubTask)
+              ^^^^^^^^^^
+NameError: name 'pre_delete' is not defined. Did you mean: 'post_delete'?
+Traceback (most recent call last):
+  File "/home/shanon/kommitly/kommitly_backend/manage.py", line 22, in <module>
+    main()
+  File "/home/shanon/kommitly/kommitly_backend/manage.py", line 18, in main
+    execute_from_command_line(sys.argv)
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/__init__.py", line 442, in execute_from_command_line
+    utility.execute()
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/__init__.py", line 416, in execute
+    django.setup()
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/__init__.py", line 24, in setup
+    apps.populate(settings.INSTALLED_APPS)
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/apps/registry.py", line 124, in populate
+    app_config.ready()
+  File "/home/shanon/kommitly/kommitly_backend/goals/apps.py", line 10, in ready
+    import goals.signals
+  File "/home/shanon/kommitly/kommitly_backend/goals/signals.py", line 18, in <module>
+    @receiver(pre_delete, sender=AiSubTask)
+              ^^^^^^^^^^
+NameError: name 'pre_delete' is not defined. Did you mean: 'post_delete'?
+Traceback (most recent call last):
+  File "/home/shanon/kommitly/kommitly_backend/manage.py", line 22, in <module>
+    main()
+  File "/home/shanon/kommitly/kommitly_backend/manage.py", line 18, in main
+    execute_from_command_line(sys.argv)
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/__init__.py", line 442, in execute_from_command_line
+    utility.execute()
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/__init__.py", line 416, in execute
+    django.setup()
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/__init__.py", line 24, in setup
+    apps.populate(settings.INSTALLED_APPS)
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/apps/registry.py", line 124, in populate
+    app_config.ready()
+  File "/home/shanon/kommitly/kommitly_backend/goals/apps.py", line 10, in ready
+    import goals.signals
+  File "/home/shanon/kommitly/kommitly_backend/goals/signals.py", line 18, in <module>
+    @receiver(pre_delete, sender=AiSubTask)
+              ^^^^^^^^^^
+NameError: name 'pre_delete' is not defined. Did you mean: 'post_delete'?
+Traceback (most recent call last):
+  File "/home/shanon/kommitly/kommitly_backend/manage.py", line 22, in <module>
+    main()
+  File "/home/shanon/kommitly/kommitly_backend/manage.py", line 18, in main
+    execute_from_command_line(sys.argv)
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/__init__.py", line 442, in execute_from_command_line
+    utility.execute()
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/__init__.py", line 416, in execute
+    django.setup()
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/__init__.py", line 24, in setup
+    apps.populate(settings.INSTALLED_APPS)
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/apps/registry.py", line 124, in populate
+    app_config.ready()
+  File "/home/shanon/kommitly/kommitly_backend/goals/apps.py", line 10, in ready
+    import goals.signals
+  File "/home/shanon/kommitly/kommitly_backend/goals/signals.py", line 18, in <module>
+    @receiver(pre_delete, sender=AiSubTask)
+              ^^^^^^^^^^
+NameError: name 'pre_delete' is not defined. Did you mean: 'post_delete'?
+Traceback (most recent call last):
+  File "/home/shanon/kommitly/kommitly_backend/manage.py", line 22, in <module>
+    main()
+  File "/home/shanon/kommitly/kommitly_backend/manage.py", line 18, in main
+    execute_from_command_line(sys.argv)
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/__init__.py", line 442, in execute_from_command_line
+    utility.execute()
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/__init__.py", line 416, in execute
+    django.setup()
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/__init__.py", line 24, in setup
+    apps.populate(settings.INSTALLED_APPS)
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/apps/registry.py", line 124, in populate
+    app_config.ready()
+  File "/home/shanon/kommitly/kommitly_backend/goals/apps.py", line 10, in ready
+    import goals.signals
+  File "/home/shanon/kommitly/kommitly_backend/goals/signals.py", line 18, in <module>
+    @receiver(pre_delete, sender=AiSubTask)
+              ^^^^^^^^^^
+NameError: name 'pre_delete' is not defined. Did you mean: 'post_delete'?
+Traceback (most recent call last):
+  File "/home/shanon/kommitly/kommitly_backend/manage.py", line 22, in <module>
+    main()
+  File "/home/shanon/kommitly/kommitly_backend/manage.py", line 18, in main
+    execute_from_command_line(sys.argv)
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/__init__.py", line 442, in execute_from_command_line
+    utility.execute()
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/__init__.py", line 416, in execute
+    django.setup()
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/__init__.py", line 24, in setup
+    apps.populate(settings.INSTALLED_APPS)
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/apps/registry.py", line 124, in populate
+    app_config.ready()
+  File "/home/shanon/kommitly/kommitly_backend/goals/apps.py", line 10, in ready
+    import goals.signals
+  File "/home/shanon/kommitly/kommitly_backend/goals/signals.py", line 18, in <module>
+    @receiver(pre_delete, sender=AiSubTask)
+              ^^^^^^^^^^
+NameError: name 'pre_delete' is not defined. Did you mean: 'post_delete'?
+Traceback (most recent call last):
+  File "/home/shanon/kommitly/kommitly_backend/manage.py", line 22, in <module>
+    main()
+  File "/home/shanon/kommitly/kommitly_backend/manage.py", line 18, in main
+    execute_from_command_line(sys.argv)
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/__init__.py", line 442, in execute_from_command_line
+    utility.execute()
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/__init__.py", line 416, in execute
+    django.setup()
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/__init__.py", line 24, in setup
+    apps.populate(settings.INSTALLED_APPS)
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/apps/registry.py", line 124, in populate
+    app_config.ready()
+  File "/home/shanon/kommitly/kommitly_backend/goals/apps.py", line 10, in ready
+    import goals.signals
+  File "/home/shanon/kommitly/kommitly_backend/goals/signals.py", line 18, in <module>
+    @receiver(pre_delete, sender=AiSubTask)
+              ^^^^^^^^^^
+NameError: name 'pre_delete' is not defined. Did you mean: 'post_delete'?
+Traceback (most recent call last):
+  File "/home/shanon/kommitly/kommitly_backend/manage.py", line 22, in <module>
+    main()
+  File "/home/shanon/kommitly/kommitly_backend/manage.py", line 18, in main
+    execute_from_command_line(sys.argv)
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/__init__.py", line 442, in execute_from_command_line
+    utility.execute()
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/__init__.py", line 416, in execute
+    django.setup()
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/__init__.py", line 24, in setup
+    apps.populate(settings.INSTALLED_APPS)
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/apps/registry.py", line 124, in populate
+    app_config.ready()
+  File "/home/shanon/kommitly/kommitly_backend/goals/apps.py", line 10, in ready
+    import goals.signals
+  File "/home/shanon/kommitly/kommitly_backend/goals/signals.py", line 18, in <module>
+    @receiver(pre_delete, sender=AiSubTask)
+              ^^^^^^^^^^
+NameError: name 'pre_delete' is not defined. Did you mean: 'post_delete'?
+Traceback (most recent call last):
+  File "/home/shanon/kommitly/kommitly_backend/manage.py", line 22, in <module>
+    main()
+  File "/home/shanon/kommitly/kommitly_backend/manage.py", line 18, in main
+    execute_from_command_line(sys.argv)
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/__init__.py", line 442, in execute_from_command_line
+    utility.execute()
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/__init__.py", line 416, in execute
+    django.setup()
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/__init__.py", line 24, in setup
+    apps.populate(settings.INSTALLED_APPS)
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/apps/registry.py", line 124, in populate
+    app_config.ready()
+  File "/home/shanon/kommitly/kommitly_backend/goals/apps.py", line 10, in ready
+    import goals.signals
+  File "/home/shanon/kommitly/kommitly_backend/goals/signals.py", line 18, in <module>
+    @receiver(pre_delete, sender=AiSubTask)
+              ^^^^^^^^^^
+NameError: name 'pre_delete' is not defined. Did you mean: 'post_delete'?
+Traceback (most recent call last):
+  File "/home/shanon/kommitly/kommitly_backend/manage.py", line 22, in <module>
+    main()
+  File "/home/shanon/kommitly/kommitly_backend/manage.py", line 18, in main
+    execute_from_command_line(sys.argv)
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/__init__.py", line 442, in execute_from_command_line
+    utility.execute()
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/__init__.py", line 416, in execute
+    django.setup()
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/__init__.py", line 24, in setup
+    apps.populate(settings.INSTALLED_APPS)
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/apps/registry.py", line 124, in populate
+    app_config.ready()
+  File "/home/shanon/kommitly/kommitly_backend/goals/apps.py", line 10, in ready
+    import goals.signals
+  File "/home/shanon/kommitly/kommitly_backend/goals/signals.py", line 18, in <module>
+    @receiver(pre_delete, sender=AiSubTask)
+              ^^^^^^^^^^
+NameError: name 'pre_delete' is not defined. Did you mean: 'post_delete'?
+Traceback (most recent call last):
+  File "/home/shanon/kommitly/kommitly_backend/manage.py", line 22, in <module>
+    main()
+  File "/home/shanon/kommitly/kommitly_backend/manage.py", line 18, in main
+    execute_from_command_line(sys.argv)
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/__init__.py", line 442, in execute_from_command_line
+    utility.execute()
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/__init__.py", line 416, in execute
+    django.setup()
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/__init__.py", line 24, in setup
+    apps.populate(settings.INSTALLED_APPS)
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/apps/registry.py", line 124, in populate
+    app_config.ready()
+  File "/home/shanon/kommitly/kommitly_backend/goals/apps.py", line 10, in ready
+    import goals.signals
+  File "/home/shanon/kommitly/kommitly_backend/goals/signals.py", line 18, in <module>
+    @receiver(pre_delete, sender=AiSubTask)
+              ^^^^^^^^^^
+NameError: name 'pre_delete' is not defined. Did you mean: 'post_delete'?
+Traceback (most recent call last):
+  File "/home/shanon/kommitly/kommitly_backend/manage.py", line 22, in <module>
+    main()
+  File "/home/shanon/kommitly/kommitly_backend/manage.py", line 18, in main
+    execute_from_command_line(sys.argv)
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/__init__.py", line 442, in execute_from_command_line
+    utility.execute()
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/__init__.py", line 416, in execute
+    django.setup()
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/__init__.py", line 24, in setup
+    apps.populate(settings.INSTALLED_APPS)
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/apps/registry.py", line 124, in populate
+    app_config.ready()
+  File "/home/shanon/kommitly/kommitly_backend/goals/apps.py", line 10, in ready
+    import goals.signals
+  File "/home/shanon/kommitly/kommitly_backend/goals/signals.py", line 18, in <module>
+    @receiver(pre_delete, sender=AiSubTask)
+              ^^^^^^^^^^
+NameError: name 'pre_delete' is not defined. Did you mean: 'post_delete'?
+Traceback (most recent call last):
+  File "/home/shanon/kommitly/kommitly_backend/manage.py", line 22, in <module>
+    main()
+  File "/home/shanon/kommitly/kommitly_backend/manage.py", line 18, in main
+    execute_from_command_line(sys.argv)
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/__init__.py", line 442, in execute_from_command_line
+    utility.execute()
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/__init__.py", line 416, in execute
+    django.setup()
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/__init__.py", line 24, in setup
+    apps.populate(settings.INSTALLED_APPS)
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/apps/registry.py", line 124, in populate
+    app_config.ready()
+  File "/home/shanon/kommitly/kommitly_backend/goals/apps.py", line 10, in ready
+    import goals.signals
+  File "/home/shanon/kommitly/kommitly_backend/goals/signals.py", line 18, in <module>
+    @receiver(pre_delete, sender=AiSubTask)
+              ^^^^^^^^^^
+NameError: name 'pre_delete' is not defined. Did you mean: 'post_delete'?
+Traceback (most recent call last):
+  File "/home/shanon/kommitly/kommitly_backend/manage.py", line 22, in <module>
+    main()
+  File "/home/shanon/kommitly/kommitly_backend/manage.py", line 18, in main
+    execute_from_command_line(sys.argv)
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/__init__.py", line 442, in execute_from_command_line
+    utility.execute()
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/__init__.py", line 416, in execute
+    django.setup()
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/__init__.py", line 24, in setup
+    apps.populate(settings.INSTALLED_APPS)
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/apps/registry.py", line 124, in populate
+    app_config.ready()
+  File "/home/shanon/kommitly/kommitly_backend/goals/apps.py", line 10, in ready
+    import goals.signals
+  File "/home/shanon/kommitly/kommitly_backend/goals/signals.py", line 18, in <module>
+    @receiver(pre_delete, sender=AiSubTask)
+              ^^^^^^^^^^
+NameError: name 'pre_delete' is not defined. Did you mean: 'post_delete'?
+Traceback (most recent call last):
+  File "/home/shanon/kommitly/kommitly_backend/manage.py", line 22, in <module>
+    main()
+  File "/home/shanon/kommitly/kommitly_backend/manage.py", line 18, in main
+    execute_from_command_line(sys.argv)
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/__init__.py", line 442, in execute_from_command_line
+    utility.execute()
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/__init__.py", line 416, in execute
+    django.setup()
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/__init__.py", line 24, in setup
+    apps.populate(settings.INSTALLED_APPS)
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/apps/registry.py", line 124, in populate
+    app_config.ready()
+  File "/home/shanon/kommitly/kommitly_backend/goals/apps.py", line 10, in ready
+    import goals.signals
+  File "/home/shanon/kommitly/kommitly_backend/goals/signals.py", line 18, in <module>
+    @receiver(pre_delete, sender=AiSubTask)
+              ^^^^^^^^^^
+NameError: name 'pre_delete' is not defined. Did you mean: 'post_delete'?
+Traceback (most recent call last):
+  File "/home/shanon/kommitly/kommitly_backend/manage.py", line 22, in <module>
+    main()
+  File "/home/shanon/kommitly/kommitly_backend/manage.py", line 18, in main
+    execute_from_command_line(sys.argv)
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/__init__.py", line 442, in execute_from_command_line
+    utility.execute()
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/__init__.py", line 416, in execute
+    django.setup()
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/__init__.py", line 24, in setup
+    apps.populate(settings.INSTALLED_APPS)
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/apps/registry.py", line 124, in populate
+    app_config.ready()
+  File "/home/shanon/kommitly/kommitly_backend/goals/apps.py", line 10, in ready
+    import goals.signals
+  File "/home/shanon/kommitly/kommitly_backend/goals/signals.py", line 18, in <module>
+    @receiver(pre_delete, sender=AiSubTask)
+              ^^^^^^^^^^
+NameError: name 'pre_delete' is not defined. Did you mean: 'post_delete'?
+Traceback (most recent call last):
+  File "/home/shanon/kommitly/kommitly_backend/manage.py", line 22, in <module>
+    main()
+  File "/home/shanon/kommitly/kommitly_backend/manage.py", line 18, in main
+    execute_from_command_line(sys.argv)
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/__init__.py", line 442, in execute_from_command_line
+    utility.execute()
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/__init__.py", line 416, in execute
+    django.setup()
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/__init__.py", line 24, in setup
+    apps.populate(settings.INSTALLED_APPS)
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/apps/registry.py", line 124, in populate
+    app_config.ready()
+  File "/home/shanon/kommitly/kommitly_backend/goals/apps.py", line 10, in ready
+    import goals.signals
+  File "/home/shanon/kommitly/kommitly_backend/goals/signals.py", line 18, in <module>
+    @receiver(pre_delete, sender=AiSubTask)
+              ^^^^^^^^^^
+NameError: name 'pre_delete' is not defined. Did you mean: 'post_delete'?
+Traceback (most recent call last):
+  File "/home/shanon/kommitly/kommitly_backend/manage.py", line 22, in <module>
+    main()
+  File "/home/shanon/kommitly/kommitly_backend/manage.py", line 18, in main
+    execute_from_command_line(sys.argv)
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/__init__.py", line 442, in execute_from_command_line
+    utility.execute()
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/__init__.py", line 416, in execute
+    django.setup()
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/__init__.py", line 24, in setup
+    apps.populate(settings.INSTALLED_APPS)
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/apps/registry.py", line 124, in populate
+    app_config.ready()
+  File "/home/shanon/kommitly/kommitly_backend/goals/apps.py", line 10, in ready
+    import goals.signals
+  File "/home/shanon/kommitly/kommitly_backend/goals/signals.py", line 18, in <module>
+    @receiver(pre_delete, sender=AiSubTask)
+              ^^^^^^^^^^
+NameError: name 'pre_delete' is not defined. Did you mean: 'post_delete'?
+Traceback (most recent call last):
+  File "/home/shanon/kommitly/kommitly_backend/manage.py", line 22, in <module>
+    main()
+  File "/home/shanon/kommitly/kommitly_backend/manage.py", line 18, in main
+    execute_from_command_line(sys.argv)
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/__init__.py", line 442, in execute_from_command_line
+    utility.execute()
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/__init__.py", line 416, in execute
+    django.setup()
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/__init__.py", line 24, in setup
+    apps.populate(settings.INSTALLED_APPS)
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/apps/registry.py", line 124, in populate
+    app_config.ready()
+  File "/home/shanon/kommitly/kommitly_backend/goals/apps.py", line 10, in ready
+    import goals.signals
+  File "/home/shanon/kommitly/kommitly_backend/goals/signals.py", line 18, in <module>
+    @receiver(pre_delete, sender=AiSubTask)
+              ^^^^^^^^^^
+NameError: name 'pre_delete' is not defined. Did you mean: 'post_delete'?
+Traceback (most recent call last):
+  File "/home/shanon/kommitly/kommitly_backend/manage.py", line 22, in <module>
+    main()
+  File "/home/shanon/kommitly/kommitly_backend/manage.py", line 18, in main
+    execute_from_command_line(sys.argv)
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/__init__.py", line 442, in execute_from_command_line
+    utility.execute()
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/__init__.py", line 416, in execute
+    django.setup()
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/__init__.py", line 24, in setup
+    apps.populate(settings.INSTALLED_APPS)
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/apps/registry.py", line 124, in populate
+    app_config.ready()
+  File "/home/shanon/kommitly/kommitly_backend/goals/apps.py", line 10, in ready
+    import goals.signals
+  File "/home/shanon/kommitly/kommitly_backend/goals/signals.py", line 18, in <module>
+    @receiver(pre_delete, sender=AiSubTask)
+              ^^^^^^^^^^
+NameError: name 'pre_delete' is not defined. Did you mean: 'post_delete'?
+Traceback (most recent call last):
+  File "/home/shanon/kommitly/kommitly_backend/manage.py", line 22, in <module>
+    main()
+  File "/home/shanon/kommitly/kommitly_backend/manage.py", line 18, in main
+    execute_from_command_line(sys.argv)
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/__init__.py", line 442, in execute_from_command_line
+    utility.execute()
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/__init__.py", line 416, in execute
+    django.setup()
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/__init__.py", line 24, in setup
+    apps.populate(settings.INSTALLED_APPS)
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/apps/registry.py", line 124, in populate
+    app_config.ready()
+  File "/home/shanon/kommitly/kommitly_backend/goals/apps.py", line 10, in ready
+    import goals.signals
+  File "/home/shanon/kommitly/kommitly_backend/goals/signals.py", line 18, in <module>
+    @receiver(pre_delete, sender=AiSubTask)
+              ^^^^^^^^^^
+NameError: name 'pre_delete' is not defined. Did you mean: 'post_delete'?
+Traceback (most recent call last):
+  File "/home/shanon/kommitly/kommitly_backend/manage.py", line 22, in <module>
+    main()
+  File "/home/shanon/kommitly/kommitly_backend/manage.py", line 18, in main
+    execute_from_command_line(sys.argv)
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/__init__.py", line 442, in execute_from_command_line
+    utility.execute()
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/__init__.py", line 416, in execute
+    django.setup()
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/__init__.py", line 24, in setup
+    apps.populate(settings.INSTALLED_APPS)
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/apps/registry.py", line 124, in populate
+    app_config.ready()
+  File "/home/shanon/kommitly/kommitly_backend/goals/apps.py", line 10, in ready
+    import goals.signals
+  File "/home/shanon/kommitly/kommitly_backend/goals/signals.py", line 18, in <module>
+    @receiver(pre_delete, sender=AiSubTask)
+              ^^^^^^^^^^
+NameError: name 'pre_delete' is not defined. Did you mean: 'post_delete'?
+Traceback (most recent call last):
+  File "/home/shanon/kommitly/kommitly_backend/manage.py", line 22, in <module>
+    main()
+  File "/home/shanon/kommitly/kommitly_backend/manage.py", line 18, in main
+    execute_from_command_line(sys.argv)
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/__init__.py", line 442, in execute_from_command_line
+    utility.execute()
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/__init__.py", line 416, in execute
+    django.setup()
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/__init__.py", line 24, in setup
+    apps.populate(settings.INSTALLED_APPS)
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/apps/registry.py", line 124, in populate
+    app_config.ready()
+  File "/home/shanon/kommitly/kommitly_backend/goals/apps.py", line 10, in ready
+    import goals.signals
+  File "/home/shanon/kommitly/kommitly_backend/goals/signals.py", line 18, in <module>
+    @receiver(pre_delete, sender=AiSubTask)
+              ^^^^^^^^^^
+NameError: name 'pre_delete' is not defined. Did you mean: 'post_delete'?
+Traceback (most recent call last):
+  File "/home/shanon/kommitly/kommitly_backend/manage.py", line 22, in <module>
+    main()
+  File "/home/shanon/kommitly/kommitly_backend/manage.py", line 18, in main
+    execute_from_command_line(sys.argv)
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/__init__.py", line 442, in execute_from_command_line
+    utility.execute()
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/__init__.py", line 416, in execute
+    django.setup()
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/__init__.py", line 24, in setup
+    apps.populate(settings.INSTALLED_APPS)
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/apps/registry.py", line 124, in populate
+    app_config.ready()
+  File "/home/shanon/kommitly/kommitly_backend/goals/apps.py", line 10, in ready
+    import goals.signals
+  File "/home/shanon/kommitly/kommitly_backend/goals/signals.py", line 18, in <module>
+    @receiver(pre_delete, sender=AiSubTask)
+              ^^^^^^^^^^
+NameError: name 'pre_delete' is not defined. Did you mean: 'post_delete'?
+Traceback (most recent call last):
+  File "/home/shanon/kommitly/kommitly_backend/manage.py", line 22, in <module>
+    main()
+  File "/home/shanon/kommitly/kommitly_backend/manage.py", line 18, in main
+    execute_from_command_line(sys.argv)
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/__init__.py", line 442, in execute_from_command_line
+    utility.execute()
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/__init__.py", line 416, in execute
+    django.setup()
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/__init__.py", line 24, in setup
+    apps.populate(settings.INSTALLED_APPS)
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/apps/registry.py", line 124, in populate
+    app_config.ready()
+  File "/home/shanon/kommitly/kommitly_backend/goals/apps.py", line 10, in ready
+    import goals.signals
+  File "/home/shanon/kommitly/kommitly_backend/goals/signals.py", line 18, in <module>
+    @receiver(pre_delete, sender=AiSubTask)
+              ^^^^^^^^^^
+NameError: name 'pre_delete' is not defined. Did you mean: 'post_delete'?
+Traceback (most recent call last):
+  File "/home/shanon/kommitly/kommitly_backend/manage.py", line 22, in <module>
+    main()
+  File "/home/shanon/kommitly/kommitly_backend/manage.py", line 18, in main
+    execute_from_command_line(sys.argv)
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/__init__.py", line 442, in execute_from_command_line
+    utility.execute()
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/__init__.py", line 416, in execute
+    django.setup()
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/__init__.py", line 24, in setup
+    apps.populate(settings.INSTALLED_APPS)
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/apps/registry.py", line 124, in populate
+    app_config.ready()
+  File "/home/shanon/kommitly/kommitly_backend/goals/apps.py", line 10, in ready
+    import goals.signals
+  File "/home/shanon/kommitly/kommitly_backend/goals/signals.py", line 18, in <module>
+    @receiver(pre_delete, sender=AiSubTask)
+              ^^^^^^^^^^
+NameError: name 'pre_delete' is not defined. Did you mean: 'post_delete'?
+Traceback (most recent call last):
+  File "/home/shanon/kommitly/kommitly_backend/manage.py", line 22, in <module>
+    main()
+  File "/home/shanon/kommitly/kommitly_backend/manage.py", line 18, in main
+    execute_from_command_line(sys.argv)
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/__init__.py", line 442, in execute_from_command_line
+    utility.execute()
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/__init__.py", line 416, in execute
+    django.setup()
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/__init__.py", line 24, in setup
+    apps.populate(settings.INSTALLED_APPS)
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/apps/registry.py", line 124, in populate
+    app_config.ready()
+  File "/home/shanon/kommitly/kommitly_backend/goals/apps.py", line 10, in ready
+    import goals.signals
+  File "/home/shanon/kommitly/kommitly_backend/goals/signals.py", line 18, in <module>
+    @receiver(pre_delete, sender=AiSubTask)
+              ^^^^^^^^^^
+NameError: name 'pre_delete' is not defined. Did you mean: 'post_delete'?
+Traceback (most recent call last):
+  File "/home/shanon/kommitly/kommitly_backend/manage.py", line 22, in <module>
+    main()
+  File "/home/shanon/kommitly/kommitly_backend/manage.py", line 18, in main
+    execute_from_command_line(sys.argv)
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/__init__.py", line 442, in execute_from_command_line
+    utility.execute()
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/__init__.py", line 416, in execute
+    django.setup()
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/__init__.py", line 24, in setup
+    apps.populate(settings.INSTALLED_APPS)
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/apps/registry.py", line 124, in populate
+    app_config.ready()
+  File "/home/shanon/kommitly/kommitly_backend/goals/apps.py", line 10, in ready
+    import goals.signals
+  File "/home/shanon/kommitly/kommitly_backend/goals/signals.py", line 18, in <module>
+    @receiver(pre_delete, sender=AiSubTask)
+              ^^^^^^^^^^
+NameError: name 'pre_delete' is not defined. Did you mean: 'post_delete'?
+Traceback (most recent call last):
+  File "/home/shanon/kommitly/kommitly_backend/manage.py", line 22, in <module>
+    main()
+  File "/home/shanon/kommitly/kommitly_backend/manage.py", line 18, in main
+    execute_from_command_line(sys.argv)
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/__init__.py", line 442, in execute_from_command_line
+    utility.execute()
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/__init__.py", line 416, in execute
+    django.setup()
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/__init__.py", line 24, in setup
+    apps.populate(settings.INSTALLED_APPS)
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/apps/registry.py", line 124, in populate
+    app_config.ready()
+  File "/home/shanon/kommitly/kommitly_backend/goals/apps.py", line 10, in ready
+    import goals.signals
+  File "/home/shanon/kommitly/kommitly_backend/goals/signals.py", line 18, in <module>
+    @receiver(pre_delete, sender=AiSubTask)
+              ^^^^^^^^^^
+NameError: name 'pre_delete' is not defined. Did you mean: 'post_delete'?
+Traceback (most recent call last):
+  File "/home/shanon/kommitly/kommitly_backend/manage.py", line 22, in <module>
+    main()
+  File "/home/shanon/kommitly/kommitly_backend/manage.py", line 18, in main
+    execute_from_command_line(sys.argv)
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/__init__.py", line 442, in execute_from_command_line
+    utility.execute()
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/__init__.py", line 416, in execute
+    django.setup()
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/__init__.py", line 24, in setup
+    apps.populate(settings.INSTALLED_APPS)
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/apps/registry.py", line 124, in populate
+    app_config.ready()
+  File "/home/shanon/kommitly/kommitly_backend/goals/apps.py", line 10, in ready
+    import goals.signals
+  File "/home/shanon/kommitly/kommitly_backend/goals/signals.py", line 18, in <module>
+    @receiver(pre_delete, sender=AiSubTask)
+              ^^^^^^^^^^
+NameError: name 'pre_delete' is not defined. Did you mean: 'post_delete'?
+Traceback (most recent call last):
+  File "/home/shanon/kommitly/kommitly_backend/manage.py", line 22, in <module>
+    main()
+  File "/home/shanon/kommitly/kommitly_backend/manage.py", line 18, in main
+    execute_from_command_line(sys.argv)
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/__init__.py", line 442, in execute_from_command_line
+    utility.execute()
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/core/management/__init__.py", line 416, in execute
+    django.setup()
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/__init__.py", line 24, in setup
+    apps.populate(settings.INSTALLED_APPS)
+  File "/home/shanon/kommitly/kommitly_backend/myenv/lib/python3.12/site-packages/django/apps/registry.py", line 124, in populate
+    app_config.ready()
+  File "/home/shanon/kommitly/kommitly_backend/goals/apps.py", line 10, in ready
+    import goals.signals
+  File "/home/shanon/kommitly/kommitly_backend/goals/signals.py", line 18, in <module>
+    @receiver(pre_delete, sender=AiSubTask)
+              ^^^^^^^^^^
+NameError: name 'pre_delete' is not defined. Did you mean: 'post_delete'?
+Found 49 AI subtasks pending reminders.
+AI subtask reminder check complete.
+Found 49 AI subtasks pending reminders.
+AI subtask reminder check complete.
+Found 49 AI subtasks pending reminders.
+AI subtask reminder check complete.
+Found 49 AI subtasks pending reminders.
+AI subtask reminder check complete.
+Found 49 AI subtasks pending reminders.
+AI subtask reminder check complete.
+Found 49 AI subtasks pending reminders.
+AI subtask reminder check complete.
+Found 49 AI subtasks pending reminders.
+AI subtask reminder check complete.
+Found 49 AI subtasks pending reminders.
+AI subtask reminder check complete.
+Found 49 AI subtasks pending reminders.
+AI subtask reminder check complete.
+Found 49 AI subtasks pending reminders.
+AI subtask reminder check complete.
+Found 49 AI subtasks pending reminders.
+AI subtask reminder check complete.

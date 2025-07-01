@@ -648,7 +648,7 @@ class UserAuthenticatedProfileView(APIView):
             ai_goal_serializer = AiGoalSerializer(ai_goals, many=True)
 
             # Fetch the user's tasks (if tasks are separate and relate to goals)
-            tasks = Task.objects.filter(goal__user=user) | Task.objects.filter(goal__isnull=True)
+            tasks = Task.objects.filter(user=user)
             task_serializer = TaskSerializer(tasks, many=True)
 
             ai_tasks = AiTask.objects.filter(ai_goal__user=user)  # Assuming tasks are related to goals

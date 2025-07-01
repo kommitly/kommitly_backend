@@ -1,4 +1,4 @@
-from django.db.models.signals import post_save, post_delete
+from django.db.models.signals import post_save, post_delete, pre_delete
 from django.dispatch import receiver
 from .models import AiSubTask, AiTask, AiGoal # Make sure to import your models
 
@@ -12,14 +12,16 @@ def update_goal_progress_on_subtask_save(sender, instance, created, **kwargs):
         instance.ai_task.ai_goal.update_progress()
     else:
         print(f"DEBUG: post_save signal for AiSubTask '{instance.title}', but no associated AiTask or AiGoal found.")
-        
+   # global cache for deletion
+_deleted_ai_goal = {}
+
+@receiver(pre_delete, sender=AiSubTask)
+def cache_goal_on_subtask_delete(sender, instance, **kwargs):
+    if instance.ai_task and instance.ai_task.ai_goal:
+        _deleted_ai_goal[instance.pk] = instance.ai_task.ai_goal
+
 @receiver(post_delete, sender=AiSubTask)
 def update_goal_progress_on_subtask_delete(sender, instance, **kwargs):
-    try:
-        if instance.ai_task and instance.ai_task.ai_goal:
-            print(f"DEBUG: post_delete signal for AiSubTask '{instance.title}'. Calling AiGoal.update_progress().")
-            instance.ai_task.ai_goal.update_progress()
-        else:
-            print(f"DEBUG: post_delete signal for AiSubTask '{instance.title}' deletion, but no associated AiTask or AiGoal found.")
-    except AiTask.DoesNotExist:
-        print(f"DEBUG: AiTask already deleted for subtask '{instance.title}' — skipping progress update.")
+    ai_goal = _deleted_ai_goal.pop(instance.pk, None)
+    if ai_goal:
+        ai_goal.update_progress()
