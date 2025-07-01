@@ -16,6 +16,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.tokens import AccessToken
 from .models import User, generate_verification_token
 from timezonefinder import TimezoneFinder
+import traceback
 
 
 
@@ -389,9 +390,11 @@ class DeleteAuthenticatedUserView(APIView):
                 status=status.HTTP_404_NOT_FOUND,
             )
         except Exception as e:
-            logger.error(f"Unexpected error: {str(e)}")
+            traceback_str = traceback.format_exc()
+            logger.error(f"Unexpected error: {e}\n{traceback_str}")
             return Response(
-                {"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
+                {"error": f"An error occurred while deleting the user: {str(e)}"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
 
 

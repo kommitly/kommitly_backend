@@ -196,24 +196,25 @@ class AiTask(models.Model):
 
         if self.ai_goal:
             tasks = list(self.ai_goal.ai_tasks.order_by('id')) # convert to list to use index
-
-            if self.status == 'completed':
-                try:
-                    current_index = tasks.index(self)
-                    if current_index + 1 < len(tasks):
-                        next_task = tasks[current_index + 1]
-                        if next_task.status == 'pending':
-                            next_task.status = 'in-progress'
-                            next_task.save(update_fields=['status'])
-                except ValueError: #if the current task is not in the list.
-                    pass #do nothing.
+            if self in tasks: 
+                if self.status == 'completed':
+                    try:
+                        current_index = tasks.index(self)
+                        if current_index + 1 < len(tasks):
+                            next_task = tasks[current_index + 1]
+                            if next_task.status == 'pending':
+                                next_task.status = 'in-progress'
+                                next_task.save(update_fields=['status'])
+                    except ValueError: #if the current task is not in the list.
+                        pass #do nothing.
 
             # Ensure only the first task is always in-progress if there are no in progress tasks.
-            if not self.ai_goal.ai_tasks.filter(status='in-progress').exists():
+            if self.ai_goal.ai_tasks.exists() and not self.ai_goal.ai_tasks.filter(status='in-progress').exists():
                 first_task = self.ai_goal.ai_tasks.order_by('id').first()
                 if first_task and first_task.status == 'pending':
                     first_task.status = 'in-progress'
                     first_task.save(update_fields=['status'])
+
 
     def __str__(self):
         return self.title
