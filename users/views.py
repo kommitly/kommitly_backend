@@ -166,7 +166,15 @@ class CheckVerificationStatusView(APIView):
                 status=status.HTTP_404_NOT_FOUND,
             )
 
-        return Response({"verified": user.is_verified}, status=status.HTTP_200_OK)
+        response_data = {"verified": user.is_verified}
+
+        if user.is_verified:
+            # Generate a new access token for the verified user
+            refresh = RefreshToken.for_user(user)
+            access_token = str(refresh.access_token)
+            response_data["token"] = access_token
+
+        return Response(response_data, status=status.HTTP_200_OK)
 
 
 class LoginUserView(APIView):
