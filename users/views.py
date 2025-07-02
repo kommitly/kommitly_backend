@@ -1,5 +1,5 @@
 import logging
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status, permissions
@@ -111,7 +111,7 @@ class VerifyUserView(APIView):
             return Response({"error": "Invalid or expired verification token."}, status=status.HTTP_400_BAD_REQUEST)
 
         if user.is_verified:
-            return Response({"message": "User already verified"}, status=status.HTTP_200_OK)
+            return redirect("https://kommitly-frontend.vercel.app/dashboard")
 
         user.is_verified = True
         user.verification_token = None  # Clear the token after verification
@@ -131,10 +131,8 @@ class VerifyUserView(APIView):
         # except Exception as e:
         #     logger.error(f"WebSocket notification failed: {e}")
                 
-        return Response(
-            {"message": "User verified successfully. You can now log in."},
-            status=status.HTTP_200_OK,
-        )
+        return redirect("https://kommitly-frontend.vercel.app/dashboard")
+
 class CheckVerificationStatusView(APIView):
     permission_classes = [permissions.AllowAny]
 
