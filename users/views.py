@@ -19,11 +19,80 @@ from .models import User, generate_verification_token
 from timezonefinder import TimezoneFinder
 import traceback
 
+from google.auth.transport.requests import Request
+from google.oauth2 import id_token
+from django.contrib.auth import get_user_model
+user = get_user_model()
 
 
 
 #Configure logging
 logger = logging.getLogger(__name__)
+
+class GoogleAuthView(APIView):
+    permission_classes = [permissions.AllowAny]
+
+    @swagger_auto_schema(
+        tags=["User"],
+        request_body=openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            required=["id_token"],
+            properties={
+                "id_token": openapi.Schema(type=openapi.TYPE_STRING, format="id_token"),
+            },
+        ),
+        responses={
+            200: UserSerializer,
+            400: "Bad Request",
+            401: "Unauthorized",
+        },
+        operation_description="Authenticate user with Google ID token",
+    )
+    def post(self, request, *args, **kwargs):
+        
+        id_token_str = request.data.get("id_token")
+        if not id_token_str:
+            return Response({"error": "ID token is required."}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            # Verify the ID token
+            idinfo = id_token.verify_oauth2_token(id_token_str, Request(), st.GOOGLE_CLIENT_ID)
+            
+            # Get user information from the ID token
+            email = idinfo.get("email")
+            first_name = idinfo.get("given_name")
+            last_name = idinfo.get("family_name")
+            
+            if not email:
+                return Response({"error": "Email is required."}, status=status.HTTP_400_BAD_REQUEST)
+
+            # Check if the user already exists
+            user, created = User.objects.get_or_create(email=email, defaults={
+                'first_name': first_name,
+                'last_name': last_name,
+                'username': email.split('@')[0], # Use email prefix as username
+                'is_verified': True,  # Assuming Google users are verified
+                'timezone': 'UTC',  # Default timezone
+            })
+
+            if created:
+                logger.debug(f"New user created: {user}")
+            else:
+                logger.debug(f"Existing user logged in: {user}")
+
+            refresh = RefreshToken.for_user(user)
+            access = refresh.access_token
+
+            return Response({
+                "message": "Login successful",
+                "refresh": str(refresh),
+                "access": str(access),
+                "user": UserSerializer(user).data,
+            }, status=status.HTTP_200_OK)
+
+        except ValueError as e:
+            logger.error(f"Invalid ID token: {str(e)}")
+            return Response({"error": "Invalid ID token."}, status=status.HTTP_401_UNAUTHORIZED)
 
 
 # Create user
