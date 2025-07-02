@@ -1,4 +1,5 @@
 import logging
+from urllib.parse import urlencode
 from django.shortcuts import render, redirect
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -131,7 +132,16 @@ class VerifyUserView(APIView):
         # except Exception as e:
         #     logger.error(f"WebSocket notification failed: {e}")
                 
-        return redirect("https://kommitly-frontend.vercel.app/dashboard")
+        refresh = RefreshToken.for_user(user)
+        access = refresh.access_token
+
+        # 🔁 Redirect with tokens as query params
+        query_params = urlencode({
+            "access": str(access),
+            "refresh": str(refresh),
+        })
+        redirect_url = f"https://kommitly-frontend.vercel.app/verify-redirect?{query_params}"
+        return redirect(redirect_url)
 
 class CheckVerificationStatusView(APIView):
     permission_classes = [permissions.AllowAny]
