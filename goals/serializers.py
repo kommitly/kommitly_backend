@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Goal, Task, AiGoal, AiTask, SubTask, AiSubTask
+from .models import Goal, Task, AiGoal, AiTask, SubTask, AiSubTask, Routine
 from users.models import User
 from django.utils.timezone import make_aware, datetime
 from datetime import timedelta
@@ -17,12 +17,12 @@ from django.utils.dateparse import parse_datetime
 class SubTaskSerializer(serializers.ModelSerializer):
     class Meta:
         model = SubTask
-        fields = ['id', 'task', 'title', 'description', 'due_date', 'status', 'completed_at', 'reminder_time', 'reminder_sent', 'last_updated','ai_answer']
+        fields = ['id', 'task', 'title', 'description', 'due_date', 'status', 'completed_at', 'reminder_time', 'reminder_sent', 'last_updated','ai_answer', 'routine']
 
 class AiSubTaskSerializer(serializers.ModelSerializer):
     class Meta:
         model = AiSubTask
-        fields = ['id', 'title', 'description', 'due_date', 'status','completed_at', 'reminder_time', 'reminder_sent', 'last_updated', 'ai_answer']
+        fields = ['id', 'title', 'description', 'due_date', 'status','completed_at', 'reminder_time', 'reminder_sent', 'last_updated', 'ai_answer', 'routine']
 
     def create(self, validated_data):
         ai_task_id = self.context.get('ai_task_id') #get the ai_task_id from the context
@@ -161,7 +161,8 @@ class TaskSerializer(serializers.ModelSerializer):
             'last_updated',
             'reminder_sent',
             'tag',
-            'ai_answer'
+            'ai_answer',
+            'routine'
         ]
 
     def validate(self, data):
@@ -378,3 +379,64 @@ class UpdateAiGoalSerializer(serializers.ModelSerializer):
     class Meta:
         model = AiGoal
         fields = ['title', 'description', 'category', 'progress']
+
+
+class RoutineSerializer(serializers.ModelSerializer):
+    tasks = serializers.PrimaryKeyRelatedField(
+        queryset=Task.objects.all(), many=True, required=False
+    )
+    subtasks = serializers.PrimaryKeyRelatedField(
+        queryset=SubTask.objects.all(), many=True, required=False
+    )
+    ai_subtasks = serializers.PrimaryKeyRelatedField(
+        queryset=AiSubTask.objects.all(), many=True, required=False
+    )
+
+    due_date = serializers.DateTimeField(write_only=True, required=False)
+
+    name = serializers.CharField(required=False)
+    start_date = serializers.DateField(required=False)
+    user = serializers.HiddenField(default=serializers.CurrentUserDefault())
+
+    class Meta:
+        model = Routine
+        fields = '__all__'
+
+    def create(self, validated_data):
+        tasks = validated_data.pop("tasks", [])
+        subtasks = validated_data.pop("subtasks", [])
+        ai_subtasks = validated_data.pop("ai_subtasks", [])
+        due_date = validated_data.pop("due_date", None)
+
+        if due_date:
+            validated_data["start_date"] = due_date.date()
+            validated_data["time_of_day"] = due_date.time()
+            if validated_data.get("frequency") == "weekly":
+                validated_data["day_of_week"] = due_date.weekday()
+
+            if not validated_data.get("end_date"):
+                if validated_data["frequency"] == "daily":
+                    validated_data["end_date"] = due_date.date() + timedelta(days=7)
+                elif validated_data["frequency"] == "weekly":
+                    validated_data["end_date"] = due_date.date() + timedelta(weeks=4)
+                elif validated_data["frequency"] == "monthly":
+                    validated_data["end_date"] = due_date.date() + timedelta(days=90)
+
+        if not validated_data.get("name"):
+            validated_data["name"] = f"{validated_data['frequency'].capitalize()} Routine"
+
+        routine = Routine.objects.create(**validated_data)
+
+        for task in tasks:
+            task.routine = routine
+            task.save()
+
+        for subtask in subtasks:
+            subtask.routine = routine
+            subtask.save()
+
+        for ai_subtask in ai_subtasks:
+            ai_subtask.routine = routine
+            ai_subtask.save()
+
+        return routine

@@ -2,10 +2,11 @@ import logging
 from django.shortcuts import render
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from datetime import datetime
+from datetime import datetime, time, date
+from django.utils import timezone
 from rest_framework import status, permissions
-from .models import Goal, Task, AiGoal, AiTask, SubTask, AiSubTask
-from .serializers import GoalSerializer, TaskSerializer, CreateGoalSerializer, CreateTaskSerializer, CreateAiTaskSerializer,AiGoalSerializer, AiTaskSerializer, CreateAiGoalSerializer, UserProfileSerializer, UpdateAiGoalSerializer, SubTaskSerializer, AiSubTaskSerializer
+from .models import Goal, Task, AiGoal, AiTask, SubTask, AiSubTask, Routine
+from .serializers import GoalSerializer, TaskSerializer, CreateGoalSerializer, CreateTaskSerializer, CreateAiTaskSerializer,AiGoalSerializer, AiTaskSerializer, CreateAiGoalSerializer, UserProfileSerializer, UpdateAiGoalSerializer, SubTaskSerializer, AiSubTaskSerializer, RoutineSerializer
 import kommitly_backend.settings as st
 from drf_yasg.utils import swagger_auto_schema
 from django.core.exceptions import ValidationError
@@ -1724,6 +1725,7 @@ class AnswerAiSubtaskQuestionView(APIView):
         subtask.ai_answer = answer
         subtask.save(update_fields=["ai_answer"])
 
+
         return Response({"answer": answer}, status=200)
 
 
@@ -1759,3 +1761,94 @@ class AnswerTaskQuestionView(APIView):
         task.save(update_fields=["ai_answer"])
 
         return Response({"answer": answer}, status=200)
+
+
+
+class RoutineListCreateView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    @swagger_auto_schema(
+        operation_description="Get all routines for the authenticated user",
+        tags=["Routines"],
+        responses={200: RoutineSerializer(many=True)}
+    )
+    def get(self, request):
+        routines = Routine.objects.filter(user=request.user)
+        serializer = RoutineSerializer(routines, many=True)
+        return Response(serializer.data)
+
+    @swagger_auto_schema(
+        operation_description="Create a new routine",
+        tags=["Routines"],
+        request_body=RoutineSerializer,
+        responses={201: RoutineSerializer}
+    )
+    def post(self, request):
+        serializer = RoutineSerializer(data=request.data, context={'request': request})
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=201)
+        return Response(serializer.errors, status=400)
+
+    
+
+
+
+class RoutineDetailView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_object(self, pk, user):
+        try:
+            return Routine.objects.get(pk=pk, user=user)
+        except Routine.DoesNotExist:
+            return None
+
+    @swagger_auto_schema(
+        operation_description="Retrieve a specific routine by ID",
+        tags=["Routines"],
+        responses={
+            200: RoutineSerializer,
+            404: "Not Found"
+        }
+    )
+    def get(self, request, pk):
+        routine = self.get_object(pk, request.user)
+        if not routine:
+            return Response({"error": "Not found"}, status=404)
+        serializer = RoutineSerializer(routine)
+        return Response(serializer.data)
+
+    @swagger_auto_schema(
+        operation_description="Update a routine by ID (partial updates supported)",
+        tags=["Routines"],
+        request_body=RoutineSerializer,
+        responses={
+            200: RoutineSerializer,
+            400: "Bad Request",
+            404: "Not Found"
+        }
+    )
+    def put(self, request, pk):
+        routine = self.get_object(pk, request.user)
+        if not routine:
+            return Response({"error": "Not found"}, status=404)
+        serializer = RoutineSerializer(routine, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save(user=request.user)
+            return Response(serializer.data)
+        return Response(serializer.errors, status=400)
+
+    @swagger_auto_schema(
+        operation_description="Delete a routine by ID",
+        tags=["Routines"],
+        responses={
+            204: "Deleted successfully",
+            404: "Not Found"
+        }
+    )
+    def delete(self, request, pk):
+        routine = self.get_object(pk, request.user)
+        if not routine:
+            return Response({"error": "Not found"}, status=404)
+        routine.delete()
+        return Response(status=204)

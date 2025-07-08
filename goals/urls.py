@@ -35,7 +35,9 @@ from .views import (
     TriggerAiSubTaskRemindersView,
     GetAiSubtaskByIdView,
     AnswerAiSubtaskQuestionView,
-    AnswerTaskQuestionView
+    AnswerTaskQuestionView,
+    RoutineListCreateView,
+    RoutineDetailView,
 
     
 )
@@ -78,6 +80,8 @@ urlpatterns= [
     path('ai-task/<int:task_id>/ai-subtask/<int:subtask_id>/', GetAiSubtaskByIdView.as_view(), name='get_ai_subtask'),
     path('tasks/ai-subtask/<int:subtask_id>/answer/', AnswerAiSubtaskQuestionView.as_view(), name='answer_ai_subtask_question'),
     path('tasks/<int:task_id>/answer/', AnswerTaskQuestionView.as_view(), name='answer_task_question'),
+    path('routines/', RoutineListCreateView.as_view(), name='routine_list_create'),
+    path('routines/<int:pk>/', RoutineDetailView.as_view(), name='routine_detail'),
 
  
     

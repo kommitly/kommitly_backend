@@ -133,7 +133,7 @@ def answer_subtask_question(title, description):
                 }
             ],
             temperature=0.7,
-            max_tokens=256,
+            max_tokens=2048,
             top_p=1,
             stream=False,
         )

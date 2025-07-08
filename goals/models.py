@@ -75,12 +75,12 @@ class AiGoal(models.Model):
 class Task(models.Model):
     user = models.ForeignKey('users.User', on_delete=models.CASCADE, related_name='tasks', null=True, blank=True)  
     goal = models.ForeignKey(Goal, related_name='tasks', on_delete=models.CASCADE, null=True, blank=True)
-   
     title = models.CharField(max_length=255)
     due_date = models.DateTimeField(null=True, blank=True)
     description = models.TextField(null=True, blank=True)
     tag = models.CharField(max_length=255, null=True, blank=True)  # Added tag field
-   
+    routine = models.ForeignKey('Routine', related_name='tasks', on_delete=models.CASCADE, null=True, blank=True)
+
     status = models.CharField(
         max_length=20,
         choices=[
@@ -231,6 +231,7 @@ class SubTask(models.Model):
     status = models.CharField(max_length=20, choices=[("pending", "Pending"), ("completed", "Completed")], default="pending")
     last_updated = models.DateTimeField(auto_now=True) 
     ai_answer = models.TextField(null=True, blank=True)
+    routine = models.ForeignKey('Routine', related_name='subtasks', on_delete=models.CASCADE, blank=True, null=True)
 
     def __str__(self):
         return self.title
@@ -239,6 +240,7 @@ class SubTask(models.Model):
 
 class AiSubTask(models.Model):
     ai_task = models.ForeignKey(AiTask, related_name="ai_subtasks", on_delete=models.CASCADE, blank=True, null=True)
+    routine = models.ForeignKey('Routine', related_name='ai_subtasks', on_delete=models.CASCADE, blank=True, null=True)
     title = models.CharField(max_length=255)
     description = models.TextField(blank=True, null=True)
     due_date = models.DateTimeField(blank=True, null=True)
@@ -295,3 +297,28 @@ class AiSubTask(models.Model):
 
     def __str__(self):
         return self.title
+
+
+class Routine(models.Model):
+    FREQUENCY_CHOICES = [
+        ("daily", "Daily"),
+        ("weekly", "Weekly"),
+        ("monthly", "Monthly"),
+    ]
+
+    user = models.ForeignKey('users.User', on_delete=models.CASCADE)
+    name = models.CharField(max_length=255)
+    frequency = models.CharField(max_length=20, choices=FREQUENCY_CHOICES)
+    time_of_day = models.TimeField(null=True, blank=True)  # e.g., 09:00 AM
+    day_of_week = models.IntegerField(null=True, blank=True)  # 0=Monday, 6=Sunday
+    start_date = models.DateField()
+    end_date = models.DateField(null=True, blank=True)
+    is_active = models.BooleanField(default=True)
+    subtask_template_title = models.CharField(max_length=255, blank=True, null=True)
+    subtask_template_description = models.TextField(blank=True, null=True)
+    reminder_time = models.TimeField(null=True, blank=True)  # Time to send reminders
+
+
+
+    def __str__(self):
+        return f"{self.name} ({self.frequency})"

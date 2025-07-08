@@ -102,70 +102,86 @@ def send_task_reminders(task_id=None, user_id=None):
         except Exception as e:
             logger.error(f"Error with task '{task.title}': {str(e)}")
 
-"""
-def send_all_task_reminders():
-    current_time = now()
-    tasks = Task.objects.filter(status='pending')
-
-    for task in tasks:
-        try:
-            user = task.user or (task.goal.user if task.goal else None)
-            if not user or not task.due_date or not task.reminder_time:
-                continue
-
-            user_email = user.email
-            user_timezone = pytz.timezone(user.timezone)
-            reminder_local = datetime.combine(task.due_date.date(), task.reminder_time)
-            reminder_local = user_timezone.localize(reminder_local)
-            reminder_utc = reminder_local.astimezone(pytz.UTC)
-
-
-            logger.debug(f"[{user_email}] Task '{task.title}' → Local: {reminder_local}, UTC: {reminder_utc}")
-            logger.debug(f"Comparing: Reminder UTC {reminder_utc} <= Current UTC {current_time}")
-
-
-            if reminder_utc <= current_time:
-                send_mail(
-                    'Task Reminder',
-                    f"Reminder: {task.title} is due soon!",
-                    'no-reply@kommitly.com',
-                    [user.email],
-                )
-                logger.info(f"Reminder sent for task: {task.title} to {user_email}")
-
-        except Exception as e:
-            logger.error(f"Error sending reminder for task '{task.title}': {e}")
-
 
 @shared_task
-def send_ai_task_reminders():
-    current_time = now()
-    ai_tasks = AiTask.objects.filter(status='pending')  # Get all pending AI tasks
+def send_subtask_reminders(subtask_id=None):
+    from goals.models import SubTask  # Avoid circular imports
 
-    for ai_task in ai_tasks:
-        if ai_task.reminder_time:
-            if ai_task.ai_goal and ai_task.ai_goal.user:
-                user_timezone = pytz.timezone(ai_task.ai_goal.user.timezone)
-                user_email = ai_task.ai_goal.user.email
-            elif ai_task.user:
-                user_timezone = pytz.timezone(ai_task.user.timezone)
-                user_email = ai_task.user.email
-            else:
-                logger.error(f"AI Task '{ai_task.title}' does not have an associated AI goal or user.")
+    current_time = timezone.now()
+    subtasks = []
+
+    if subtask_id:
+        try:
+            subtask = SubTask.objects.get(id=subtask_id, status='pending')
+            subtasks = [subtask]
+        except SubTask.DoesNotExist:
+            logger.warning(f"No pending subtask found with id={subtask_id}")
+            return
+    else:
+        subtasks = SubTask.objects.filter(status='pending', reminder_sent=False)
+
+    for subtask in subtasks:
+        try:
+            user = subtask.task.user if subtask.task else None
+
+            if not user or not user.timezone:
+                logger.error(f"Subtask '{subtask.title}' has no user or timezone.")
                 continue
 
-            reminder_datetime = datetime.combine(ai_task.due_date.date(), ai_task.reminder_time)
-            reminder_datetime = make_aware(reminder_datetime, pytz.UTC)  # Ensure reminder_datetime is in UTC
-            logger.debug(f"Reminder datetime for AI task '{ai_task.title}': {reminder_datetime}")
-            if reminder_datetime <= current_time:
-                send_mail(
-                    'AI Task Reminder',
-                    f"Reminder: {ai_task.title} is due soon!",
-                    'no-reply@kommitly.com',  # Replace with your actual sender email
-                    [user_email],
+            if not subtask.due_date or not subtask.reminder_time:
+                logger.warning(f"Subtask '{subtask.title}' missing due_date or reminder_time")
+                continue
+
+            user_timezone = pytz.timezone(user.timezone)
+            reminder_local = datetime.combine(subtask.due_date, subtask.reminder_time)
+
+            if timezone.is_naive(reminder_local):
+                reminder_local = user_timezone.localize(reminder_local)
+
+            reminder_utc = reminder_local.astimezone(pytz.UTC)
+
+            if reminder_utc <= current_time <= reminder_utc + timedelta(minutes=2):
+                subject = "⏰ Subtask Reminder from Kommitly"
+                from_email = 'no-reply@kommitly.com'
+                to = [user.email]
+
+                context = {
+                    'subtask': subtask,
+                    'user': user,
+                    'app_link': f"https://kommitly-frontend.vercel.app/dashboard/tasks/{subtask.task.id}/"
+                }
+
+                text_content = f"Reminder: {subtask.title} is due soon! Visit your Kommitly app to manage it."
+
+                try:
+                    html_content = render_to_string('email/task_reminder.html', context)
+                except TemplateDoesNotExist as e:
+                    logger.error(f"Template does not exist: {e}")
+                    raise e
+
+                msg = EmailMultiAlternatives(subject, text_content, from_email, to)
+                msg.attach_alternative(html_content, "text/html")
+                msg.send()
+
+                Notification.objects.create(
+                    user=user,
+                    content_type=ContentType.objects.get_for_model(subtask),
+                    object_id=subtask.id,
+                    message=f"⏰ Reminder: '{subtask.title}' is due soon.",
+                    link=f"https://kommitly-frontend.vercel.app/dashboard/tasks/{subtask.task.id}/",
+                    type="reminder"
                 )
-                logger.info(f"Reminder sent for AI task: {ai_task.title} to {user_email}")
-"""
+
+                subtask.reminder_sent = True
+                subtask.save()
+                logger.info(f"Reminder sent for subtask: {subtask.title} to {user.email}")
+
+        except Exception as e:
+            logger.error(f"Error sending subtask reminder: {str(e)}")
+
+
+
+
 
 def send_ai_task_reminders(task_id=None, user_id=None):
     current_time = timezone.now()
@@ -352,3 +368,6 @@ def send_ai_subtask_reminders(subtask_id=None, user_id=None):
 
         except Exception as e:
             logger.error(f"Error with task '{ai_subtask.title}': {str(e)}")
+
+
+
