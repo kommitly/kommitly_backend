@@ -2,6 +2,7 @@ from groq import Groq
 from django.conf import settings
 import re
 
+
 # Function to get insights from GroqCloud
 def get_insights(ai_goal):
     try:
@@ -12,41 +13,35 @@ def get_insights(ai_goal):
         # Make the API call to Groq
         completion = client.chat.completions.create(
             model="llama3-70b-8192",
-           # messages=[
-           #     {
-            #        "role": "user",
-            #        "content": f"my goal is {ai_goal}, how do I get there...break down this goal for me into actionable tasks with realistic timelines. Please provide the response in the exact format below, with no additional text outside the specified structure:\n\n
-            # **Step 1: [Title] (X-X weeks)**\n1. **[Subtask Title]**: [Details about the subtask with timeline (X-X days/weeks/months)]\n\n**Step 2: [Title] (X-X weeks)**\n1. **[Subtask Title]**: [Details about the subtask with timeline (X-X days/weeks/months)]\n\nEnsure every step has a title, timeline, and clear subtasks with detailed timelines."
-            #
-            #               }
-            #          ],
-
             messages=[
                 {
                     "role": "user",
-                    "content": f"My goal description is {ai_goal}. First, give this goal description a suitable title and tag then classify this goal into one of the following categories:  'Weekly', 'Monthly', or 'Yearly'. Then, break it down into actionable tasks with realistic timelines. Ensure the response follows this exact format:\n\n"
-                            "**Goal Title: [Title]**\n\n"
-                            "**Goal Tag: [Tag]**\n\n"
-                            "**Goal Category: [ Weekly / Monthly / Yearly]**\n\n"
-                            "**Step 1: [Title] (X-X weeks/months/years)**\n"
-                            "1. **[Subtask Title]**: [Details about the subtask with timeline (X-X days/weeks/months/years)]\n\n"
-                            "**Step 2: [Title] (X-X weeks/months/years)**\n"
-                            "1. **[Subtask Title]**: [Details about the subtask with timeline (X-X days/weeks/months/years)]\n\n"
-                            "Ensure each goal has a category, and each step has a title, timeline, and clear subtasks with detailed timelines."
+                    "content": (
+                        f"My goal description is {ai_goal}. "
+                        "First, give this goal description a suitable title and tag then classify this goal into one of the following categories: 'Weekly', 'Monthly', or 'Yearly'. "
+                        "Then, break it down into actionable tasks with realistic timelines. "
+                        "Ensure the response follows this exact format and *contains ONLY this format, with no additional introductory or concluding remarks*:\n\n"
+                        "**Goal Title: [Title]**\n\n"
+                        "**Goal Tag: [Tag]**\n\n"
+                        "**Goal Category: [ Weekly / Monthly / Yearly]**\n\n"
+                        "**Step 1: [Title] (X-X weeks/months/years) **\n"
+                        "1. **[Subtask Title]**: [Details about the subtask. Use only timeline format like '2–4 days', '1–2 weeks', etc. Do NOT use 'Days 1–3', 'Weeks 2–4', etc.]"
+                        "\n\n" # Add a newline here to separate steps cleanly
+                        "**Step 2: [Title] (X-X weeks/months/years)**\n"
+                        "1. **[Subtask Title]**: [Details about the subtask. Use only timeline format like '2–4 days', '1–2 weeks', etc. Do NOT use 'Days 1–3', 'Weeks 2–4', etc.]"
+                        "Ensure each goal has a category, and each step has a title, timeline, and clear subtasks with detailed timelines."
+                    )
                 }
             ],
             temperature=1,
             max_tokens=1024,
             top_p=1,
-            stream=True,  # Change this to False if you don't want streaming
+            stream=False, # Changed to False for simplicity in this example
             stop=None
         )
 
         # Extract the message content from the response
-        response = ""
-        for chunk in completion:
-            response += chunk.choices[0].delta.content or ""
-
+        response = completion.choices[0].message.content
         print(f"Raw response: {response}")
 
         # Parse the response into a list of actionable steps
@@ -57,7 +52,60 @@ def get_insights(ai_goal):
     except Exception as error:
         print(f"Error generating insights: {error}")
         raise ValueError("Failed to fetch insights from GroqCloud.")
-    
+EMOJI_MAP = {
+    # General Work & Development
+    "research": "🔍",
+    "plan": "📝",
+    "design": "🎨",
+    "develop": "💻",
+    "code": "💻",
+    "build": "🏗️",
+    "test": "🧪",
+    "debug": "🪲",
+    "deploy": "🚀",
+    "launch": "🚀",
+    "feedback": "📊",
+    "analyze": "📊",
+    "review": "🔎",
+    "setup": "⚙️",
+    "integrate": "🔗",
+    "configure": "⚙️",
+    "marketing": "📣",
+    "create": "✨",
+    "write": "✍️",
+    "learn": "📚",
+    "prototype": "📐",
+    "persona": "🧑‍🎨",
+    "cloud": "☁️",
+    "performance": "📈",
+
+    # Health & Nutrition Specific
+    "track": "📖",
+    "eat": "🍽️",
+    "meal": "🍱",
+    "food": "🥗",
+    "snack": "🍌",
+    "calorie": "🔥",
+    "weight": "⚖️",
+    "hydrate": "💧",
+    "drink": "🥤",
+    "water": "🚰",
+    "sleep": "🛌",
+    "rest": "🛏️",
+    "exercise": "🏋️",
+    "nutrition": "🥑",
+    "groceries": "🛒",
+    "cook": "👨‍🍳",
+    "prepare": "🍳",
+    "doctor": "👨‍⚕️",
+    "dietitian": "👩‍⚕️",
+    "health": "🩺",
+    "motivate": "🎯",
+    "motivation": "🎯",
+    "goal": "🏁",
+    "default": "✅"
+}
+
 def parse_insights(response):
     """
     Parses the AI response into a structured list of steps.
@@ -69,6 +117,14 @@ def parse_insights(response):
     category_match = re.search(r'\*\*Goal Category:\s*(Weekly|Monthly|Yearly)\*\*', response)
     goal_category = category_match.group(1).lower()  if category_match else "Uncategorized"
 
+    # Truncate the response after the last valid subtask pattern
+    subtask_pattern = r'\d+\.\s\*\*.+?\*\*:\s*.+?(?=\n\d+\.\s\*\*|$)'
+    all_subtasks = list(re.finditer(subtask_pattern, response, re.DOTALL))
+    if all_subtasks:
+        last_subtask = all_subtasks[-1]
+        response = response[:last_subtask.end()]
+
+
     # Split the response into steps based on the format "**Step X: [Title] (X-X weeks)**"
     steps = re.split(r'\*\*Step \d+:\s*', response)
     parsed_steps = []
@@ -78,15 +134,18 @@ def parse_insights(response):
         title_match = re.search(r'(.+?)\s*\((.+?)\)', step)
         if title_match:
             title = title_match.group(1).strip()
+            # Attach emoji to task title
+            lower_title = title.lower()
+            for key, emoji in EMOJI_MAP.items():
+                if key in lower_title:
+                    title = f"{emoji} {title}"
+                    break
+            else:
+                title = f"{EMOJI_MAP['default']} {title}"
+
             task_timeline = title_match.group(2).strip()
 
-            # Normalize timeline format: e.g., "Weeks 1-2" → "1-2 weeks"
-            match = re.match(r'(Weeks|Months|Years|Days)\s+(\d+\s*-\s*\d+)', task_timeline, re.IGNORECASE)
-            if match:
-                unit = match.group(1).lower()
-                range_ = match.group(2).replace(" ", "")
-                task_timeline = f"{range_} {unit}"
-
+           
         else:
             continue  # Skip if no title or timeline is found
 
@@ -97,11 +156,24 @@ def parse_insights(response):
             re.DOTALL
         )
 
+        # If there are matches, slice the step up to the end of the last match to remove anything after
+       
         ai_subtasks = []
 
         for match in subtask_matches:
             subtask_title = match[0].strip()
             details = match[1].strip()
+            # Add emoji to subtask title
+            lower_subtask = subtask_title.lower()
+            for key, emoji in EMOJI_MAP.items():
+                if key in lower_subtask:
+                    subtask_title = f"{emoji} {subtask_title}"
+                    break
+            else:
+                subtask_title = f"{EMOJI_MAP['default']} {subtask_title}"
+
+
+
             ai_subtasks.append({
                 "subtask_title": subtask_title,
                 "description": details,
@@ -127,6 +199,15 @@ def answer_subtask_question(title, description):
     try:
         print(f"Answering subtask: {title}")
         client = Groq(api_key=settings.GROQ_API_KEY)
+
+           # Add emoji to title
+        lower_title = f"{title} {description}".lower()
+        for key, emoji in EMOJI_MAP.items():
+            if key in lower_title:
+                title = f"{emoji} {title}"
+                break
+        else:
+            title = f"{EMOJI_MAP['default']} {title}"
 
         completion = client.chat.completions.create(
             model="llama3-70b-8192",
