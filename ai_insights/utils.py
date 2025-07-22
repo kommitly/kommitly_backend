@@ -79,6 +79,14 @@ def parse_insights(response):
         if title_match:
             title = title_match.group(1).strip()
             task_timeline = title_match.group(2).strip()
+
+            # Normalize timeline format: e.g., "Weeks 1-2" → "1-2 weeks"
+            match = re.match(r'(Weeks|Months|Years|Days)\s+(\d+\s*-\s*\d+)', task_timeline, re.IGNORECASE)
+            if match:
+                unit = match.group(1).lower()
+                range_ = match.group(2).replace(" ", "")
+                task_timeline = f"{range_} {unit}"
+
         else:
             continue  # Skip if no title or timeline is found
 

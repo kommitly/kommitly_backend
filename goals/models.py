@@ -299,6 +299,7 @@ class AiSubTask(models.Model):
         return self.title
 
 
+
 class Routine(models.Model):
     FREQUENCY_CHOICES = [
         ("daily", "Daily"),
