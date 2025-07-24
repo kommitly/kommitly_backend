@@ -24,4 +24,5 @@ def cache_goal_on_subtask_delete(sender, instance, **kwargs):
 def update_goal_progress_on_subtask_delete(sender, instance, **kwargs):
     ai_goal = _deleted_ai_goal.pop(instance.pk, None)
     if ai_goal:
+        ai_goal = instance.ai_task.ai_goal
         ai_goal.update_progress()
