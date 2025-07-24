@@ -208,7 +208,13 @@ class AiTask(models.Model):
                     except ValueError: #if the current task is not in the list.
                         pass #do nothing.
 
-         
+            # Ensure only the first task is always in-progress if there are no in progress tasks.
+            if self.ai_goal.ai_tasks.exists() and not self.ai_goal.ai_tasks.filter(status='in-progress').exists():
+                first_task = self.ai_goal.ai_tasks.order_by('id').first()
+                if first_task and first_task.status == 'pending':
+                    first_task.status = 'in-progress'
+                    first_task.save(update_fields=['status'])
+
 
     def __str__(self):
         return self.title
@@ -285,9 +291,9 @@ class AiSubTask(models.Model):
                 print(f"DEBUG: AiTask '{self.ai_task.title}' reverted from 'completed' to 'in-progress' due to subtask change.")
             # Rule 3: If task is pending and has any subtasks, set to 'in-progress'
             elif self.ai_task.status == 'pending' and total_subtasks > 0 and completed_subtasks < total_subtasks:
-                 self.ai_task.status = 'in-progress'
+                 self.ai_task.status = 'pending'
                  self.ai_task.save(update_fields=['status'])
-                 print(f"DEBUG: AiTask '{self.ai_task.title}' set to 'in-progress' as subtasks exist.")
+                 print(f"DEBUG: AiTask '{self.ai_task.title}' set to 'pending' as subtasks exist.")
 
     def __str__(self):
         return self.title

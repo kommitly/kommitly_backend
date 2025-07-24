@@ -16,8 +16,6 @@ from users.models import User
 from django.http import Http404
 from django.db.models import Prefetch
 from .tasks import send_task_reminders
-from django.db import transaction # Import transaction for atomicity
-
 
 
 # Configure logging
@@ -378,55 +376,44 @@ class CreateGoalWithAIInsightsView(APIView):
             ai_goal = goal_serializer.save(user=user)
 
             try:
-                # Use a database transaction to ensure atomicity
-                with transaction.atomic():
-                    ai_goal = goal_serializer.save(user=user)
                 # Save tasks to the database
                 ai_tasks = []
                 print(f"AI tasks data: {ai_tasks_data}")
-                for i, task_data in enumerate(ai_tasks_data):
-                    # Associate task with the newly created goal
+                for task_data in ai_tasks_data:
                     task_data['ai_goal'] = ai_goal.id
                     subtasks_data = task_data.pop("ai_subtasks", [])
-
-                    # Explicitly set the status for tasks
-                    if i == 0:
-                        task_data['status'] = 'in-progress'
-                    else:
-                        task_data['status'] = 'pending'
+                    print(f"Task data: {subtasks_data}")
 
                     task_serializer = AiTaskSerializer(data=task_data)
+
 
                     if task_serializer.is_valid():
                         task = task_serializer.save()
                         ai_tasks.append(task)
 
+                        
+                       
                         for subtask_data in subtasks_data:
                             subtask_data["ai_task"] = task.id
-                            # Ensure subtasks also default to 'pending' if not explicitly provided
-                            if 'status' not in subtask_data:
-                                subtask_data['status'] = 'pending'
+                            print(f"Subtask data: {subtask_data}")
+                            subtask_serializer = AiSubTaskSerializer(data=subtask_data, context = {"ai_task_id":task.id}) # pass the current task id to the subtask serializer.
 
-                            subtask_serializer = AiSubTaskSerializer(data=subtask_data, context = {"ai_task_id":task.id})
 
                             if subtask_serializer.is_valid():
                                 subtask_serializer.save()
                             else:
-                                # If subtask validation fails, raise an error to trigger rollback
-                                raise ValidationError(subtask_serializer.errors)
+                                return Response(subtask_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
                     else:
-                        # If task validation fails, raise an error to trigger rollback
-                        raise ValidationError(task_serializer.errors)
+                        return Response(task_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
                 # Prepare response data
                 response_data = {
                     "ai_goal": AiGoalSerializer(ai_goal).data,
-                    "ai_tasks": AiTaskSerializer(ai_tasks, many=True).data, # Include created tasks in the response
+                 
                 }
 
                 return Response(response_data, status=status.HTTP_201_CREATED)
-
 
             except Exception as e:
                 return Response({"error": f"An error occurred while saving tasks: {str(e)}", "details": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

@@ -234,8 +234,14 @@ class AiTaskSerializer(serializers.ModelSerializer):
 
 
         # If task was pending and gets modified, mark it as "in-progress"
-        if previous_status == 'pending' and new_status not in ['completed', 'overdue']:
+        # Only auto-switch to in-progress if this is not during initial goal creation
+        if (
+            previous_status == 'pending'
+            and new_status == 'pending'
+            and not self.context.get('is_creating', False)
+        ):
             instance.status = 'in-progress'
+
 
         # If marked as completed, set completion timestamp
         if new_status == 'completed' and instance.completed_at is None:
