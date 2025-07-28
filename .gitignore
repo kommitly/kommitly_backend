@@ -3,3 +3,6 @@
 # Ignore virtual environment
 myenv/
 venv
+
+ai_cron.log
+ai_subtask_cron.log
