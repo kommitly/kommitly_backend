@@ -5,7 +5,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status, permissions
 from drf_yasg import openapi
-from .serializers import CreateUserSerializer, UserSerializer
+from .serializers import CreateUserSerializer, UserSerializer, GoogleUserSerializer
 import kommitly_backend.settings as st
 from drf_yasg.utils import swagger_auto_schema
 from django.core.exceptions import ValidationError
@@ -49,37 +49,40 @@ class GoogleAuthView(APIView):
         operation_description="Authenticate user with Google ID token",
     )
     def post(self, request, *args, **kwargs):
-        
         id_token_str = request.data.get("id_token")
         if not id_token_str:
             return Response({"error": "ID token is required."}, status=status.HTTP_400_BAD_REQUEST)
 
         try:
-            # Verify the ID token
+            # Step 1: Verify the ID token
             idinfo = id_token.verify_oauth2_token(id_token_str, Request(), st.GOOGLE_CLIENT_ID)
-            
-            # Get user information from the ID token
+
+            # Step 2: Extract user details
             email = idinfo.get("email")
             first_name = idinfo.get("given_name")
             last_name = idinfo.get("family_name")
-            
+
             if not email:
                 return Response({"error": "Email is required."}, status=status.HTTP_400_BAD_REQUEST)
 
-            # Check if the user already exists
-            user, created = User.objects.get_or_create(email=email, defaults={
-                'first_name': first_name,
-                'last_name': last_name,
-                'username': email.split('@')[0], # Use email prefix as username
-                'is_verified': True,  # Assuming Google users are verified
-                'timezone': 'UTC',  # Default timezone
-            })
+            # Step 3: Check if user exists or create one
+            try:
+                user = User.objects.get(email=email)
+            except User.DoesNotExist:
+                user_data = {
+                    "email": email,
+                    "first_name": first_name,
+                    "last_name": last_name,
+                    "username": email.split('@')[0],
+                    "is_verified": True,
+                    "timezone": "UTC",
+                }
 
-            if created:
-                logger.debug(f"New user created: {user}")
-            else:
-                logger.debug(f"Existing user logged in: {user}")
+                serializer = GoogleUserSerializer(data=user_data)
+                serializer.is_valid(raise_exception=True)
+                user = serializer.save()
 
+            # Step 4: Generate tokens for both existing and new users
             refresh = RefreshToken.for_user(user)
             access = refresh.access_token
 
@@ -93,7 +96,6 @@ class GoogleAuthView(APIView):
         except ValueError as e:
             logger.error(f"Invalid ID token: {str(e)}")
             return Response({"error": "Invalid ID token."}, status=status.HTTP_401_UNAUTHORIZED)
-
 
 # Create user
 class CreateUserView(APIView):

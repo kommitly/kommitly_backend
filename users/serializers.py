@@ -25,6 +25,19 @@ class CreateUserSerializer(serializers.ModelSerializer):
             timezone=validated_data["timezone"]  # Ensure this is passed
         )
         return user
+    
+#google user serializer
+class GoogleUserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['email', 'first_name', 'last_name', 'username', 'is_verified', 'timezone']
+    
+    def create(self, validated_data):
+        user = User(**validated_data)
+        user.set_unusable_password()
+        user.save()
+        return user
+    
 
 # User serializer
 class UserSerializer(serializers.ModelSerializer):
