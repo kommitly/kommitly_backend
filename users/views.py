@@ -287,19 +287,35 @@ class LoginUserView(APIView):
         except User.DoesNotExist:
             return Response(
                 {"error": "Invalid email or password."},
-                status=status.HTTP_404_NOT_FOUND,
+                status=status.HTTP_401_UNAUTHORIZED,
             )
 
         if not user.check_password(password):
             return Response(
                 {"error": "Invalid email or password."},
-                status=status.HTTP_404_NOT_FOUND,
+                status=status.HTTP_401_UNAUTHORIZED,
             )
 
         # Check if the user is verified
         if not user.is_verified:
+            
+
+            # regenerate token only if needed
+            if not user.verification_token:
+                user.verification_token = generate_verification_token()
+                user.save()
+
+                
+            # Send verification email
+            verification_link = f"https://kommitly-backend.onrender.com/api/verify/{user.verification_token}/"
+            send_mail(
+                subject="Verify your Kommitly Account",
+                message=f"Hi {user.first_name},\n\nClick the link below to verify your account:\n{verification_link}",
+                from_email="no-reply@kommitly.com",
+                recipient_list=[user.email],
+            )
             return Response(
-                {"error": "User account is not verified. Please verify your email."},
+                {"error": "User account is not verified. A new verification email has been sent."},
                 status=status.HTTP_401_UNAUTHORIZED,
             )
 
