@@ -4,5 +4,7 @@
 myenv/
 venv
 
+*.log
+
 ai_cron.log
 ai_subtask_cron.log
