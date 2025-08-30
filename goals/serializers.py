@@ -22,21 +22,18 @@ class SubTaskSerializer(serializers.ModelSerializer):
 class AiSubTaskSerializer(serializers.ModelSerializer):
     class Meta:
         model = AiSubTask
-        fields = ['id', 'title', 'description', 'due_date', 'status','completed_at', 'reminder_time', 'reminder_sent', 'last_updated', 'ai_answer', 'routine']
+        fields = "__all__"
+        read_only_fields = ["ai_task"]  # prevent frontend from sending ai_task
 
     def create(self, validated_data):
-        ai_task_id = self.context.get('ai_task_id') #get the ai_task_id from the context
+        ai_task_id = self.context.get("ai_task_id")
+        if not ai_task_id:
+            raise serializers.ValidationError({"ai_task": "ai_task_id is required."})
 
-        if ai_task_id is None:
-            raise serializers.ValidationError({"ai_task_id":"ai_task_id is required"})
-        validated_data['ai_task_id'] = ai_task_id # add the ai_task_id to the validated data
-        
-
-
+        validated_data["ai_task_id"] = ai_task_id
         return super().create(validated_data)
 
-    def update(self, instance, validated_data):
-        return super().update(instance, validated_data)
+
 
 
 

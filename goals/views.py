@@ -1564,7 +1564,7 @@ class CreateAiSubtaskView(APIView):
         data = request.data.copy()
         data["ai_task"] = ai_task.id  # Assign the AiTask to the subtask
 
-        serializer = AiSubTaskSerializer(data=data)
+        serializer = AiSubTaskSerializer(data=data, context={"ai_task_id": ai_task.id} )
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
