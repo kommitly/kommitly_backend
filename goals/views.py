@@ -1555,9 +1555,7 @@ class CreateAiSubtaskView(APIView):
         },
         operation_description="Create an AI subtask for a given AI task",
     )
-    def post(self, request, *args, **kwargs):
-        task_id = kwargs.get("task_id")
-
+    def post(self, request, task_id, *args, **kwargs): 
         try:
             ai_task = AiTask.objects.get(id=task_id, ai_goal__user=request.user)
         except AiTask.DoesNotExist:
