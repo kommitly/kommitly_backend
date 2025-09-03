@@ -12,7 +12,7 @@ def get_insights(ai_goal):
 
         # Make the API call to Groq
         completion = client.chat.completions.create(
-            model="llama3-70b-8192",
+            model="llama-3.3-70b-versatile",
             messages=[
                 {
                     "role": "user",
@@ -25,12 +25,12 @@ def get_insights(ai_goal):
                         "**Goal Tag: [Tag]**\n\n"
                         "**Goal Category: [ Weekly / Monthly / Yearly]**\n\n"
                         "**Step 1: [Title] (X-X weeks/months/years) **\n"
-                        "1. **[Subtask Title]**: [Details about the subtask. Use only timeline format like '2–4 days', '1–2 weeks', etc. Do NOT use 'Days 1–3', 'Weeks 2–4', etc.]"
-                        "\n\n" # Add a newline here to separate steps cleanly
+                        "1. **[Subtask Title]**: [A clear, concise description of the subtask.] **Timeline:** [e.g., '2–4 days', '1–2 weeks']"
+                        "\n\n" 
                         "**Step 2: [Title] (X-X weeks/months/years)**\n"
-                        "1. **[Subtask Title]**: [Details about the subtask. Use only timeline format like '2–4 days', '1–2 weeks', etc. Do NOT use 'Days 1–3', 'Weeks 2–4', etc.]"
-                        "Ensure each goal has a category, and each step has a title, timeline, and clear subtasks with detailed timelines."
-                    )
+                        "1. **[Subtask Title]**: [A clear, concise description of the subtask.] **Timeline:** [e.g., '2–4 days', '1–2 weeks']"
+                        "Ensure each goal has a category, and each step has a title, timeline, and clear subtasks with detailed descriptions and timelines."
+                        )
                 }
             ],
             temperature=1,
