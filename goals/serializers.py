@@ -405,6 +405,16 @@ class RoutineSerializer(serializers.ModelSerializer):
         model = Routine
         fields = '__all__'
 
+    def validate(self, data):
+        frequency = data.get("frequency")
+
+        if frequency == "custom":
+            if not data.get("custom_interval") or not data.get("custom_unit"):
+                raise serializers.ValidationError(
+                    "For custom frequency, both custom_interval and custom_unit are required."
+                )
+        return data
+
     def create(self, validated_data):
         tasks = validated_data.pop("tasks", [])
         subtasks = validated_data.pop("subtasks", [])
@@ -424,6 +434,15 @@ class RoutineSerializer(serializers.ModelSerializer):
                     validated_data["end_date"] = due_date.date() + timedelta(weeks=4)
                 elif validated_data["frequency"] == "monthly":
                     validated_data["end_date"] = due_date.date() + timedelta(days=90)
+                elif validated_data["frequency"] == "custom":
+                    interval = validated_data.get("custom_interval", 1)
+                    unit = validated_data.get("custom_unit")
+                    if unit == "days":
+                        validated_data["end_date"] = due_date.date() + timedelta(days=interval * 7)
+                    elif unit == "weeks":
+                        validated_data["end_date"] = due_date.date() + timedelta(weeks=interval * 4)
+                    elif unit == "months":
+                        validated_data["end_date"] = due_date.date() + timedelta(days=interval * 90)
 
         if not validated_data.get("name"):
             validated_data["name"] = f"{validated_data['frequency'].capitalize()} Routine"

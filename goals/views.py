@@ -1770,8 +1770,12 @@ class RoutineListCreateView(APIView):
         tags=["Routines"],
         responses={200: RoutineSerializer(many=True)}
     )
+    # Filter out expired routines
     def get(self, request):
-        routines = Routine.objects.filter(user=request.user)
+        today = timezone.now().date()
+        routines = Routine.objects.filter(user=request.user, is_active=True).filter(
+            models.Q(end_date__isnull=True) | models.Q(end_date__gte=today)
+        )
         serializer = RoutineSerializer(routines, many=True)
         return Response(serializer.data)
 
@@ -1784,7 +1788,7 @@ class RoutineListCreateView(APIView):
     def post(self, request):
         serializer = RoutineSerializer(data=request.data, context={'request': request})
         if serializer.is_valid():
-            serializer.save()
+            serializer.save(user=request.user)  
             return Response(serializer.data, status=201)
         return Response(serializer.errors, status=400)
 

@@ -307,9 +307,18 @@ class Routine(models.Model):
         ("monthly", "Monthly"),
     ]
 
+    INTERVAL_UNITS = [
+        ("days", "Days"),
+        ("weeks", "Weeks"),
+        ("months", "Months"),
+    ]
+
     user = models.ForeignKey('users.User', on_delete=models.CASCADE)
     name = models.CharField(max_length=255)
     frequency = models.CharField(max_length=20, choices=FREQUENCY_CHOICES)
+    custom_interval = models.PositiveIntegerField(null=True, blank=True)  # e.g., every 3 days
+    custom_unit = models.CharField(max_length=20, choices=INTERVAL_UNITS, null=True, blank=True)
+
     time_of_day = models.TimeField(null=True, blank=True)  # e.g., 09:00 AM
     day_of_week = models.IntegerField(null=True, blank=True)  # 0=Monday, 6=Sunday
     start_date = models.DateField()
