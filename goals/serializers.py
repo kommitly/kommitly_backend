@@ -385,12 +385,8 @@ class UpdateAiGoalSerializer(serializers.ModelSerializer):
 
 
 class RoutineSerializer(serializers.ModelSerializer):
-    tasks = serializers.PrimaryKeyRelatedField(
-        queryset=Task.objects.all(), many=True, required=False
-    )
-    subtasks = serializers.PrimaryKeyRelatedField(
-        queryset=SubTask.objects.all(), many=True, required=False
-    )
+    tasks = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
+    subtasks = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
     ai_subtasks = serializers.PrimaryKeyRelatedField(
         queryset=AiSubTask.objects.all(), many=True, required=False
     )
