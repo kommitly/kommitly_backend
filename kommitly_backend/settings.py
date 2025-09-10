@@ -143,6 +143,7 @@ USE_TZ = True
 
 
 
+
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
 
@@ -218,8 +219,8 @@ EMAIL_HOST_PASSWORD = config("EMAIL_HOST_PASSWORD")
 
 GROQ_API_KEY = config("GROQ_API_KEY")
 
-
 """
+
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
