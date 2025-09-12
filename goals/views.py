@@ -16,6 +16,8 @@ from users.models import User
 from django.http import Http404
 from django.db.models import Prefetch
 from .tasks import send_task_reminders
+from django.db.models import Q
+
 
 
 # Configure logging
@@ -1774,10 +1776,11 @@ class RoutineListCreateView(APIView):
     def get(self, request):
         today = timezone.now().date()
         routines = Routine.objects.filter(user=request.user, is_active=True).filter(
-            models.Q(end_date__isnull=True) | models.Q(end_date__gte=today)
+            Q(end_date__isnull=True) | Q(end_date__gte=today)
         )
         serializer = RoutineSerializer(routines, many=True)
         return Response(serializer.data)
+
 
     @swagger_auto_schema(
         operation_description="Create a new routine",
