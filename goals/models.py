@@ -91,6 +91,12 @@ class Task(models.Model):
         ],
         default='pending',
     )
+    overdue_reason = models.CharField(
+        max_length=20,
+        choices=[("not_started", "Not Started"), ("unfinished", "Unfinished")],
+        null=True,
+        blank=True,
+    )
     completed_at = models.DateTimeField(blank=True, null=True)
     task_timeline = models.CharField(max_length=255, null=True, blank=True)
     reminder_time = models.TimeField(null=True, blank=True)
@@ -150,6 +156,12 @@ class AiTask(models.Model):
             ('overdue', 'Overdue'),
         ],
         default='pending',
+    )
+    overdue_reason = models.CharField(
+        max_length=20,
+        choices=[("not_started", "Not Started"), ("unfinished", "Unfinished")],
+        null=True,
+        blank=True,
     )
     completed_at = models.DateTimeField(blank=True, null=True)
     task_timeline = models.CharField(max_length=255, null=True, blank=True)
@@ -228,7 +240,13 @@ class SubTask(models.Model):
     reminder_time = models.TimeField(blank=True, null=True)
     reminder_sent = models.BooleanField(default=False)
     completed_at = models.DateTimeField(blank=True, null=True)
-    status = models.CharField(max_length=20, choices=[("pending", "Pending"), ("completed", "Completed")], default="pending")
+    status = models.CharField(max_length=20, choices=[("pending", "Pending"), ('in-progress', 'In Progress'), ("completed", "Completed"),  ('overdue', 'Overdue'),], default="pending")
+    overdue_reason = models.CharField(
+        max_length=20,
+        choices=[("not_started", "Not Started"), ("unfinished", "Unfinished")],
+        null=True,
+        blank=True,
+    )
     last_updated = models.DateTimeField(auto_now=True) 
     ai_answer = models.TextField(null=True, blank=True)
     routine = models.ForeignKey('Routine', related_name='subtasks', on_delete=models.CASCADE, blank=True, null=True)
@@ -246,7 +264,13 @@ class AiSubTask(models.Model):
     due_date = models.DateTimeField(blank=True, null=True)
     reminder_time = models.TimeField(blank=True, null=True)
     reminder_sent = models.BooleanField(default=False)
-    status = models.CharField(max_length=20, choices=[("pending", "Pending"), ("completed", "Completed")], default="pending")
+    status = models.CharField(max_length=20, choices=[("pending", "Pending"), ('in-progress', 'In Progress'), ("completed", "Completed"),  ('overdue', 'Overdue'),], default="pending")
+    overdue_reason = models.CharField(
+        max_length=20,
+        choices=[("not_started", "Not Started"), ("unfinished", "Unfinished")],
+        null=True,
+        blank=True,
+    )
     completed_at = models.DateTimeField(blank=True, null=True)
     last_updated = models.DateTimeField(auto_now=True) 
     ai_answer = models.TextField(null=True, blank=True)

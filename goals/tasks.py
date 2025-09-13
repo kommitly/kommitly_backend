@@ -371,3 +371,113 @@ def send_ai_subtask_reminders(subtask_id=None, user_id=None):
 
 
 
+
+@shared_task
+def send_overdue_task_notifications(task_id=None):
+    try:
+        task = Task.objects.get(id=task_id, status="overdue")
+    except Task.DoesNotExist:
+        logger.warning(f"No pending task found with id={task_id}")
+        return
+
+    user = task.user or (task.goal.user if task.goal else None)
+    if not user:
+        logger.error(f"Overdue task '{task.title}' has no associated user.")
+        return
+
+    user_email = user.email
+    subject = "⚠️ Overdue Task Alert from Kommitly"
+    from_email = "no-reply@kommitly.com"
+    to = [user_email]
+
+    context = {
+        "task": task,
+        "user": user,
+        "app_link": f"https://kommitly-frontend.vercel.app/dashboard/tasks/{task.id}/"
+    }
+    text_content = f"⚠️ Your task '{task.title}' is overdue! Please update it in Kommitly."
+    
+    try:
+        html_content = render_to_string("email/task_overdue.html", context)
+    except TemplateDoesNotExist:
+        html_content = text_content
+
+    msg = EmailMultiAlternatives(subject, text_content, from_email, to)
+    msg.attach_alternative(html_content, "text/html")
+    msg.send()
+
+    # ✅ In-app notification
+    Notification.objects.create(
+        user=user,
+        content_type=ContentType.objects.get_for_model(task),
+        object_id=task.id,
+        message=f"⚠️ Your task '{task.title}' is overdue! Mark it as completed if done.",
+        link=f"https://kommitly-frontend.vercel.app/dashboard/tasks/{task.id}/",
+        type="overdue"
+    )
+
+    logger.info(f"Overdue notification sent for task: {task.title} to {user_email}")
+
+
+
+def send_overdue_subtask_notifications(subtask_id):
+    from goals.models import SubTask
+    try:
+        subtask = SubTask.objects.get(id=subtask_id, status__in=["pending", "in_progress"])
+    except SubTask.DoesNotExist:
+        return
+
+    user = subtask.task.user if subtask.task else None
+    if not user:
+        return
+
+    # --- Mark overdue ---
+    if subtask.status == "pending":
+        subtask.overdue_reason = "not_started"
+    elif subtask.status == "in_progress":
+        subtask.overdue_reason = "unfinished"
+
+        subtask.status = "overdue"
+        subtask.save(update_fields=["status", "overdue_reason"])
+
+        # --- Notify (in-app + email) ---
+        Notification.objects.create(
+            user=user,
+            content_type=ContentType.objects.get_for_model(subtask),
+            object_id=subtask.id,
+            message=f"⚠️ Overdue: '{subtask.title}' was due on {subtask.due_date}.",
+            link=f"https://kommitly-frontend.vercel.app/dashboard/tasks/{subtask.task.id}/",
+            type="overdue"
+        )
+
+            # (Optional) send email
+            subject = "⚠️ Overdue Subtask in Kommitly"
+            from_email = 'no-reply@kommitly.com'
+            to = [user.email]
+
+            context = {
+                'subtask': subtask,
+                'user': user,
+                'app_link': f"https://kommitly-frontend.vercel.app/dashboard/tasks/{subtask.task.id}/"
+            }
+
+            text_content = f"'{subtask.title}' was due on {subtask.due_date}. Please check Kommitly."
+
+            try:
+                html_content = render_to_string('email/task_overdue.html', context)
+            except TemplateDoesNotExist:
+                html_content = None
+
+            msg = EmailMultiAlternatives(subject, text_content, from_email, to)
+            if html_content:
+                msg.attach_alternative(html_content, "text/html")
+            msg.send()
+
+            # Mark it as overdue if you have such a field
+            subtask.status = "overdue"
+            subtask.save(update_fields=["status"])
+
+            logger.info(f"Overdue alert sent for subtask: {subtask.title} to {user.email}")
+
+        except Exception as e:
+            logger.error(f"Error processing overdue subtask {subtask.id}: {str(e)}")

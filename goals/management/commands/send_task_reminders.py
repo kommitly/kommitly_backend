@@ -4,7 +4,7 @@ from datetime import datetime, timedelta
 from django.core.management.base import BaseCommand
 from django.utils import timezone
 from goals.models import Task, SubTask  # ✅ Use correct casing for `SubTask`
-from goals.tasks import send_task_reminders, send_subtask_reminders  # Assuming it supports subtasks too
+from goals.tasks import send_task_reminders, send_subtask_reminders, send_overdue_task_notifications,send_overdue_subtask_notifications,  # Assuming it supports subtasks too
 
 logger = logging.getLogger(__name__)
 
@@ -61,3 +61,45 @@ class Command(BaseCommand):
                     self.stdout.write(f"Reminder sent for subtask: {subtask.title}")
             except Exception as e:
                 logger.error(f"Error sending subtask reminder: {e}")
+
+
+        # ----- Overdue Tasks -----
+        overdue_tasks = Task.objects.filter(
+            status__in=["pending", "in_progress"],
+            due_date__lt=now_utc.date()
+        )
+        for task in overdue_tasks:
+            try:
+                # set overdue status + reason
+                if task.status == "pending":
+                    task.overdue_reason = "not_started"
+                elif task.status == "in_progress":
+                    task.overdue_reason = "unfinished"
+
+                task.status = "overdue"
+                task.save(update_fields=["status", "overdue_reason"])
+
+                send_overdue_task_notifications(task_id=task.id)
+                self.stdout.write(f"Overdue notification sent for task: {task.title}")
+            except Exception as e:
+                logger.error(f"Error sending overdue task notification: {e}")
+
+        # ----- Overdue SubTasks -----
+        overdue_subtasks = SubTask.objects.filter(
+            status__in=["pending", "in_progress"],
+            due_date__lt=now_utc.date()
+        )
+        for subtask in overdue_subtasks:
+            try:
+                if subtask.status == "pending":
+                    subtask.overdue_reason = "not_started"
+                elif subtask.status == "in_progress":
+                    subtask.overdue_reason = "unfinished"
+
+                subtask.status = "overdue"
+                subtask.save(update_fields=["status", "overdue_reason"])
+
+                send_overdue_subtask_notifications(subtask_id=subtask.id)
+                self.stdout.write(f"Overdue notification sent for subtask: {subtask.title}")
+            except Exception as e:
+                logger.error(f"Error sending overdue subtask notification: {e}")
