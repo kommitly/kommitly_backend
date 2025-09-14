@@ -24,6 +24,7 @@ class SubTaskSerializer(serializers.ModelSerializer):
             'description',
             'due_date',
             'status',
+            'overdue_reason',
             'completed_at',
             'reminder_time',
             'reminder_sent',
@@ -135,6 +136,12 @@ class AiSubTaskSerializer(serializers.ModelSerializer):
         model = AiSubTask
         fields = "__all__"
         read_only_fields = ["ai_task"]
+
+    def create(self, validated_data):
+        ai_task_id = self.context.get("ai_task_id")
+        if ai_task_id:
+            validated_data["ai_task_id"] = ai_task_id
+        return super().create(validated_data)
 
     def get_user_timezone(self, obj=None):
         """
@@ -261,6 +268,7 @@ class CreateAiTaskSerializer(serializers.ModelSerializer):
             'description',
             'due_date',
             'status',
+            'overdue_reason',
             'completed_at',
             'task_timeline',
             'reminder_time', ]
@@ -303,6 +311,7 @@ class CreateTaskSerializer(serializers.ModelSerializer):
             'description',
             'due_date',
             'status',
+            'overdue_reason',
             'subtasks',
             'task_timeline',
             'reminder_time',
@@ -315,6 +324,7 @@ class CreateTaskSerializer(serializers.ModelSerializer):
             'due_date': {'required': False, 'allow_null': True},
             'status': {'required': False, 'allow_null': True},
             'subtasks': {'required': False},
+            'overdue_reason': {'required': False, 'allow_null': True},
             'task_timeline': {'required': False, 'allow_null': True},
             'reminder_time': {'required': False, 'allow_null': True},
             'tag': {'required': False, 'allow_null': True},
@@ -365,6 +375,7 @@ class TaskSerializer(serializers.ModelSerializer):
             'status',
             'completed_at',
             'subtasks',
+            'overdue_reason',
             'task_timeline',
             'reminder_time',
             'last_updated',
@@ -485,6 +496,7 @@ class AiTaskSerializer(serializers.ModelSerializer):
             'description',
             'due_date',
             'status',
+            'overdue_reason',
             'completed_at',
             'ai_subtasks',
             'task_timeline',
@@ -537,7 +549,7 @@ class AiTaskSerializer(serializers.ModelSerializer):
             data['completed_at'] = local_completed.isoformat()
 
         if self.context.get("include_subtasks", False):
-            data["ai_subtasks"] = AiSubTaskSerializer(instance.ai_subtasks.all(), many=True).data
+            data["ai_subtasks"] = AiSai_tasksubTaskSerializer(instance.ai_subtasks.all(), many=True).data
 
         return data
 
