@@ -4,7 +4,7 @@ from datetime import datetime, timedelta
 from django.core.management.base import BaseCommand
 from django.utils import timezone
 from goals.models import AiSubTask
-from goals.tasks import send_ai_subtask_reminders  # Your existing function
+from goals.tasks import send_ai_subtask_reminders, send_overdue_ai_subtask_notifications  # Your existing function
 
 logger = logging.getLogger(__name__)
 
@@ -45,8 +45,31 @@ class Command(BaseCommand):
                 if reminder_utc <= now_utc <= reminder_utc + timedelta(minutes=2):
                     send_ai_subtask_reminders(subtask_id=ai_subtask.id)
                     self.stdout.write(f"Reminder sent for AI subtask: {ai_subtask.title}")
+                
 
             except Exception as e:
                 logger.error(f"Error sending reminder for subtask '{ai_subtask.title}': {str(e)}")
 
-        self.stdout.write("AI subtask reminder check complete.")
+        # ----- Overdue AI Subtasks -----
+        overdue_ai_subtasks = AiSubTask.objects.filter(
+            status__in=["pending", "in-progress"],
+            due_date__lt=now_utc
+        )
+
+        for ai_subtask in overdue_ai_subtasks:
+            try:
+                # set overdue reason
+                if ai_subtask.status == "pending":
+                    ai_subtask.overdue_reason = "not_started"
+                elif ai_subtask.status == "in-progress":
+                    ai_subtask.overdue_reason = "unfinished"
+
+                ai_subtask.status = "overdue"
+                ai_subtask.save(update_fields=["status", "overdue_reason"])
+
+                send_overdue_ai_subtask_notifications(subtask_id=ai_subtask.id)
+                self.stdout.write(f"Overdue notification sent for AI subtask: {ai_subtask.title}")
+            except Exception as e:
+                logger.error(f"Error sending overdue AI subtask notification: {str(e)}")
+
+        self.stdout.write("AI subtask reminder & overdue check complete.")

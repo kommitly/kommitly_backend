@@ -473,3 +473,74 @@ def send_overdue_subtask_notifications(subtask_id):
     msg.send()
 
     logger.info(f"Overdue alert sent for subtask: {subtask.title} to {user.email}")
+
+
+def send_overdue_ai_subtask_notifications(subtask_id=None):
+    now_utc = timezone.now()
+
+    if subtask_id:
+        try:
+            ai_subtask = AiSubTask.objects.get(
+                id=subtask_id,
+                status__in=["pending", "in-progress"],
+                due_date__lt=now_utc
+            )
+            ai_subtasks = [ai_subtask]
+        except AiSubTask.DoesNotExist:
+            return
+    else:
+        ai_subtasks = AiSubTask.objects.filter(
+            status__in=["pending", "in-progress"],
+            due_date__lt=now_utc
+        )
+
+    for ai_subtask in ai_subtasks:
+        try:
+            # Set overdue status + reason
+            if ai_subtask.status == "pending":
+                ai_subtask.overdue_reason = "not_started"
+            elif ai_subtask.status == "in-progress":
+                ai_subtask.overdue_reason = "unfinished"
+
+            ai_subtask.status = "overdue"
+            ai_subtask.save(update_fields=["status", "overdue_reason"])
+
+            user = ai_subtask.ai_task.ai_goal.user if ai_subtask.ai_task and ai_subtask.ai_task.ai_goal else None
+            ai_task = getattr(ai_subtask, "ai_task", None)
+            ai_goal = getattr(ai_task, "ai_goal", None) if ai_task else None
+
+            if not user:
+                continue
+
+            subject = f"⚠️ Overdue Subtask: {ai_subtask.title}"
+            from_email = "no-reply@kommitly.com"
+            to = [user.email]
+
+            context = {
+                "ai_subtask": ai_subtask,
+                "ai_task": ai_task,
+                "ai_goal": ai_goal,
+                "user": user,
+                "app_link": f"https://kommitly-frontend.vercel.app/dashboard/ai-goal/{ai_goal.id}/task/{ai_task.id}/subtask/{ai_subtask.id}"
+            }
+            text_content = f"Your subtask '{ai_subtask.title}' is overdue. Please review it in Kommitly."
+            html_content = render_to_string("email/ai_subtask_overdue.html", context)
+
+            msg = EmailMultiAlternatives(subject, text_content, from_email, to)
+            msg.attach_alternative(html_content, "text/html")
+            msg.send()
+
+            # In-app notification
+            Notification.objects.create(
+                user=user,
+                content_type=ContentType.objects.get_for_model(ai_subtask),
+                object_id=ai_subtask.id,
+                message=f"⚠️ Overdue: '{ai_subtask.title}' needs your attention.",
+                link=context["app_link"],
+                type="overdue"
+            )
+
+            logger.info(f"Overdue notification sent for AI subtask: {ai_subtask.title}")
+
+        except Exception as e:
+            logger.error(f"Error sending overdue AI subtask notification: {str(e)}")
