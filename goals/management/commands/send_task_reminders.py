@@ -91,14 +91,6 @@ class Command(BaseCommand):
         )
         for subtask in overdue_subtasks:
             try:
-                if subtask.status == "pending":
-                    subtask.overdue_reason = "not_started"
-                elif subtask.status == "in_progress":
-                    subtask.overdue_reason = "unfinished"
-
-                subtask.status = "overdue"
-                subtask.save(update_fields=["status", "overdue_reason"])
-
                 send_overdue_subtask_notifications(subtask_id=subtask.id)
                 self.stdout.write(f"Overdue notification sent for subtask: {subtask.title}")
             except Exception as e:
