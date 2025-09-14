@@ -1,6 +1,6 @@
 from django.db.models.signals import post_save, post_delete, pre_delete
 from django.dispatch import receiver
-from .models import AiSubTask, AiTask, AiGoal  # Make sure to import your models
+from .models import AiSubTask, AiTask, AiGoal, Routine, SubTask, Task  # Make sure to import your models
 
 # --- Signal 1: When a subtask is saved (created or updated) ---
 @receiver(post_save, sender=AiSubTask)
@@ -28,3 +28,54 @@ def update_goal_progress_on_subtask_delete(sender, instance, **kwargs):
     if ai_goal and AiGoal.objects.filter(pk=ai_goal.pk).exists():
         goal = AiGoal.objects.get(pk=ai_goal.pk)
         goal.update_progress()
+
+
+# -------- Routine ↔ AiSubTask --------
+@receiver(post_save, sender=Routine)
+def sync_routine_reminder_to_ai_subtasks(sender, instance, **kwargs):
+    if instance.reminder_time:
+        for ai_subtask in instance.ai_subtasks.all():
+            if ai_subtask.reminder_time != instance.reminder_time:
+                ai_subtask.reminder_time = instance.reminder_time
+                ai_subtask.save(update_fields=["reminder_time"])
+
+@receiver(post_save, sender=AiSubTask)
+def sync_ai_subtask_reminder_to_routine(sender, instance, **kwargs):
+    if instance.reminder_time and instance.routine:
+        if instance.routine.reminder_time != instance.reminder_time:
+            instance.routine.reminder_time = instance.reminder_time
+            instance.routine.save(update_fields=["reminder_time"])
+
+
+# -------- Routine ↔ Task --------
+@receiver(post_save, sender=Routine)
+def sync_routine_reminder_to_tasks(sender, instance, **kwargs):
+    if instance.reminder_time:
+        for task in instance.tasks.all():
+            if task.reminder_time != instance.reminder_time:
+                task.reminder_time = instance.reminder_time
+                task.save(update_fields=["reminder_time"])
+
+@receiver(post_save, sender=Task)
+def sync_task_reminder_to_routine(sender, instance, **kwargs):
+    if instance.reminder_time and instance.routine:
+        if instance.routine.reminder_time != instance.reminder_time:
+            instance.routine.reminder_time = instance.reminder_time
+            instance.routine.save(update_fields=["reminder_time"])
+
+
+# -------- Routine ↔ SubTask --------
+@receiver(post_save, sender=Routine)
+def sync_routine_reminder_to_subtasks(sender, instance, **kwargs):
+    if instance.reminder_time:
+        for subtask in instance.subtasks.all():
+            if subtask.reminder_time != instance.reminder_time:
+                subtask.reminder_time = instance.reminder_time
+                subtask.save(update_fields=["reminder_time"])
+
+@receiver(post_save, sender=SubTask)
+def sync_subtask_reminder_to_routine(sender, instance, **kwargs):
+    if instance.reminder_time and instance.routine:
+        if instance.routine.reminder_time != instance.reminder_time:
+            instance.routine.reminder_time = instance.reminder_time
+            instance.routine.save(update_fields=["reminder_time"])
