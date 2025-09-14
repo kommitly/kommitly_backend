@@ -401,12 +401,11 @@ class CreateGoalWithAIInsightsView(APIView):
                        
                         for subtask_data in subtasks_data:
                             subtask_data["ai_task"] = task.id
-                            print(f"Subtask data for today: {subtask_data}")
+                            print(f"Subtask data: {subtask_data}")
                             subtask_serializer = AiSubTaskSerializer(data=subtask_data, context = {"ai_task_id":task.id}) # pass the current task id to the subtask serializer.
 
 
                             if subtask_serializer.is_valid():
-                                print("Subtask serializer is valid")
                                 subtask_serializer.save()
                             else:
                                 return Response(subtask_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
