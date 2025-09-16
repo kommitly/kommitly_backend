@@ -4,7 +4,7 @@ from datetime import datetime, timedelta
 from django.core.management.base import BaseCommand
 from django.utils import timezone
 from goals.models import Task, SubTask  # ✅ Use correct casing for `SubTask`
-from goals.tasks import send_task_reminders, send_subtask_reminders, send_overdue_task_notifications,send_overdue_subtask_notifications,  # Assuming it supports subtasks too
+from goals.tasks import send_task_reminders, send_subtask_reminders, send_overdue_task_notifications,send_overdue_subtask_notifications  # Assuming it supports subtasks too
 
 logger = logging.getLogger(__name__)
 
@@ -66,10 +66,14 @@ class Command(BaseCommand):
         # ----- Overdue Tasks -----
         overdue_tasks = Task.objects.filter(
             status__in=["pending", "in_progress"],
-            due_date__lt=now_utc.date()
+            due_date__lt=now_utc.date(),
+            overdue_notified=False 
         )
         for task in overdue_tasks:
             try:
+                if task.status == "completed":
+                    continue  # ✅ don't notify completed tasks
+
                 # set overdue status + reason
                 if task.status == "pending":
                     task.overdue_reason = "not_started"
@@ -77,7 +81,8 @@ class Command(BaseCommand):
                     task.overdue_reason = "unfinished"
 
                 task.status = "overdue"
-                task.save(update_fields=["status", "overdue_reason"])
+                task.overdue_notified = True 
+                task.save(update_fields=["status", "overdue_reason", "overdue_notified"])
 
                 send_overdue_task_notifications(task_id=task.id)
                 self.stdout.write(f"Overdue notification sent for task: {task.title}")
@@ -88,6 +93,7 @@ class Command(BaseCommand):
         overdue_subtasks = SubTask.objects.filter(
             status__in=["pending", "in_progress"],
             due_date__lt=now_utc.date()
+            
         )
         for subtask in overdue_subtasks:
             try:

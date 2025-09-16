@@ -97,6 +97,7 @@ class Task(models.Model):
         null=True,
         blank=True,
     )
+    overdue_notified = models.BooleanField(default=False)
     completed_at = models.DateTimeField(blank=True, null=True)
     task_timeline = models.CharField(max_length=255, null=True, blank=True)
     reminder_time = models.TimeField(null=True, blank=True)
@@ -163,6 +164,7 @@ class AiTask(models.Model):
         null=True,
         blank=True,
     )
+    overdue_notified = models.BooleanField(default=False)
     completed_at = models.DateTimeField(blank=True, null=True)
     task_timeline = models.CharField(max_length=255, null=True, blank=True)
     reminder_time = models.TimeField(null=True, blank=True)
@@ -247,6 +249,7 @@ class SubTask(models.Model):
         null=True,
         blank=True,
     )
+    overdue_notified = models.BooleanField(default=False)
     last_updated = models.DateTimeField(auto_now=True) 
     ai_answer = models.TextField(null=True, blank=True)
     routine = models.ForeignKey('Routine', related_name='subtasks', on_delete=models.CASCADE, blank=True, null=True)
@@ -271,6 +274,7 @@ class AiSubTask(models.Model):
         null=True,
         blank=True,
     )
+    overdue_notified = models.BooleanField(default=False)
     completed_at = models.DateTimeField(blank=True, null=True)
     last_updated = models.DateTimeField(auto_now=True) 
     ai_answer = models.TextField(null=True, blank=True)

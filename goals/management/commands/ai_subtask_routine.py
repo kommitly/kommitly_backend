@@ -58,16 +58,16 @@ class Command(BaseCommand):
              # Reactivate subtasks and tasks
 
             # 1. AiSubTasks
-            for ai_subtask in routine.ai_subtasks.filter(status='completed'):
+            for ai_subtask in routine.ai_subtasks.all():
                 reset_instance(ai_subtask, due_datetime, reminder_time)
                 self.stdout.write(self.style.SUCCESS(f"[AiSubTask] Reactivated: {ai_subtask.title}"))
 
             # 2. SubTasks
-            for subtask in routine.subtasks.filter(status='completed'):
+            for subtask in routine.subtasks.all():
                 reset_instance(subtask, due_datetime, reminder_time)
                 self.stdout.write(self.style.SUCCESS(f"[SubTask] Reactivated: {subtask.title}"))
 
             # 3. Tasks (only if they have no subtasks)
-            for task in routine.tasks.filter(status='completed'):
+            for task in routine.tasks.all():
                 reset_instance(task, due_datetime, reminder_time)
                 self.stdout.write(self.style.SUCCESS(f"[Task] Reactivated: {task.title}"))
