@@ -360,3 +360,24 @@ class Routine(models.Model):
 
     def __str__(self):
         return f"{self.name} ({self.frequency})"
+
+class DailyTemplate(models.Model):
+    user = models.ForeignKey('users.User', on_delete=models.CASCADE, related_name="daily_templates")
+    name = models.CharField(max_length=255, default="My Daily Plan")
+    description = models.TextField(blank=True, null=True)
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+class DailyActivity(models.Model):
+    template = models.ForeignKey(DailyTemplate, on_delete=models.CASCADE, related_name="activities")
+    title = models.CharField(max_length=255)
+    description = models.TextField(blank=True, null=True)
+    start_time = models.TimeField()
+    end_time = models.TimeField(null=True, blank=True)
+
+    # Optional links to existing entities
+    task = models.ForeignKey(Task, null=True, blank=True, on_delete=models.SET_NULL)
+    subtask = models.ForeignKey(SubTask, null=True, blank=True, on_delete=models.SET_NULL)
+    ai_subtask = models.ForeignKey(AiSubTask, null=True, blank=True, on_delete=models.SET_NULL)
+
+    is_fixed = models.BooleanField(default=False)  # true if default like “wake up”

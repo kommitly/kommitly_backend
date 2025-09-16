@@ -4,9 +4,9 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from datetime import datetime, time, date
 from django.utils import timezone
-from rest_framework import status, permissions
-from .models import Goal, Task, AiGoal, AiTask, SubTask, AiSubTask, Routine
-from .serializers import GoalSerializer, TaskSerializer, CreateGoalSerializer, CreateTaskSerializer, CreateAiTaskSerializer,AiGoalSerializer, AiTaskSerializer, CreateAiGoalSerializer, UserProfileSerializer, UpdateAiGoalSerializer, SubTaskSerializer, AiSubTaskSerializer, RoutineSerializer
+from rest_framework import status, permissions, generics
+from .models import Goal, Task, AiGoal, AiTask, SubTask, AiSubTask, Routine, DailyActivity, DailyTemplate
+from .serializers import GoalSerializer, TaskSerializer, CreateGoalSerializer, CreateTaskSerializer, CreateAiTaskSerializer,AiGoalSerializer, AiTaskSerializer, CreateAiGoalSerializer, UserProfileSerializer, UpdateAiGoalSerializer, SubTaskSerializer, AiSubTaskSerializer, RoutineSerializer,DailyTemplateSerializer, DailyActivitySerializer
 import kommitly_backend.settings as st
 from drf_yasg.utils import swagger_auto_schema
 from django.core.exceptions import ValidationError
@@ -1766,25 +1766,27 @@ class AnswerTaskQuestionView(APIView):
 
         return Response({"answer": answer}, status=200)
 
-
-
-class RoutineListCreateView(APIView):
+class RoutineListCreateView(generics.ListCreateAPIView):
+    serializer_class = RoutineSerializer
     permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        today = timezone.now().date()
+        return Routine.objects.filter(
+            user=self.request.user,
+            is_active=True
+        ).filter(Q(end_date__isnull=True) | Q(end_date__gte=today))
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
 
     @swagger_auto_schema(
         operation_description="Get all routines for the authenticated user",
         tags=["Routines"],
         responses={200: RoutineSerializer(many=True)}
     )
-    # Filter out expired routines
-    def get(self, request):
-        today = timezone.now().date()
-        routines = Routine.objects.filter(user=request.user, is_active=True).filter(
-            Q(end_date__isnull=True) | Q(end_date__gte=today)
-        )
-        serializer = RoutineSerializer(routines, many=True)
-        return Response(serializer.data)
-
+    def get(self, request, *args, **kwargs):
+        return super().get(request, *args, **kwargs)
 
     @swagger_auto_schema(
         operation_description="Create a new routine",
@@ -1792,72 +1794,166 @@ class RoutineListCreateView(APIView):
         request_body=RoutineSerializer,
         responses={201: RoutineSerializer}
     )
-    def post(self, request):
-        serializer = RoutineSerializer(data=request.data, context={'request': request})
-        if serializer.is_valid():
-            serializer.save(user=request.user)  
-            return Response(serializer.data, status=201)
-        return Response(serializer.errors, status=400)
-
-    
+    def post(self, request, *args, **kwargs):
+        return super().post(request, *args, **kwargs)
 
 
 
-class RoutineDetailView(APIView):
+
+class RoutineDetailView(generics.RetrieveUpdateDestroyAPIView):
+    serializer_class = RoutineSerializer
     permission_classes = [permissions.IsAuthenticated]
 
-    def get_object(self, pk, user):
-        try:
-            return Routine.objects.get(pk=pk, user=user)
-        except Routine.DoesNotExist:
-            return None
+    def get_queryset(self):
+        return Routine.objects.filter(user=self.request.user)
 
     @swagger_auto_schema(
         operation_description="Retrieve a specific routine by ID",
         tags=["Routines"],
-        responses={
-            200: RoutineSerializer,
-            404: "Not Found"
-        }
+        responses={200: RoutineSerializer, 404: "Not Found"}
     )
-    def get(self, request, pk):
-        routine = self.get_object(pk, request.user)
-        if not routine:
-            return Response({"error": "Not found"}, status=404)
-        serializer = RoutineSerializer(routine)
-        return Response(serializer.data)
+    def get(self, request, *args, **kwargs):
+        return super().get(request, *args, **kwargs)
 
     @swagger_auto_schema(
         operation_description="Update a routine by ID (partial updates supported)",
         tags=["Routines"],
         request_body=RoutineSerializer,
-        responses={
-            200: RoutineSerializer,
-            400: "Bad Request",
-            404: "Not Found"
-        }
+        responses={200: RoutineSerializer, 400: "Bad Request", 404: "Not Found"}
     )
-    def put(self, request, pk):
-        routine = self.get_object(pk, request.user)
-        if not routine:
-            return Response({"error": "Not found"}, status=404)
-        serializer = RoutineSerializer(routine, data=request.data, partial=True)
-        if serializer.is_valid():
-            serializer.save(user=request.user)
-            return Response(serializer.data)
-        return Response(serializer.errors, status=400)
+    def put(self, request, *args, **kwargs):
+        return super().put(request, *args, **kwargs)
 
     @swagger_auto_schema(
         operation_description="Delete a routine by ID",
         tags=["Routines"],
-        responses={
-            204: "Deleted successfully",
-            404: "Not Found"
-        }
+        responses={204: "Deleted successfully", 404: "Not Found"}
     )
-    def delete(self, request, pk):
-        routine = self.get_object(pk, request.user)
-        if not routine:
-            return Response({"error": "Not found"}, status=404)
-        routine.delete()
-        return Response(status=204)
+    def delete(self, request, *args, **kwargs):
+        return super().delete(request, *args, **kwargs)
+
+
+
+
+class DailyTemplateListCreateView(generics.ListCreateAPIView):
+    serializer_class = DailyTemplateSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        return DailyTemplate.objects.filter(user=self.request.user)
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
+
+    @swagger_auto_schema(
+        operation_description="Get all daily templates for the authenticated user",
+        tags=["Daily Templates"],
+        responses={200: DailyTemplateSerializer(many=True)}
+    )
+    def get(self, request, *args, **kwargs):
+        return super().get(request, *args, **kwargs)
+
+    @swagger_auto_schema(
+        operation_description="Create a new daily template",
+        tags=["Daily Templates"],
+        request_body=DailyTemplateSerializer,
+        responses={201: DailyTemplateSerializer}
+    )
+    def post(self, request, *args, **kwargs):
+        return super().post(request, *args, **kwargs)
+
+
+class DailyTemplateDetailView(generics.RetrieveUpdateDestroyAPIView):
+    serializer_class = DailyTemplateSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        return DailyTemplate.objects.filter(user=self.request.user)
+
+    @swagger_auto_schema(
+        operation_description="Retrieve a specific daily template by ID",
+        tags=["Daily Templates"],
+        responses={200: DailyTemplateSerializer, 404: "Not Found"}
+    )
+    def get(self, request, *args, **kwargs):
+        return super().get(request, *args, **kwargs)
+
+    @swagger_auto_schema(
+        operation_description="Update a daily template by ID (partial updates supported)",
+        tags=["Daily Templates"],
+        request_body=DailyTemplateSerializer,
+        responses={200: DailyTemplateSerializer, 400: "Bad Request", 404: "Not Found"}
+    )
+    def put(self, request, *args, **kwargs):
+        return super().put(request, *args, **kwargs)
+
+    @swagger_auto_schema(
+        operation_description="Delete a daily template by ID",
+        tags=["Daily Templates"],
+        responses={204: "Deleted successfully", 404: "Not Found"}
+    )
+    def delete(self, request, *args, **kwargs):
+        return super().delete(request, *args, **kwargs)
+
+
+class DailyActivityListCreateView(generics.ListCreateAPIView):
+    serializer_class = DailyActivitySerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        return DailyActivity.objects.filter(template__user=self.request.user)
+
+    def perform_create(self, serializer):
+        template_id = self.request.data.get("template")
+        serializer.save(template_id=template_id)
+
+    @swagger_auto_schema(
+        operation_description="Get all daily activities for templates owned by the authenticated user",
+        tags=["Daily Activities"],
+        responses={200: DailyActivitySerializer(many=True)}
+    )
+    def get(self, request, *args, **kwargs):
+        return super().get(request, *args, **kwargs)
+
+    @swagger_auto_schema(
+        operation_description="Create a new daily activity under a specific template",
+        tags=["Daily Activities"],
+        request_body=DailyActivitySerializer,
+        responses={201: DailyActivitySerializer, 400: "Bad Request"}
+    )
+    def post(self, request, *args, **kwargs):
+        return super().post(request, *args, **kwargs)
+
+
+
+class DailyActivityDetailView(generics.RetrieveUpdateDestroyAPIView):
+    serializer_class = DailyActivitySerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        return DailyActivity.objects.filter(template__user=self.request.user)
+
+    @swagger_auto_schema(
+        operation_description="Retrieve a specific daily activity by ID",
+        tags=["Daily Activities"],
+        responses={200: DailyActivitySerializer, 404: "Not Found"}
+    )
+    def get(self, request, *args, **kwargs):
+        return super().get(request, *args, **kwargs)
+
+    @swagger_auto_schema(
+        operation_description="Update a daily activity by ID (partial updates supported)",
+        tags=["Daily Activities"],
+        request_body=DailyActivitySerializer,
+        responses={200: DailyActivitySerializer, 400: "Bad Request", 404: "Not Found"}
+    )
+    def put(self, request, *args, **kwargs):
+        return super().put(request, *args, **kwargs)
+
+    @swagger_auto_schema(
+        operation_description="Delete a daily activity by ID",
+        tags=["Daily Activities"],
+        responses={204: "Deleted successfully", 404: "Not Found"}
+    )
+    def delete(self, request, *args, **kwargs):
+        return super().delete(request, *args, **kwargs)

@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Goal, Task, AiGoal, AiTask, SubTask, AiSubTask, Routine
+from .models import Goal, Task, AiGoal, AiTask, SubTask, AiSubTask, Routine, DailyTemplate, DailyActivity
 from users.models import User
 from django.utils.timezone import make_aware, datetime
 import pytz
@@ -13,6 +13,8 @@ from .models import Task  # Adjust the import based on your project structure
 from django.utils.dateparse import parse_datetime
 
 logger = logging.getLogger(__name__)
+
+
 
 class SubTaskSerializer(serializers.ModelSerializer):
     class Meta:
@@ -749,8 +751,12 @@ class UpdateAiGoalSerializer(serializers.ModelSerializer):
 
 
 class RoutineSerializer(serializers.ModelSerializer):
-    tasks = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
-    subtasks = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
+    tasks = serializers.PrimaryKeyRelatedField(
+        queryset=Task.objects.all(), many=True, required=False
+    )
+    subtasks = serializers.PrimaryKeyRelatedField(
+        queryset=SubTask.objects.all(), many=True, required=False
+    )
     ai_subtasks = serializers.PrimaryKeyRelatedField(
         queryset=AiSubTask.objects.all(), many=True, required=False
     )
@@ -822,3 +828,18 @@ class RoutineSerializer(serializers.ModelSerializer):
             ai_subtask.save()
 
         return routine
+
+
+class DailyActivitySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = DailyActivity
+        fields = "__all__"
+        read_only_fields = ["template"]
+
+class DailyTemplateSerializer(serializers.ModelSerializer):
+    activities = DailyActivitySerializer(many=True, read_only=True)
+
+    class Meta:
+        model = DailyTemplate
+        fields = "__all__"
+        read_only_fields = ["user"]
