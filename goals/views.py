@@ -1925,7 +1925,6 @@ class DailyActivityListCreateView(generics.ListCreateAPIView):
         return super().post(request, *args, **kwargs)
 
 
-
 class DailyActivityDetailView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = DailyActivitySerializer
     permission_classes = [permissions.IsAuthenticated]
@@ -1951,9 +1950,18 @@ class DailyActivityDetailView(generics.RetrieveUpdateDestroyAPIView):
         return super().put(request, *args, **kwargs)
 
     @swagger_auto_schema(
-        operation_description="Delete a daily activity by ID",
+        operation_description="Delete a daily activity by ID (fixed activities cannot be deleted)",
         tags=["Daily Activities"],
-        responses={204: "Deleted successfully", 404: "Not Found"}
+        responses={204: "Deleted successfully", 400: "Cannot delete fixed activity", 404: "Not Found"}
     )
     def delete(self, request, *args, **kwargs):
+        instance = self.get_object()
+        if instance.is_fixed:
+            raise ValidationError({"detail": "Fixed activities cannot be deleted."})
         return super().delete(request, *args, **kwargs)
+
+    def perform_destroy(self, instance):
+        """Extra safeguard: block deletion of fixed activities."""
+        if instance.is_fixed:
+            raise ValidationError({"detail": "Fixed activities cannot be deleted."})
+        instance.delete()
