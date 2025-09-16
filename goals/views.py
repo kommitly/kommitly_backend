@@ -17,6 +17,7 @@ from django.http import Http404
 from django.db.models import Prefetch
 from .tasks import send_task_reminders
 from django.db.models import Q
+from .constants import FIXED_ACTIVITIES
 
 
 
@@ -1843,7 +1844,19 @@ class DailyTemplateListCreateView(generics.ListCreateAPIView):
         return DailyTemplate.objects.filter(user=self.request.user)
 
     def perform_create(self, serializer):
-        serializer.save(user=self.request.user)
+        # Save template
+        template = serializer.save(user=self.request.user)
+
+        # Create fixed default activities for this template
+        for activity in FIXED_ACTIVITIES:
+            DailyActivity.objects.create(
+                template=template,
+                title=activity["title"],
+                start_time=activity["start_time"],
+                end_time=activity["end_time"],
+                is_fixed=True,
+            )
+        return template
 
     @swagger_auto_schema(
         operation_description="Get all daily templates for the authenticated user",
