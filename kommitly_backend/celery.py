@@ -22,4 +22,8 @@ app.conf.beat_schedule = {
         'task': 'goals.tasks.send_ai_task_reminders',
         'schedule': crontab(minute='*'),  # Run every minute
     },
+    'reactivate-routines': {
+        'task': 'goals.tasks.reactivate_routines',
+        'schedule': crontab(minute=5, hour=0),  # Run daily at 00:05 server time
+    },
 }

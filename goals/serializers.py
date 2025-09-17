@@ -1,6 +1,8 @@
 from rest_framework import serializers
 from .models import Goal, Task, AiGoal, AiTask, SubTask, AiSubTask, Routine, DailyTemplate, DailyActivity
 from users.models import User
+from django.utils import timezone
+
 from django.utils.timezone import make_aware, datetime
 import pytz
 import logging
@@ -133,6 +135,7 @@ class SubTaskSerializer(serializers.ModelSerializer):
 
 
 
+
 class AiSubTaskSerializer(serializers.ModelSerializer):
     class Meta:
         model = AiSubTask
@@ -143,7 +146,35 @@ class AiSubTaskSerializer(serializers.ModelSerializer):
         ai_task_id = self.context.get("ai_task_id")
         if ai_task_id:
             validated_data["ai_task_id"] = ai_task_id
+
+        validated_data = self._apply_due_date_status(validated_data)
         return super().create(validated_data)
+
+    def update(self, instance, validated_data):
+        validated_data = self._apply_due_date_status(validated_data, instance)
+        return super().update(instance, validated_data)
+
+    def _apply_due_date_status(self, validated_data, instance=None):
+        """
+        Central place to apply overdue/pending reset logic
+        both on create and update.
+        """
+        now = timezone.now()
+        due_date = validated_data.get("due_date", getattr(instance, "due_date", None))
+        status = validated_data.get("status", getattr(instance, "status", None))
+
+        if status != "completed" and due_date:
+            if due_date < now:
+                validated_data["status"] = "overdue"
+                if not validated_data.get("overdue_reason") and getattr(instance, "overdue_reason", None) is None:
+                    validated_data["overdue_reason"] = "not_started"
+            else:
+                if status == "overdue":  # reset when due_date is pushed forward
+                    validated_data["status"] = "pending"
+                    validated_data["overdue_reason"] = None
+                    validated_data["overdue_notified"] = False
+
+        return validated_data
 
     def get_user_timezone(self, obj=None):
         """

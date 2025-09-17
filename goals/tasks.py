@@ -1,4 +1,6 @@
 from celery import shared_task
+from django.core.management import call_command
+from django.utils import timezone
 from django.utils.timezone import now, timedelta, datetime, make_aware
 from django.core.mail import send_mail
 from .models import Task, AiTask, AiSubTask,AiGoal
@@ -15,6 +17,12 @@ from django.contrib.contenttypes.models import ContentType
 
 
 logger = logging.getLogger(__name__)
+
+@shared_task
+def reactivate_routines():
+    now = timezone.now()
+    call_command("reactivate_routines")  # run your management command
+    return f"Routines reactivated at {now}"
 
 
 @shared_task
