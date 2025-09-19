@@ -287,19 +287,19 @@ def send_ai_subtask_reminders(subtask_id=None, user_id=None):
 
     if subtask_id:
         try:
-            ai_subtask = AiSubTask.objects.get(id=subtask_id, status='pending')
+            ai_subtask = AiSubTask.objects.get(id=subtask_id, status__in=['pending', 'overdue'])
             ai_subtasks = [ai_subtask]
         except AiSubTask.DoesNotExist:
             logger.warning(f"No pending ai task found with id={subtask_id}")
             return
 
     elif user_id:
-        ai_subtasks = AiSubTask.objects.filter(status='pending', user_id=user_id)
+        ai_subtasks = AiSubTask.objects.filter(status__in=['pending', 'overdue'], user_id=user_id)
         logger.info(f"Sending reminders for user_id: {user_id}")
         logger.debug(f"Tasks for user_id {user_id}: {ai_subtasks}")
 
     else:
-        ai_subtasks = AiSubTask.objects.filter(status='pending', reminder_sent=False)
+        ai_subtasks = AiSubTask.objects.filter(status__in=['pending', 'overdue'], reminder_sent=False)
 
     for ai_subtask in ai_subtasks:
         try:
