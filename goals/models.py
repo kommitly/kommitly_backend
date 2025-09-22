@@ -333,6 +333,7 @@ class Routine(models.Model):
         ("daily", "Daily"),
         ("weekly", "Weekly"),
         ("monthly", "Monthly"),
+         ("custom", "Custom"),
     ]
 
     INTERVAL_UNITS = [
