@@ -860,6 +860,30 @@ class RoutineSerializer(serializers.ModelSerializer):
 
         return routine
 
+    # In your RoutineSerializer class
+    def update(self, instance, validated_data):
+        # Get the frequency from the validated data, or fall back to the existing instance
+        frequency = validated_data.get("frequency", instance.frequency)
+
+        # Check if the frequency is "custom" and the custom fields are provided
+        if frequency == "custom":
+            custom_interval = validated_data.get("custom_interval", instance.custom_interval)
+            custom_unit = validated_data.get("custom_unit", instance.custom_unit)
+            start_date = validated_data.get("start_date", instance.start_date)
+
+            # Recalculate end_date based on the new custom values
+            if custom_unit == "days":
+                end_date = start_date + timedelta(days=custom_interval * 7)
+            elif custom_unit == "weeks":
+                end_date = start_date + timedelta(weeks=custom_interval * 4)
+            elif custom_unit == "months":
+                end_date = start_date + relativedelta(months=custom_interval)
+                
+            validated_data['end_date'] = end_date
+
+        # Call the parent update method to save all changes
+        return super().update(instance, validated_data)
+
 
 class DailyActivitySerializer(serializers.ModelSerializer):
     class Meta:
