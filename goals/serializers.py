@@ -819,27 +819,31 @@ class RoutineSerializer(serializers.ModelSerializer):
         due_date = validated_data.pop("due_date", None)
 
         if due_date:
+            # set start_date/time_of_day from due_date
             validated_data["start_date"] = due_date.date()
             validated_data["time_of_day"] = due_date.time()
             if validated_data.get("frequency") == "weekly":
                 validated_data["day_of_week"] = due_date.weekday()
 
             if not validated_data.get("end_date"):
-                if validated_data["frequency"] == "daily":
-                    validated_data["end_date"] = due_date.date() + timedelta(days=7)
-                elif validated_data["frequency"] == "weekly":
-                    validated_data["end_date"] = due_date.date() + timedelta(weeks=4)
-                elif validated_data["frequency"] == "monthly":
-                    validated_data["end_date"] = due_date.date() + timedelta(days=90)
-                elif validated_data["frequency"] == "custom":
+                freq = validated_data.get("frequency")
+                if freq == "daily":
+                    validated_data["end_date"] = validated_data["start_date"] + timedelta(days=7)
+                elif freq == "weekly":
+                    validated_data["end_date"] = validated_data["start_date"] + timedelta(weeks=4)
+                elif freq == "monthly":
+                    validated_data["end_date"] = validated_data["start_date"] + relativedelta(months=3)
+                elif freq == "custom":
                     interval = validated_data.get("custom_interval", 1)
                     unit = validated_data.get("custom_unit")
                     if unit == "days":
-                        validated_data["end_date"] = due_date.date() + timedelta(days=interval * 7)
+                        # CORRECT: add `interval` days (not interval*7)
+                        validated_data["end_date"] = validated_data["start_date"] + timedelta(days=interval)
                     elif unit == "weeks":
-                        validated_data["end_date"] = due_date.date() + timedelta(weeks=interval * 4)
+                        # add `interval` weeks
+                        validated_data["end_date"] = validated_data["start_date"] + timedelta(weeks=interval)
                     elif unit == "months":
-                        validated_data["end_date"] = due_date.date() + timedelta(days=interval * 90)
+                        validated_data["end_date"] = validated_data["start_date"] + relativedelta(months=interval)
 
         if not validated_data.get("name"):
             validated_data["name"] = f"{validated_data['frequency'].capitalize()} Routine"
@@ -860,28 +864,38 @@ class RoutineSerializer(serializers.ModelSerializer):
 
         return routine
 
-    # In your RoutineSerializer class
     def update(self, instance, validated_data):
-        # Get the frequency from the validated data, or fall back to the existing instance
+        # Use frequency from payload if present else instance value
         frequency = validated_data.get("frequency", instance.frequency)
 
-        # Check if the frequency is "custom" and the custom fields are provided
+        # Handle custom frequency recalculation
         if frequency == "custom":
             custom_interval = validated_data.get("custom_interval", instance.custom_interval)
             custom_unit = validated_data.get("custom_unit", instance.custom_unit)
             start_date = validated_data.get("start_date", instance.start_date)
 
-            # Recalculate end_date based on the new custom values
+            # Ensure start_date is a date object (it might come in as a string)
+            if isinstance(start_date, str):
+                try:
+                    start_date = datetime.strptime(start_date, "%Y-%m-%d").date()
+                except ValueError:
+                    # fallback to instance.start_date if parsing fails
+                    start_date = instance.start_date
+
+            # CORRECT: don't multiply the interval by 7 (use it directly)
             if custom_unit == "days":
-                end_date = start_date + timedelta(days=custom_interval * 7)
+                end_date = start_date + timedelta(days=custom_interval)
             elif custom_unit == "weeks":
-                end_date = start_date + timedelta(weeks=custom_interval * 4)
+                end_date = start_date + timedelta(weeks=custom_interval)
             elif custom_unit == "months":
                 end_date = start_date + relativedelta(months=custom_interval)
-                
-            validated_data['end_date'] = end_date
+            else:
+                # fallback: don't overwrite if unknown unit
+                end_date = validated_data.get("end_date", instance.end_date)
 
-        # Call the parent update method to save all changes
+            validated_data["end_date"] = end_date
+
+        # Save changes
         return super().update(instance, validated_data)
 
 
