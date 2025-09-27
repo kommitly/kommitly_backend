@@ -69,11 +69,58 @@ class Command(BaseCommand):
             if reminder_utc_today < now:
                 # Schedule both the due date and reminder for the next day's occurrence.
                 due_datetime = due_utc_today + timedelta(days=1)
-                reminder_time = reminder_utc_today.time()
+                reminder_time = routine.reminder_time or time(8, 0)
             else:
                 # Schedule for today as it's still in the future.
                 due_datetime = due_utc_today
-                reminder_time = reminder_utc_today.time()
+                reminder_time = routine.reminder_time or time(8, 0)
+
+
+
+            if routine.subtask_template_title and routine.frequency == 'daily':
+                
+                # Check if a task from this template has already been created today.
+                # This prevents duplicate subtasks if the cron job runs multiple times a day.
+                # We check for a task linked to the routine, with the same title, created TODAY.
+                today_subtasks_count = AiSubTask.objects.filter(
+                    routine=routine,
+                    title=routine.subtask_template_title,
+                    # Assumes AiSubTask has a 'created_at' field (standard Django practice)
+                    # If not, use 'last_updated' and be careful.
+                    # We check if created_at is today's date in the routine's local timezone.
+                    # Simplified check: created_at__date should match today
+                    created_at__date=today
+                ).count()
+
+                if today_subtasks_count == 0:
+                    
+                    # 1. Determine parent goal/task for linking (Adapt based on your model)
+                    # Assuming a foreign key link from Routine to AiGoal (or get it through linked tasks)
+                    ai_goal = getattr(routine, 'ai_goal', None) 
+                    ai_task = None
+                    if routine.ai_subtasks.first(): # Use the first linked task to infer the parent
+                         ai_task = getattr(routine.ai_subtasks.first(), 'ai_task', None)
+
+                    # 2. Create the new AiSubTask instance
+                    new_subtask = AiSubTask.objects.create(
+                        title=routine.subtask_template_title,
+                        description=routine.subtask_template_description,
+                        due_date=due_datetime,
+                        reminder_time=reminder_time,
+                        routine=routine,
+                        status='pending',
+                        ai_task=ai_task, # Link to the parent AiTask
+                    )
+                    
+                    self.stdout.write(self.style.SUCCESS(f"[AiSubTask] GENERATED: {new_subtask.title} (ID: {new_subtask.id}) for daily routine {routine.id}"))
+                    
+                    # IMPORTANT: For a GENERATING routine, we typically don't want to 
+                    # execute the reactivation logic below, as it would cause confusion.
+                    # We continue to the next routine immediately.
+                    continue 
+
+
+
 
              # Reactivate subtasks and tasks
 
