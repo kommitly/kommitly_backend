@@ -53,20 +53,15 @@ class Command(BaseCommand):
         # ----- Overdue AI Subtasks -----
         overdue_ai_subtasks = AiSubTask.objects.filter(
             status__in=["pending", "in-progress"],
-            due_date__lt=now_utc
+            due_date__lt=now_utc,
+            overdue_notified=False 
         )
+        logger.info(f"Found {overdue_ai_subtasks.count()} AI subtasks to mark overdue.")
+
 
         for ai_subtask in overdue_ai_subtasks:
             try:
-                # set overdue reason
-                if ai_subtask.status == "pending":
-                    ai_subtask.overdue_reason = "not_started"
-                elif ai_subtask.status == "in-progress":
-                    ai_subtask.overdue_reason = "unfinished"
-
-                ai_subtask.status = "overdue"
-                ai_subtask.overdue_notified = True
-                ai_subtask.save(update_fields=["status", "overdue_reason","overdue_notified"])
+               
 
                 send_overdue_ai_subtask_notifications(subtask_id=ai_subtask.id)
                 self.stdout.write(f"Overdue notification sent for AI subtask: {ai_subtask.title}")
