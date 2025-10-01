@@ -165,13 +165,14 @@ class AiSubTaskSerializer(serializers.ModelSerializer):
         status = validated_data.get("status", getattr(instance, "status", None))
 
         if status != "completed" and due_date:
-            if due_date < now:
+            if due_date <= now:
                 validated_data["status"] = "overdue"
                 if not validated_data.get("overdue_reason") and getattr(instance, "overdue_reason", None) is None:
                     validated_data["overdue_reason"] = "not_started"
             else:
                 if status == "overdue":  # reset when due_date is pushed forward
                     validated_data["status"] = "pending"
+                    validated_data["reminder_sent"] = False
                     validated_data["overdue_reason"] = None
                     validated_data["overdue_notified"] = False
 
