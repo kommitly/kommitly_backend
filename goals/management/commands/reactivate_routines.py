@@ -85,8 +85,7 @@ class Command(BaseCommand):
                 today_subtasks_count = AiSubTask.objects.filter(
                     routine=routine,
                     title=routine.subtask_template_title,
-                    # Assumes AiSubTask has a 'created_at' field (standard Django practice)
-                    # If not, use 'last_updated' and be careful.
+                    
                     # We check if created_at is today's date in the routine's local timezone.
                     # Simplified check: created_at__date should match today
                     created_at__date=today

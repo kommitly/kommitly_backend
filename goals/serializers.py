@@ -34,7 +34,8 @@ class SubTaskSerializer(serializers.ModelSerializer):
             'reminder_sent',
             'last_updated',
             'ai_answer',
-            'routine'
+            'routine',
+            'created_at'
         ]
 
     def get_user_timezone(self, obj=None):
@@ -348,7 +349,9 @@ class CreateTaskSerializer(serializers.ModelSerializer):
             'subtasks',
             'task_timeline',
             'reminder_time',
-            'tag'
+            'tag',
+            'created_at'
+    
          
            ]
         extra_kwargs = {
@@ -415,7 +418,8 @@ class TaskSerializer(serializers.ModelSerializer):
             'reminder_sent',
             'tag',
             'ai_answer',
-            'routine'
+            'routine',
+            'created_at'
         ]
 
     def get_user_timezone(self, obj=None):
