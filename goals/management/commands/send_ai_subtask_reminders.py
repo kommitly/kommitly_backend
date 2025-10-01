@@ -65,6 +65,7 @@ class Command(BaseCommand):
                     ai_subtask.overdue_reason = "unfinished"
 
                 ai_subtask.status = "overdue"
+                ai_subtask.overdue_notified = True
                 ai_subtask.save(update_fields=["status", "overdue_reason","overdue_notified"])
 
                 send_overdue_ai_subtask_notifications(subtask_id=ai_subtask.id)

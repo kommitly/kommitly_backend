@@ -445,6 +445,7 @@ def send_overdue_subtask_notifications(subtask_id):
         subtask.overdue_reason = "unfinished"
 
     subtask.status = "overdue"
+    subtask.overdue_notified = True
     subtask.save(update_fields=["status", "overdue_reason","overdue_notified"])
 
     # --- Notify (in-app + email) ---
@@ -511,6 +512,7 @@ def send_overdue_ai_subtask_notifications(subtask_id=None):
                 ai_subtask.overdue_reason = "unfinished"
 
             ai_subtask.status = "overdue"
+            ai_subtask.overdue_notified = True
             ai_subtask.save(update_fields=["status", "overdue_reason","overdue_notified"])
 
             user = ai_subtask.ai_task.ai_goal.user if ai_subtask.ai_task and ai_subtask.ai_task.ai_goal else None
