@@ -483,6 +483,8 @@ def send_overdue_subtask_notifications(subtask_id):
 
     logger.info(f"Overdue alert sent for subtask: {subtask.title} to {user.email}")
 
+
+
 def send_overdue_ai_subtask_notifications(subtask_id=None):
     now_utc = timezone.now()
 
@@ -490,7 +492,7 @@ def send_overdue_ai_subtask_notifications(subtask_id=None):
         try:
             ai_subtask = AiSubTask.objects.get(
                 id=subtask_id,
-                status__in=["pending", "in-progress"],
+                status__in=["pending", "in-progress","overdue"],
                 due_date__lte=now_utc
             )
             ai_subtasks = [ai_subtask]
@@ -498,7 +500,7 @@ def send_overdue_ai_subtask_notifications(subtask_id=None):
             return
     else:
         ai_subtasks = AiSubTask.objects.filter(
-            status__in=["pending", "in-progress"],
+            status__in=["pending", "in-progress","overdue"],
             due_date__lte=now_utc
         )
 
