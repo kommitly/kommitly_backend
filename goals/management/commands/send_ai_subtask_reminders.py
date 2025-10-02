@@ -21,14 +21,14 @@ class Command(BaseCommand):
                 continue
 
             user = ai_subtask.ai_task.ai_goal.user if ai_subtask.ai_task and ai_subtask.ai_task.ai_goal else None
-            if not user:
+            if not user or not user.timezone:
                 continue
 
             try:
                 user_timezone = pytz.timezone(user.timezone)
                 # Combine due_date and reminder_time
                 reminder_naive = datetime.combine(
-                    ai_subtask.due_date.date(),
+                    ai_subtask.due_date.astimezone(user_timezone).date(),
                     ai_subtask.reminder_time
                 )
 
@@ -61,10 +61,15 @@ class Command(BaseCommand):
 
         for ai_subtask in overdue_ai_subtasks:
             try:
-               
+                user_tz = pytz.timezone(user.timezone)
+                now_local = now_utc.astimezone(user_tz)
+                due_local = ai_subtask.due_date.astimezone(user_tz)
+                
 
-                send_overdue_ai_subtask_notifications(subtask_id=ai_subtask.id)
-                self.stdout.write(f"Overdue notification sent for AI subtask: {ai_subtask.title}")
+                if now_local >= due_local:
+                    send_overdue_ai_subtask_notifications(subtask_id=ai_subtask.id)
+                    self.stdout.write(f"Overdue notification sent for AI subtask: {ai_subtask.title}")
+
             except Exception as e:
                 logger.error(f"Error sending overdue AI subtask notification: {str(e)}")
 
