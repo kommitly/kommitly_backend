@@ -28,8 +28,8 @@ class Command(BaseCommand):
 
         routines = Routine.objects.filter(is_active=True, start_date__lte=today)
         for routine in routines:
-            if routine.end_date and routine.end_date < today:
-                continue
+            if routine.end_date and today > routine.end_date:
+                continue  # stop generating subtasks beyond routine duration
 
             should_trigger = False
             if routine.frequency == "daily":
@@ -65,15 +65,8 @@ class Command(BaseCommand):
             due_time_today = datetime.combine(today, routine.time_of_day or time(8, 0))
             due_utc_today = timezone.make_aware(due_time_today, timezone.get_current_timezone()).astimezone(pytz.UTC)
 
-            # If the reminder time has already passed today, schedule it for tomorrow.
-            if reminder_utc_today < now:
-                # Schedule both the due date and reminder for the next day's occurrence.
-                due_datetime = due_utc_today + timedelta(days=1)
-                reminder_time = routine.reminder_time or time(8, 0)
-            else:
-                # Schedule for today as it's still in the future.
-                due_datetime = due_utc_today
-                reminder_time = routine.reminder_time or time(8, 0)
+            due_datetime = due_utc_today
+            reminder_time = routine.reminder_time or time(8, 0)
 
 
 

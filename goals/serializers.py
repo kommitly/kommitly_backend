@@ -216,6 +216,7 @@ class AiSubTaskSerializer(serializers.ModelSerializer):
             raw_due = request.data.get('due_date')
 
         parsed_due = data.get('due_date')
+        reminder_time = data.get("reminder_time")
         print(f"DEBUG: Raw request due_date string → {raw_due!r}")
         print(f"DEBUG: Parsed due_date before validation → {parsed_due!r}")
 
@@ -225,6 +226,18 @@ class AiSubTaskSerializer(serializers.ModelSerializer):
         # backtrack user timezone
         user_tz = self.get_user_timezone(self.instance or None)
         print(f"DEBUG: Effective user timezone → {user_tz}")
+
+        if reminder_time and isinstance(reminder_time, time):
+            user_tz = self.get_user_timezone(self.instance or None)
+            if "due_date" in data:
+                local_due = data["due_date"].astimezone(user_tz)
+                reminder_dt_local = datetime.combine(local_due.date(), reminder_time)
+                if timezone.is_naive(reminder_dt_local):
+                    reminder_dt_local = user_tz.localize(reminder_dt_local)
+                reminder_dt_utc = reminder_dt_local.astimezone(pytz.UTC)
+                data["reminder_time"] = reminder_dt_utc.time()
+                print(f"DEBUG: Final reminder_time (UTC) → {data['reminder_time']}")
+
 
         if isinstance(raw_due, str):
             has_tz_hint = (

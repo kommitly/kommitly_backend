@@ -13,7 +13,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         now_utc = timezone.now()
-        ai_subtasks = AiSubTask.objects.filter(status__in=['pending', 'overdue'], reminder_sent=False)
+        ai_subtasks = AiSubTask.objects.filter(status__in=['pending', 'in-progress'], reminder_sent=False)
         logger.info(f"Found {ai_subtasks.count()} AI subtasks pending reminders.")
 
         for ai_subtask in ai_subtasks:
@@ -41,10 +41,14 @@ class Command(BaseCommand):
                 # Convert to UTC
                 reminder_utc = reminder_local.astimezone(pytz.UTC)
 
+                logger.debug(f"{ai_subtask.title}: reminder_utc={reminder_utc}, now_utc={now_utc}")
+
+
                 # Check if within 2-minute window
-                if reminder_utc <= now_utc <= reminder_utc + timedelta(minutes=2):
+                if reminder_utc <= now_utc <= reminder_utc + timedelta(minutes=5):
                     send_ai_subtask_reminders(subtask_id=ai_subtask.id)
-                    self.stdout.write(f"Reminder sent for AI subtask: {ai_subtask.title}")
+                    self.stdout.write(f"[{now_utc:%Y-%m-%d %H:%M:%S}] Reminder sent for AI subtask: {ai_subtask.title}")
+
                 
 
             except Exception as e:
@@ -61,6 +65,9 @@ class Command(BaseCommand):
 
         for ai_subtask in overdue_ai_subtasks:
             try:
+                user = ai_subtask.ai_task.ai_goal.user if ai_subtask.ai_task and ai_subtask.ai_task.ai_goal else None
+                if not user or not user.timezone:
+                    continue
                 user_tz = pytz.timezone(user.timezone)
                 now_local = now_utc.astimezone(user_tz)
                 due_local = ai_subtask.due_date.astimezone(user_tz)
