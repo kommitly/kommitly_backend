@@ -493,7 +493,7 @@ def send_overdue_ai_subtask_notifications(subtask_id=None):
             ai_subtask = AiSubTask.objects.get(
                 id=subtask_id,
                 status__in=["pending", "in-progress","overdue"],
-                due_date__lte=now_utc
+                due_date__lt=now_utc
             )
             ai_subtasks = [ai_subtask]
         except AiSubTask.DoesNotExist:
@@ -501,7 +501,7 @@ def send_overdue_ai_subtask_notifications(subtask_id=None):
     else:
         ai_subtasks = AiSubTask.objects.filter(
             status__in=["pending", "in-progress","overdue"],
-            due_date__lte=now_utc
+            due_date__lt=now_utc
         )
 
     for ai_subtask in ai_subtasks:

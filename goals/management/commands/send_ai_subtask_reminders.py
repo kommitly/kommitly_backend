@@ -57,7 +57,7 @@ class Command(BaseCommand):
         # ----- Overdue AI Subtasks -----
         overdue_ai_subtasks = AiSubTask.objects.filter(
             status__in=["pending", "in-progress", "overdue"],
-            due_date__lte=now_utc,
+            due_date__lt=now_utc,
             overdue_notified=False 
         )
         logger.info(f"Found {overdue_ai_subtasks.count()} AI subtasks to mark overdue.")
