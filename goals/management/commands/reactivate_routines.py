@@ -9,7 +9,14 @@ from goals.models import Routine, AiSubTask, SubTask, Task
 
 
 def reset_instance(instance, due_datetime, reminder_time):
-    """Reset the instance for the current routine cycle."""
+    """
+    Reset the instance for today's cycle.
+    We skip resetting COMPLETED or IN-PROGRESS items to avoid overwriting active work.
+    Pending/Overdue items get reset to pending for the new cycle.
+    """
+    if instance.status in ["completed", "in-progress"]:
+        return  # preserve active/completed work
+
     instance.status = "pending"
     instance.completed_at = None
     instance.due_date = due_datetime
@@ -37,8 +44,8 @@ class Command(BaseCommand):
             should_trigger = False
             if routine.frequency == "daily":
                 should_trigger = True
-            elif routine.frequency == "weekly" and today.weekday() == routine.day_of_week:
-                should_trigger = True
+            elif routine.frequency == "weekly" and routine.day_of_week is not None and today.weekday() == routine.day_of_week:
+                 should_trigger = True
             elif routine.frequency == "monthly" and today.day == 1:
                 should_trigger = True
             elif routine.frequency == "custom":
@@ -64,6 +71,53 @@ class Command(BaseCommand):
 
             reminder_utc_today = timezone.make_aware(reminder_time_today, timezone.get_current_timezone()).astimezone(pytz.UTC)
             due_utc_today = timezone.make_aware(due_time_today, timezone.get_current_timezone()).astimezone(pytz.UTC)
+
+            reminder_time_value = routine.reminder_time or time(8, 0)
+
+            # --- CREATE ONCE: if there are no linked items, create a single instance (fallback) ---
+            # Preferably, you should create these objects at the moment the Routine is created via your API/view.
+            # This block is a safe fallback: it only creates **one** instance and only if none exist.
+
+            if not routine.ai_subtasks.exists() and getattr(routine, "subtask_template_title", None):
+                ai_task = getattr(routine, "ai_task", None)  # if your Routine links to a parent ai_task
+                new_ai = AiSubTask.objects.create(
+                    title=routine.subtask_template_title,
+                    description=getattr(routine, "subtask_template_description", "") or "",
+                    due_date=due_utc_today,
+                    reminder_time=reminder_time_value,
+                    routine=routine,
+                    status="pending",
+                    ai_task=ai_task,
+                )
+                self.stdout.write(self.style.SUCCESS(f"[AiSubTask] CREATED (fallback): {new_ai.title} (id={new_ai.id}) for routine {routine.id}"))
+
+
+             # If you have non-AI SubTask templates on the Routine, create one fallback SubTask if none exist:
+            if not routine.subtasks.exists() and getattr(routine, "subtask_template_title", None):
+                # adapt fields as per your SubTask model; here we reuse the same template fields
+                new_sub = SubTask.objects.create(
+                    title=routine.subtask_template_title,
+                    description=getattr(routine, "subtask_template_description", "") or "",
+                    due_date=due_utc_today,
+                    reminder_time=reminder_time_value,
+                    routine=routine,
+                    status="pending",
+                )
+                self.stdout.write(self.style.SUCCESS(f"[SubTask] CREATED (fallback): {new_sub.title} (id={new_sub.id}) for routine {routine.id}"))
+
+
+            # If you have a Task template field on Routine (e.g., 'task_template_title'), create fallback Task:
+            if not routine.tasks.exists() and getattr(routine, "task_template_title", None):
+                new_task = Task.objects.create(
+                    title=routine.task_template_title,
+                    description=getattr(routine, "task_template_description", "") or "",
+                    due_date=due_utc_today,
+                    reminder_time=reminder_time_value,
+                    routine=routine,
+                    status="pending",
+                )
+                self.stdout.write(self.style.SUCCESS(f"[Task] CREATED (fallback): {new_task.title} (id={new_task.id}) for routine {routine.id}"))
+
 
             # --- Reactivate existing linked items ---
             for ai_subtask in routine.ai_subtasks.all():

@@ -8,7 +8,8 @@ import pytz
 import logging
 from ai_insights.utils import get_insights
 from django.utils.timezone import localtime, now
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, time
+from dateutil.relativedelta import relativedelta
 from .timezone import get_timezone
 from rest_framework import serializers
 from .models import Task  # Adjust the import based on your project structure
@@ -836,8 +837,8 @@ class RoutineSerializer(serializers.ModelSerializer):
         ai_subtasks = validated_data.pop("ai_subtasks", [])
         due_date = validated_data.pop("due_date", None)
 
+        # --- Set start_date and time_of_day from due_date ---
         if due_date:
-            # set start_date/time_of_day from due_date
             validated_data["start_date"] = due_date.date()
             validated_data["time_of_day"] = due_date.time()
             if validated_data.get("frequency") == "weekly":
@@ -855,10 +856,8 @@ class RoutineSerializer(serializers.ModelSerializer):
                     interval = validated_data.get("custom_interval", 1)
                     unit = validated_data.get("custom_unit")
                     if unit == "days":
-                        # CORRECT: add `interval` days (not interval*7)
                         validated_data["end_date"] = validated_data["start_date"] + timedelta(days=interval)
                     elif unit == "weeks":
-                        # add `interval` weeks
                         validated_data["end_date"] = validated_data["start_date"] + timedelta(weeks=interval)
                     elif unit == "months":
                         validated_data["end_date"] = validated_data["start_date"] + relativedelta(months=interval)
@@ -866,8 +865,10 @@ class RoutineSerializer(serializers.ModelSerializer):
         if not validated_data.get("name"):
             validated_data["name"] = f"{validated_data['frequency'].capitalize()} Routine"
 
+        # --- Create the routine ---
         routine = Routine.objects.create(**validated_data)
 
+        # --- Link existing tasks/subtasks if passed ---
         for task in tasks:
             task.routine = routine
             task.save()
@@ -879,6 +880,37 @@ class RoutineSerializer(serializers.ModelSerializer):
         for ai_subtask in ai_subtasks:
             ai_subtask.routine = routine
             ai_subtask.save()
+
+        # --- Create initial placeholders if none exist (so cron doesn't have to) ---
+        if not routine.ai_subtasks.exists() and getattr(routine, "subtask_template_title", None):
+            AiSubTask.objects.create(
+                title=routine.subtask_template_title,
+                description=getattr(routine, "subtask_template_description", "") or "",
+                due_date=timezone.make_aware(datetime.combine(routine.start_date, routine.time_of_day or time(8, 0))),
+                reminder_time=routine.reminder_time,
+                routine=routine,
+                status="pending",
+            )
+
+        if not routine.subtasks.exists() and getattr(routine, "subtask_template_title", None):
+            SubTask.objects.create(
+                title=routine.subtask_template_title,
+                description=getattr(routine, "subtask_template_description", "") or "",
+                due_date=timezone.make_aware(datetime.combine(routine.start_date, routine.time_of_day or time(8, 0))),
+                reminder_time=routine.reminder_time,
+                routine=routine,
+                status="pending",
+            )
+
+        if not routine.tasks.exists() and getattr(routine, "task_template_title", None):
+            Task.objects.create(
+                title=routine.task_template_title,
+                description=getattr(routine, "task_template_description", "") or "",
+                due_date=timezone.make_aware(datetime.combine(routine.start_date, routine.time_of_day or time(8, 0))),
+                reminder_time=routine.reminder_time,
+                routine=routine,
+                status="pending",
+            )
 
         return routine
 
