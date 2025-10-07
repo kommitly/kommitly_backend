@@ -378,6 +378,8 @@ class DailyActivity(models.Model):
     description = models.TextField(blank=True, null=True)
     start_time = models.TimeField()
     end_time = models.TimeField(null=True, blank=True)
+    reminder_sent = models.BooleanField(default=False)
+
 
     # Optional links to existing entities
     task = models.ForeignKey(Task, null=True, blank=True, on_delete=models.SET_NULL)

@@ -13,7 +13,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         now_utc = timezone.now()
-        ai_subtasks = AiSubTask.objects.filter(status__in=['pending', 'in-progress'], reminder_sent=False)
+        ai_subtasks = AiSubTask.objects.filter(status__in=['pending', 'overdue'], reminder_sent=False)
         logger.info(f"Found {ai_subtasks.count()} AI subtasks pending reminders.")
 
         for ai_subtask in ai_subtasks:
