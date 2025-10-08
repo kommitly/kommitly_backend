@@ -1978,3 +1978,37 @@ class DailyActivityDetailView(generics.RetrieveUpdateDestroyAPIView):
         if instance.is_fixed:
             raise ValidationError({"detail": "Fixed activities cannot be deleted."})
         instance.delete()
+
+class DailyActivityCompleteView(generics.UpdateAPIView):
+    permission_classes = [IsAuthenticated]
+
+    @swagger_auto_schema(
+        operation_description="Mark a daily activity as complete or incomplete.",
+        tags=["Daily Activities"],
+        request_body=openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            properties={
+                "completed": openapi.Schema(
+                    type=openapi.TYPE_BOOLEAN,
+                    description="Set to true to mark as completed, false to mark as incomplete."
+                ),
+            },
+            required=["completed"],
+        ),
+        responses={
+            200: "Activity status updated successfully",
+            404: "Activity not found",
+        },
+    )
+    def patch(self, request, pk):
+        try:
+            activity = DailyActivity.objects.get(pk=pk, template__user=request.user)
+        except DailyActivity.DoesNotExist:
+            return Response({"detail": "Not found"}, status=status.HTTP_404_NOT_FOUND)
+
+        activity.completed = request.data.get("completed", True)
+        activity.save(update_fields=["completed"])
+        return Response(
+            {"id": activity.id, "completed": activity.completed},
+            status=status.HTTP_200_OK,
+        )

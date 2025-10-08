@@ -42,6 +42,7 @@ from .views import (
     DailyTemplateDetailView,
     DailyActivityListCreateView,
     DailyActivityDetailView,
+    DailyActivityCompleteView
 
     
 )
@@ -89,7 +90,8 @@ urlpatterns= [
     path("daily-templates/", DailyTemplateListCreateView.as_view(), name="daily-template-list-create"),
     path("daily-templates/<int:pk>/", DailyTemplateDetailView.as_view(), name="daily-template-detail"),
     path("daily-activities/", DailyActivityListCreateView.as_view(), name="daily-activity-list-create"),
-    path("daily-activities/<int:pk>/", DailyActivityDetailView.as_view(), name="daily-activity-detail")
+    path("daily-activities/<int:pk>/", DailyActivityDetailView.as_view(), name="daily-activity-detail"),
+    path("daily-activities/<int:pk>/complete/", DailyActivityCompleteView.as_view(), name="daily-activity-complete")
  
     
     

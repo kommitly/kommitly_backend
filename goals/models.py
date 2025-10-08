@@ -379,6 +379,7 @@ class DailyActivity(models.Model):
     start_time = models.TimeField()
     end_time = models.TimeField(null=True, blank=True)
     reminder_sent = models.BooleanField(default=False)
+    completed = models.BooleanField(default=False) 
 
 
     # Optional links to existing entities
@@ -387,3 +388,6 @@ class DailyActivity(models.Model):
     ai_subtask = models.ForeignKey(AiSubTask, null=True, blank=True, on_delete=models.SET_NULL)
 
     is_fixed = models.BooleanField(default=False)  # true if default like “wake up”
+    
+    def __str__(self):
+        return f"{self.title} ({'Done' if self.completed else 'Pending'})"
