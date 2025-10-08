@@ -1980,7 +1980,7 @@ class DailyActivityDetailView(generics.RetrieveUpdateDestroyAPIView):
         instance.delete()
 
 class DailyActivityCompleteView(generics.UpdateAPIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated]
 
     @swagger_auto_schema(
         operation_description="Mark a daily activity as complete or incomplete.",

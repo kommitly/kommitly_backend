@@ -6,5 +6,5 @@ class Command(BaseCommand):
     help = "Reset reminder_sent flag for daily activities"
 
     def handle(self, *args, **options):
-        DailyActivity.objects.update(reminder_sent=False)
+        DailyActivity.objects.update(reminder_sent=False, completed=False)
         self.stdout.write(self.style.SUCCESS("Daily activity reminders reset"))
