@@ -1835,7 +1835,6 @@ class RoutineDetailView(generics.RetrieveUpdateDestroyAPIView):
 
 
 
-
 class DailyTemplateListCreateView(generics.ListCreateAPIView):
     serializer_class = DailyTemplateSerializer
     permission_classes = [permissions.IsAuthenticated]
@@ -1844,18 +1843,34 @@ class DailyTemplateListCreateView(generics.ListCreateAPIView):
         return DailyTemplate.objects.filter(user=self.request.user)
 
     def perform_create(self, serializer):
-        # Save template
-        template = serializer.save(user=self.request.user)
+        """
+        Create a new daily template for the user.
+        If the user has no templates yet, automatically create the default 'Daily Planning Template'.
+        """
+        user = self.request.user
+        template_name = serializer.validated_data.get("name", "").strip()
 
-        # Create fixed default activities for this template
-        for activity in FIXED_ACTIVITIES:
-            DailyActivity.objects.create(
-                template=template,
-                title=activity["title"],
-                start_time=activity["start_time"],
-                end_time=activity["end_time"],
-                is_fixed=True,
+        # If user has no templates, create the default suggestion first
+        if not DailyTemplate.objects.filter(user=user).exists():
+            default_template = DailyTemplate.objects.create(
+                user=user,
+                name="Daily Planning Template",
+                description="Your suggested daily plan structure",
+                is_active=True,
             )
+            for activity in FIXED_ACTIVITIES:
+                DailyActivity.objects.create(
+                    template=default_template,
+                    title=activity["title"],
+                    start_time=activity["start_time"],
+                    end_time=activity["end_time"],
+                    is_fixed=True,
+                )
+
+        # Now create the user's own template normally
+        template = serializer.save(user=user)
+
+        # No default activities added for user-created templates
         return template
 
     @swagger_auto_schema(
@@ -1867,7 +1882,7 @@ class DailyTemplateListCreateView(generics.ListCreateAPIView):
         return super().get(request, *args, **kwargs)
 
     @swagger_auto_schema(
-        operation_description="Create a new daily template",
+        operation_description="Create a new daily template (first one includes default template suggestion)",
         tags=["Daily Templates"],
         request_body=DailyTemplateSerializer,
         responses={201: DailyTemplateSerializer}

@@ -12,3 +12,15 @@ ai_subtask_cron.log
 daily_activity_cron.log
 daily_activity_reset.log
 
+
+# Ignore cache and logs
+*.pyc
+__pycache__/
+*.log
+
+
+# Ignore cache and logs
+*.pyc
+__pycache__/
+*.log
+
