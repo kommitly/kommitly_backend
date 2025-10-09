@@ -5,6 +5,7 @@ myenv/
 venv
 
 *.log
+
 cron.log
 
 ai_cron.log

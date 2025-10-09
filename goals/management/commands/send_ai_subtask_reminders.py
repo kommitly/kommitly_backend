@@ -57,17 +57,17 @@ class Command(BaseCommand):
         # ----- Overdue AI Subtasks -----
         overdue_ai_subtasks = AiSubTask.objects.filter(
             status__in=["pending", "in-progress", "overdue"],
-            due_date__lt=now_utc,
             overdue_notified=False 
         )
-        logger.info(f"Found {overdue_ai_subtasks.count()} AI subtasks to mark overdue.")
-
+      
 
         for ai_subtask in overdue_ai_subtasks:
             try:
                 user = ai_subtask.ai_task.ai_goal.user if ai_subtask.ai_task and ai_subtask.ai_task.ai_goal else None
+                
                 if not user or not user.timezone:
                     continue
+
                 user_tz = pytz.timezone(user.timezone)
                 now_local = now_utc.astimezone(user_tz)
                 due_local = ai_subtask.due_date.astimezone(user_tz)
