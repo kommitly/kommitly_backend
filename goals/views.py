@@ -1843,34 +1843,9 @@ class DailyTemplateListCreateView(generics.ListCreateAPIView):
         return DailyTemplate.objects.filter(user=self.request.user)
 
     def perform_create(self, serializer):
-        """
-        Create a new daily template for the user.
-        If the user has no templates yet, automatically create the default 'Daily Planning Template'.
-        """
+        
         user = self.request.user
-        template_name = serializer.validated_data.get("name", "").strip()
-
-        # If user has no templates, create the default suggestion first
-        if not DailyTemplate.objects.filter(user=user).exists():
-            default_template = DailyTemplate.objects.create(
-                user=user,
-                name="Daily Planning Template",
-                description="Your suggested daily plan structure",
-                is_active=True,
-            )
-            for activity in FIXED_ACTIVITIES:
-                DailyActivity.objects.create(
-                    template=default_template,
-                    title=activity["title"],
-                    start_time=activity["start_time"],
-                    end_time=activity["end_time"],
-                    is_fixed=True,
-                )
-
-        # Now create the user's own template normally
         template = serializer.save(user=user)
-
-        # No default activities added for user-created templates
         return template
 
     @swagger_auto_schema(
@@ -2027,3 +2002,95 @@ class DailyActivityCompleteView(generics.UpdateAPIView):
             {"id": activity.id, "completed": activity.completed},
             status=status.HTTP_200_OK,
         )
+
+
+class SuggestedDailyTemplateView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    @swagger_auto_schema(
+        operation_summary="Get suggested daily templates",
+        operation_description="Retrieve a list of default suggested templates that users can save or customize.",
+        responses={
+            200: openapi.Response(
+                description="List of suggested templates",
+                examples={
+                    "application/json": [
+                        {
+                            "name": "Daily Planning Template",
+                            "description": "A balanced plan for your day with built-in activities",
+                            "activities": FIXED_ACTIVITIES,
+                        }
+                    ]
+                },
+            )
+        },
+    )
+    def get(self, request):
+        """Return the default suggested templates (not yet saved)."""
+        suggestions = [
+            {
+                "name": "Daily Planning Template",
+                "description": "A balanced plan for your day with built-in activities",
+                "activities": FIXED_ACTIVITIES,
+            }
+        ]
+        return Response(suggestions)
+
+
+class SaveSuggestedTemplateView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    @swagger_auto_schema(
+        operation_summary="Save a suggested template",
+        operation_description="Save a suggested daily template (with fixed activities) to the user's account.",
+        request_body=openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            required=["name", "activities"],
+            properties={
+                "name": openapi.Schema(type=openapi.TYPE_STRING, description="Template name"),
+                "description": openapi.Schema(type=openapi.TYPE_STRING, description="Template description"),
+                "activities": openapi.Schema(
+                    type=openapi.TYPE_ARRAY,
+                    description="List of activities in the template",
+                    items=openapi.Items(
+                        type=openapi.TYPE_OBJECT,
+                        properties={
+                            "title": openapi.Schema(type=openapi.TYPE_STRING),
+                            "start_time": openapi.Schema(type=openapi.TYPE_STRING, example="08:00"),
+                            "end_time": openapi.Schema(type=openapi.TYPE_STRING, example="09:00"),
+                        },
+                    ),
+                ),
+            },
+        ),
+        responses={
+            201: openapi.Response(
+                description="Template created successfully",
+                schema=DailyTemplateSerializer,
+            ),
+        },
+    )
+    def post(self, request):
+        user = request.user
+        name = request.data.get("name")
+        description = request.data.get("description", "")
+        activities = request.data.get("activities", [])
+
+        template = DailyTemplate.objects.create(
+            user=user,
+            name=name,
+            description=description,
+            is_active=True,
+        )
+
+        for activity in activities:
+            DailyActivity.objects.create(
+                template=template,
+                title=activity["title"],
+                start_time=activity["start_time"],
+                end_time=activity.get("end_time"),
+                is_fixed=True,
+            )
+
+        serializer = DailyTemplateSerializer(template)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
