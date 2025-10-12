@@ -2003,7 +2003,6 @@ class DailyActivityCompleteView(generics.UpdateAPIView):
             status=status.HTTP_200_OK,
         )
 
-
 class SuggestedDailyTemplateView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
@@ -2016,7 +2015,7 @@ class SuggestedDailyTemplateView(APIView):
                 examples={
                     "application/json": [
                         {
-                            "name": "Daily Planning Template",
+                            "name": "🌞 Daily Planning Template",
                             "description": "A balanced plan for your day with built-in activities",
                             "activities": FIXED_ACTIVITIES,
                         }
@@ -2026,7 +2025,10 @@ class SuggestedDailyTemplateView(APIView):
         },
     )
     def get(self, request):
-        """Return the default suggested templates (not yet saved)."""
+        """Return the default suggested templates (only those not already saved by the user)."""
+        user = request.user
+
+        # All possible suggestions
         suggestions = [
             {
                 "name": "🌞 Daily Planning Template",
@@ -2034,7 +2036,18 @@ class SuggestedDailyTemplateView(APIView):
                 "activities": FIXED_ACTIVITIES,
             }
         ]
-        return Response(suggestions)
+
+        # Get names of templates the user already has
+        existing_names = set(
+            DailyTemplate.objects.filter(user=user).values_list("name", flat=True)
+        )
+
+        # Only show suggestions not already saved
+        filtered_suggestions = [
+            s for s in suggestions if s["name"] not in existing_names
+        ]
+
+        return Response(filtered_suggestions)
 
 
 class SaveSuggestedTemplateView(APIView):
