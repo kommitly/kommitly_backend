@@ -2029,7 +2029,7 @@ class SuggestedDailyTemplateView(APIView):
         """Return the default suggested templates (not yet saved)."""
         suggestions = [
             {
-                "name": "Daily Planning Template",
+                "name": "☀️ Daily Planning Template",
                 "description": "A balanced plan for your day with built-in activities",
                 "activities": FIXED_ACTIVITIES,
             }
