@@ -30,52 +30,81 @@ def update_goal_progress_on_subtask_delete(sender, instance, **kwargs):
         goal.update_progress()
 
 
-# -------- Routine ↔ AiSubTask --------
+# -------- Routine ↔ AiSubTask (FIXED) --------
+
 @receiver(post_save, sender=Routine)
 def sync_routine_reminder_to_ai_subtasks(sender, instance, **kwargs):
+    # 1. Check for the recursion flag
+    if kwargs.get('skip_sync'):
+        return
+
     if instance.reminder_time:
         for ai_subtask in instance.ai_subtasks.all():
             if ai_subtask.reminder_time != instance.reminder_time:
                 ai_subtask.reminder_time = instance.reminder_time
-                ai_subtask.save(update_fields=["reminder_time"])
+                # 2. Pass the flag when saving the linked object
+                ai_subtask.save(update_fields=["reminder_time"], skip_sync=True)
 
 @receiver(post_save, sender=AiSubTask)
 def sync_ai_subtask_reminder_to_routine(sender, instance, **kwargs):
+    # 1. Check for the recursion flag
+    if kwargs.get('skip_sync'):
+        return
+
     if instance.reminder_time and instance.routine:
         if instance.routine.reminder_time != instance.reminder_time:
             instance.routine.reminder_time = instance.reminder_time
-            instance.routine.save(update_fields=["reminder_time"])
+            # 2. Pass the flag when saving the linked object
+            instance.routine.save(update_fields=["reminder_time"], skip_sync=True)
 
+# ----------------------------------------------
+# ----------------------------------------------
 
-# -------- Routine ↔ Task --------
+# -------- Routine ↔ Task (FIXED) --------
 @receiver(post_save, sender=Routine)
 def sync_routine_reminder_to_tasks(sender, instance, **kwargs):
+    if kwargs.get('skip_sync'):
+        return
+        
     if instance.reminder_time:
         for task in instance.tasks.all():
             if task.reminder_time != instance.reminder_time:
                 task.reminder_time = instance.reminder_time
-                task.save(update_fields=["reminder_time"])
+                task.save(update_fields=["reminder_time"], skip_sync=True)
 
 @receiver(post_save, sender=Task)
 def sync_task_reminder_to_routine(sender, instance, **kwargs):
+    if kwargs.get('skip_sync'):
+        return
+
     if instance.reminder_time and instance.routine:
         if instance.routine.reminder_time != instance.reminder_time:
             instance.routine.reminder_time = instance.reminder_time
-            instance.routine.save(update_fields=["reminder_time"])
+            instance.routine.save(update_fields=["reminder_time"], skip_sync=True)
 
+# ----------------------------------------------
+# ----------------------------------------------
 
-# -------- Routine ↔ SubTask --------
+# -------- Routine ↔ SubTask (FIXED) --------
 @receiver(post_save, sender=Routine)
 def sync_routine_reminder_to_subtasks(sender, instance, **kwargs):
+    if kwargs.get('skip_sync'):
+        return
+
     if instance.reminder_time:
         for subtask in instance.subtasks.all():
             if subtask.reminder_time != instance.reminder_time:
                 subtask.reminder_time = instance.reminder_time
-                subtask.save(update_fields=["reminder_time"])
+                subtask.save(update_fields=["reminder_time"], skip_sync=True)
 
 @receiver(post_save, sender=SubTask)
 def sync_subtask_reminder_to_routine(sender, instance, **kwargs):
+    if kwargs.get('skip_sync'):
+        return
+
     if instance.reminder_time and instance.routine:
         if instance.routine.reminder_time != instance.reminder_time:
             instance.routine.reminder_time = instance.reminder_time
-            instance.routine.save(update_fields=["reminder_time"])
+            instance.routine.save(update_fields=["reminder_time"], skip_sync=True)
+
+# ----------------------------------------------
