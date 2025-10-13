@@ -323,10 +323,15 @@ def send_ai_subtask_reminders(subtask_id=None, user_id=None):
             user_email = user.email
 
             # Combine due date and reminder time into a datetime
-            reminder_local =  datetime.combine(
-                    ai_subtask.due_date.date(),
-                    ai_subtask.reminder_time
-                )
+            due_date = ai_subtask.due_date.date()
+            reminder_time = ai_subtask.reminder_time
+            due_time = ai_subtask.due_date.timetz()
+
+            # 🧠 If reminder time is after due time, it means the reminder should fire the previous day
+            if reminder_time > due_time:
+                due_date -= timedelta(days=1)
+
+            reminder_local = datetime.combine(due_date, reminder_time)
 
             # Localize if naive
             if timezone.is_naive(reminder_local):

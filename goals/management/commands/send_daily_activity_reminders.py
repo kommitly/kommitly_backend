@@ -1,10 +1,13 @@
 from django.core.management.base import BaseCommand
 from django.utils import timezone
+import time
 from datetime import datetime, timedelta
 from django.core.mail import send_mail
 import pytz
 from goals.models import DailyActivity  # adjust import
 from notifications.models import Notification
+
+time.sleep(10)
 
 class Command(BaseCommand):
     help = "Send reminders for upcoming daily activities"

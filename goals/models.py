@@ -380,6 +380,8 @@ class DailyActivity(models.Model):
     end_time = models.TimeField(null=True, blank=True)
     reminder_sent = models.BooleanField(default=False)
     completed = models.BooleanField(default=False) 
+    date = models.DateField(default=timezone.localdate)  # 👈 Add this here
+
 
 
     # Optional links to existing entities
@@ -390,4 +392,4 @@ class DailyActivity(models.Model):
     is_fixed = models.BooleanField(default=False)  # true if default like “wake up”
     
     def __str__(self):
-        return f"{self.title} ({'Done' if self.completed else 'Pending'})"
+        return f"{self.title} ({'Done' if self.completed else 'Pending'}) - {self.date}"
