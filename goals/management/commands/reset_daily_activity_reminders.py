@@ -8,14 +8,27 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         today = timezone.localdate()
-        templates = DailyTemplate.objects.filter(is_active=True)
+
+        # 🔹 Retry logic for fetching templates
+        from django.db import OperationalError
+        import time
+
+        for attempt in range(3):
+            try:
+                templates = DailyTemplate.objects.filter(is_active=True)
+                break
+            except OperationalError:
+                time.sleep(5)
+        else:
+            self.stdout.write(self.style.ERROR("Failed to connect to database after 3 attempts"))
+            return
 
         for template in templates:
             # Avoid duplicates for the same day
             if DailyActivity.objects.filter(template=template, date=today).exists():
                 continue
 
-            # 1️⃣ Add fixed (default) activities
+            # Add fixed activities
             for fixed in FIXED_ACTIVITIES:
                 DailyActivity.objects.create(
                     template=template,
@@ -28,7 +41,7 @@ class Command(BaseCommand):
                     date=today,
                 )
 
-            # 2️⃣ Add user-defined activities (optional)
+            # Add user-defined activities
             for user_activity in template.activities.filter(is_fixed=False):
                 DailyActivity.objects.create(
                     template=template,

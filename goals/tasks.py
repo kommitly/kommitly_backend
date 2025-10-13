@@ -307,43 +307,24 @@ def send_ai_subtask_reminders(subtask_id=None, user_id=None):
             ai_task = getattr(ai_subtask, 'ai_task', None)
             ai_goal = getattr(ai_task, 'ai_goal', None) if ai_task else None
 
-            logger.debug(f"Processing AI subtask: {ai_subtask.title}, AI task: {ai_task.title if ai_task else 'N/A'}, AI goal: {ai_goal.title if ai_goal else 'N/A'}")
-
-
-
-            if not user:
-                logger.error(f"Task '{ai_subtask.title}' has no associated user.")
+            if not user or not ai_subtask.due_date or not ai_subtask.reminder_time:
+                logger.warning(f"Skipping AI subtask '{ai_subtask.title}' missing user, due_date or reminder_time")
                 continue
 
-            if not ai_subtask.due_date or not ai_subtask.reminder_time:
-                logger.warning(f"Task '{ai_subtask.title}' is missing due_date or reminder_time")
-                continue
+            # --- Reminder calculation in UTC ---
+            due_utc = ai_subtask.due_date  # Already UTC-aware
+            reminder_utc = datetime.combine(due_utc.date(), ai_subtask.reminder_time).replace(tzinfo=pytz.UTC)
 
-            user_timezone = pytz.timezone(user.timezone)
-            user_email = user.email
+            logger.debug(
+                f"Reminder time (UTC) for ai task '{ai_subtask.title}': {reminder_utc}, current time: {current_time}"
+            )
 
-            # Combine due date and reminder time into a datetime
-            due_date = ai_subtask.due_date.date()
-            reminder_time = ai_subtask.reminder_time
-            due_time = ai_subtask.due_date.timetz()
-
-            # 🧠 If reminder time is after due time, it means the reminder should fire the previous day
-            if reminder_time > due_time:
-                due_date -= timedelta(days=1)
-
-            reminder_local = datetime.combine(due_date, reminder_time)
-
-            # Localize if naive
-            if timezone.is_naive(reminder_local):
-                reminder_local = user_timezone.localize(reminder_local)
-
-            reminder_utc = reminder_local.astimezone(pytz.UTC)
-            logger.debug(f"Reminder time (UTC) for ai task '{ai_subtask.title}': {reminder_utc}, current time: {current_time}")
-
+            # Check 2-minute window
             if reminder_utc <= current_time <= reminder_utc + timedelta(minutes=2):
-                subject = "⏰ Upcoming Subtask Due: "f"{ai_subtask.title}"
+                subject = f"⏰ Upcoming Subtask Due: {ai_subtask.title}"
                 from_email = 'no-reply@kommitly.com'
-                to = [user_email]
+                to = [user.email]
+
                 context = {
                     'ai_subtask': ai_subtask,
                     'ai_task': ai_task,
@@ -351,6 +332,7 @@ def send_ai_subtask_reminders(subtask_id=None, user_id=None):
                     'user': user,
                     'app_link': f"https://kommitly-frontend.vercel.app/dashboard/ai-goal/{ai_goal.id}/task/{ai_task.id}/subtask/{ai_subtask.id}"
                 }
+
                 text_content = f"Reminder: {ai_subtask.title} is due soon! Visit your Kommitly app to manage it."
                 try:
                     html_content = render_to_string('email/ai_subtask_reminder.html', context)
@@ -362,25 +344,23 @@ def send_ai_subtask_reminders(subtask_id=None, user_id=None):
                 msg.attach_alternative(html_content, "text/html")
                 msg.send()
 
-                          # ✅ In-app notification for ai_subtask
+                # ✅ In-app notification
                 Notification.objects.create(
                     user=user,
                     content_type=ContentType.objects.get_for_model(ai_subtask),
                     object_id=ai_subtask.id,
                     message=f"⏰ Reminder: '{ai_subtask.title}' is due soon.",
-                    link=f"https://kommitly-frontend.vercel.app/dashboard/ai-goal/{ai_goal.id}/task/{ai_task.id}/subtask/{ai_subtask.id}",
+                    link=context['app_link'],
                     type="reminder"
                 )
 
-
+                # Mark reminder sent
                 ai_subtask.reminder_sent = True
                 ai_subtask.save()
-                logger.info(f"Reminder sent for task: {ai_subtask.title} to {user_email}")
-            else:
-                logger.debug(f"Not yet time to send reminder for task '{ai_subtask.title}'")
+                logger.info(f"Reminder sent for task: {ai_subtask.title} to {user.email}")
 
         except Exception as e:
-            logger.error(f"Error with task '{ai_subtask.title}': {str(e)}")
+            logger.error(f"Error processing AI subtask '{ai_subtask.title}': {str(e)}")
 
 
 

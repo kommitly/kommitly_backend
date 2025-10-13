@@ -137,18 +137,19 @@ class SubTaskSerializer(serializers.ModelSerializer):
 
 
 
-
 class AiSubTaskSerializer(serializers.ModelSerializer):
     class Meta:
         model = AiSubTask
         fields = "__all__"
         read_only_fields = ["ai_task"]
 
+    # ---------------------------
+    # CREATE / UPDATE
+    # ---------------------------
     def create(self, validated_data):
         ai_task_id = self.context.get("ai_task_id")
         if ai_task_id:
             validated_data["ai_task_id"] = ai_task_id
-
         validated_data = self._apply_due_date_status(validated_data)
         return super().create(validated_data)
 
@@ -156,44 +157,38 @@ class AiSubTaskSerializer(serializers.ModelSerializer):
         validated_data = self._apply_due_date_status(validated_data, instance)
         return super().update(instance, validated_data)
 
+    # ---------------------------
+    # APPLY DUE DATE STATUS
+    # ---------------------------
     def _apply_due_date_status(self, validated_data, instance=None):
-        """
-        Central place to apply overdue/pending reset logic
-        both on create and update.
-        """
         now = timezone.now()
         due_date = validated_data.get("due_date", getattr(instance, "due_date", None))
         status = validated_data.get("status", getattr(instance, "status", None))
 
         if status != "completed" and due_date:
+            # due_date is in UTC
             if due_date <= now:
                 validated_data["status"] = "overdue"
                 if not validated_data.get("overdue_reason") and getattr(instance, "overdue_reason", None) is None:
                     validated_data["overdue_reason"] = "not_started"
             else:
-                if status == "overdue":  # reset when due_date is pushed forward
+                if status == "overdue":
                     validated_data["status"] = "pending"
                     validated_data["reminder_sent"] = False
                     validated_data["overdue_reason"] = None
                     validated_data["overdue_notified"] = False
-
         return validated_data
 
+    # ---------------------------
+    # USER TIMEZONE RESOLUTION
+    # ---------------------------
     def get_user_timezone(self, obj=None):
-        """
-        Return pytz timezone for the user via AiTask -> AiGoal -> User.
-        Falls back to request.user or UTC.
-        """
         user_tz = None
-
-        # Case 1: From AiTask -> AiGoal -> User
         if obj and getattr(obj, "ai_task", None) and getattr(obj.ai_task, "ai_goal", None):
             user = getattr(obj.ai_task.ai_goal, "user", None)
             if user and getattr(user, "timezone", None):
                 user_tz = user.timezone
                 print(f"DEBUG: Found user timezone from AiTask.ai_goal.user → {user_tz}")
-
-        # Case 2: From request.user
         if not user_tz and self.context.get("request") and hasattr(self.context["request"].user, "timezone"):
             user_tz = self.context["request"].user.timezone
             print(f"DEBUG: Found user timezone from request.user → {user_tz}")
@@ -210,101 +205,72 @@ class AiSubTaskSerializer(serializers.ModelSerializer):
             print(f"DEBUG: Invalid timezone '{user_tz}', falling back to UTC. Error: {e}")
             return pytz.UTC
 
+    # ---------------------------
+    # VALIDATION
+    # ---------------------------
     def validate(self, data):
-        raw_due = None
         request = self.context.get("request")
-        if request:
-            raw_due = request.data.get('due_date')
+        raw_due = request.data.get("due_date") if request else None
+        dt_to_process = None
 
-        parsed_due = data.get('due_date')
-        reminder_time = data.get("reminder_time")
-        print(f"DEBUG: Raw request due_date string → {raw_due!r}")
-        print(f"DEBUG: Parsed due_date before validation → {parsed_due!r}")
+        if isinstance(raw_due, str):
+            dt_to_process = parse_datetime(raw_due)
+            if dt_to_process is None:
+                raise serializers.ValidationError({"due_date": "Invalid datetime format."})
+        elif "due_date" in data:
+            dt_to_process = data["due_date"]
 
-        if raw_due is None and parsed_due is None:
+        if dt_to_process is None:
             return data
 
-        # backtrack user timezone
+        # --- Force naive if input is aware ---
+        if timezone.is_aware(dt_to_process):
+            dt_to_process = timezone.make_naive(dt_to_process, pytz.UTC)
+            print(f"DEBUG: **FIX APPLIED**: Forced input to naive → {dt_to_process}")
+
         user_tz = self.get_user_timezone(self.instance or None)
         print(f"DEBUG: Effective user timezone → {user_tz}")
 
-        if reminder_time and isinstance(reminder_time, time):
-            user_tz = self.get_user_timezone(self.instance or None)
-            if "due_date" in data:
-                local_due = data["due_date"].astimezone(user_tz)
-                reminder_dt_local = datetime.combine(local_due.date(), reminder_time)
-                if timezone.is_naive(reminder_dt_local):
-                    reminder_dt_local = user_tz.localize(reminder_dt_local)
-                reminder_dt_utc = reminder_dt_local.astimezone(pytz.UTC)
-                data["reminder_time"] = reminder_dt_utc.time()
-                print(f"DEBUG: Final reminder_time (UTC) → {data['reminder_time']}")
-
-
-        if isinstance(raw_due, str):
-            has_tz_hint = (
-                'Z' in raw_due
-                or '+' in raw_due[-6:]
-                or '-' in raw_due[-6:]
-            )
-            if not has_tz_hint:
-                naive = parse_datetime(raw_due)
-                if naive is None:
-                    raise serializers.ValidationError({"due_date": "Invalid datetime format."})
-                if naive.tzinfo is None:
-                    localized = make_aware(naive, timezone=user_tz)
-                    print(f"DEBUG: Localized naive (subtask) → {localized}")
-                else:
-                    localized = naive
-                final_due = localized.astimezone(pytz.UTC)
-                data['due_date'] = final_due
-                print(f"DEBUG: Final subtask due_date (UTC) → {final_due}")
-            else:
-                dt = parsed_due or parse_datetime(raw_due)
-                if dt is None:
-                    raise serializers.ValidationError({"due_date": "Invalid datetime format."})
-                if dt.tzinfo is None:
-                    dt = make_aware(dt, timezone=user_tz)
-                data['due_date'] = dt.astimezone(pytz.UTC)
-                print(f"DEBUG: Parsed subtask aware → {data['due_date']}")
+        # --- Convert naive to aware using localize and normalize ---
+        if timezone.is_naive(dt_to_process):
+            aware_dt = user_tz.localize(dt_to_process, is_dst=None)
+            aware_dt = user_tz.normalize(aware_dt)
+            print(f"DEBUG: Naive input, localized to user → {aware_dt}")
         else:
-            if parsed_due:
-                if getattr(parsed_due, 'tzinfo', None) is None:
-                    localized = make_aware(parsed_due, timezone=user_tz)
-                    final_due = localized.astimezone(pytz.UTC)
-                    data['due_date'] = final_due
-                    print(f"DEBUG: Parsed subtask naive → UTC {final_due}")
-                else:
-                    data['due_date'] = parsed_due.astimezone(pytz.UTC)
-                    print(f"DEBUG: Parsed subtask aware → UTC {data['due_date']}")
+            aware_dt = dt_to_process
+            print(f"DEBUG: Already aware input → {aware_dt}")
+
+        # --- Store in UTC ---
+        data["due_date"] = aware_dt.astimezone(pytz.UTC)
+        print(f"DEBUG: Final due_date (UTC) → {data['due_date']}")
+
+        # --- Convert reminder_time ---
+        # --- Convert reminder_time ---
+        reminder_time = data.get("reminder_time")
+        if reminder_time:
+            # Convert string to time object if needed
+            if isinstance(reminder_time, str):
+                try:
+                    h, m, s = map(int, reminder_time.split(":"))
+                    reminder_time = time(h, m, s)
+                except Exception:
+                    raise serializers.ValidationError({"reminder_time": "Invalid time format. Use HH:MM:SS."})
+
+            local_due_date = data["due_date"].astimezone(user_tz).date()
+            reminder_dt_local = user_tz.localize(datetime.combine(local_due_date, reminder_time), is_dst=None)
+            reminder_dt_utc = reminder_dt_local.astimezone(pytz.UTC)
+            data["reminder_time"] = reminder_dt_utc.time()
+            print(f"DEBUG: Final reminder_time (UTC component) → {data['reminder_time']}")
+
 
         return data
 
+    # ---------------------------
+    # TO REPRESENTATION
+    # ---------------------------
     def to_representation(self, instance):
         data = super().to_representation(instance)
-        user_tz = self.get_user_timezone(instance)
-
-        if instance.due_date:
-            local_due = localtime(instance.due_date, user_tz)
-            data['due_date'] = local_due.isoformat()
-        if instance.completed_at:
-            local_completed = localtime(instance.completed_at, user_tz)
-            data['completed_at'] = local_completed.isoformat()
-
         return data
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 class CreateAiTaskSerializer(serializers.ModelSerializer):
     class Meta:

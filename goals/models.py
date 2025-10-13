@@ -108,6 +108,8 @@ class Task(models.Model):
 
 
     def save(self, *args, **kwargs):
+
+        kwargs.pop("skip_sync", False) 
         """
         Override save method to manage task statuses.
         """
@@ -256,6 +258,13 @@ class SubTask(models.Model):
     ai_answer = models.TextField(null=True, blank=True)
     routine = models.ForeignKey('Routine', related_name='subtasks', on_delete=models.CASCADE, blank=True, null=True)
 
+    def save(self, *args, **kwargs):
+        # Intercept and remove the custom argument
+        kwargs.pop("skip_sync", False) 
+
+        # Now call the parent save method
+        super().save(*args, **kwargs)
+
     def __str__(self):
         return self.title
 
@@ -283,6 +292,12 @@ class AiSubTask(models.Model):
     ai_answer = models.TextField(null=True, blank=True)
 
     def save(self, *args, **kwargs):
+        # 1. Intercept and consume the custom 'skip_sync' argument.
+        # This prevents the TypeError when calling super().save().
+        skip_sync = kwargs.pop("skip_sync", False) 
+         # Now call the parent save method
+     
+
         # Store original status to detect changes *before* saving
         original_status = None
         if self.pk:
@@ -359,6 +374,14 @@ class Routine(models.Model):
     subtask_template_title = models.CharField(max_length=255, blank=True, null=True)
     subtask_template_description = models.TextField(blank=True, null=True)
     reminder_time = models.TimeField(null=True, blank=True)  # Time to send reminders
+
+
+    def save(self, *args, **kwargs):
+        # Intercept and remove the custom argument
+        kwargs.pop("skip_sync", False) 
+
+        # Now call the parent save method
+        super().save(*args, **kwargs)
 
 
 
