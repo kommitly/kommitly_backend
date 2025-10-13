@@ -822,6 +822,12 @@ class RoutineSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
     def validate(self, data):
+        # Convert empty strings to None to avoid type errors
+        if data.get("custom_interval") == "":
+            data["custom_interval"] = None
+        if data.get("custom_unit") == "":
+            data["custom_unit"] = None
+
         frequency = data.get("frequency")
 
         if frequency == "custom":
@@ -829,7 +835,13 @@ class RoutineSerializer(serializers.ModelSerializer):
                 raise serializers.ValidationError(
                     "For custom frequency, both custom_interval and custom_unit are required."
                 )
+        else:
+            # Make sure non-custom frequencies don't accidentally include these
+            data["custom_interval"] = None
+            data["custom_unit"] = None
+
         return data
+
 
     def create(self, validated_data):
         tasks = validated_data.pop("tasks", [])
