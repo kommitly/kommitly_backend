@@ -8,19 +8,23 @@ class Command(BaseCommand):
     help = "Generate new DailyActivity entries each day from active templates (including fixed activities)"
 
     def handle(self, *args, **kwargs):
-        now = timezone.now()  # current time in UTC
+        now = timezone.now()  # current UTC time
         today = now.date()
         self.stdout.write(self.style.SUCCESS(f"DEBUG: Generating daily activities for {today}"))
 
         # Get all active templates
-        templates = DailyTemplate.objects.filter(is_active=True)
+        templates = DailyTemplate.objects.filter(is_active=True).select_related("user")
         self.stdout.write(self.style.SUCCESS(f"Found {templates.count()} active daily templates"))
 
         for template in templates:
+            username = str(template.user) if template.user else "Unknown User"
+
+
+
             # Skip if activities for today already exist
             if DailyActivity.objects.filter(template=template, date=today).exists():
                 self.stdout.write(self.style.SUCCESS(
-                    f"Activities already exist for {template.user.username} ({today})"
+                    f"Activities already exist for {username} ({today})"
                 ))
                 continue
 
@@ -52,5 +56,5 @@ class Command(BaseCommand):
                 )
 
             self.stdout.write(self.style.SUCCESS(
-                f"✅ Created activities for {template.user.username} ({today})"
+                f"✅ Created activities for {username} ({today})"
             ))
