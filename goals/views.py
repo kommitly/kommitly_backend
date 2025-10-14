@@ -1904,14 +1904,31 @@ class DailyActivityListCreateView(generics.ListCreateAPIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
-        return DailyActivity.objects.filter(template__user=self.request.user)
+        user=self.request.user
+        view_type = self.request.query_params.get("view", "today")  # default = today
+        today = timezone.localdate()
+
+        # Filter based on query param
+        if view_type == "history":
+            return DailyActivity.objects.filter(
+                template__user=user,
+                date__lt=today
+            ).order_by("-date", "start_time")
+
+        # Default: today's activities
+        return DailyActivity.objects.filter(
+            template__user=user,
+            date=today
+        ).order_by("start_time")
+
+        
 
     def perform_create(self, serializer):
         template_id = self.request.data.get("template")
         serializer.save(template_id=template_id)
 
     @swagger_auto_schema(
-        operation_description="Get all daily activities for templates owned by the authenticated user",
+        operation_description="Get daily activities (default: today). Use ?view=history to see past activities.",
         tags=["Daily Activities"],
         responses={200: DailyActivitySerializer(many=True)}
     )
