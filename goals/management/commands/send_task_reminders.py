@@ -9,7 +9,7 @@ from goals.tasks import send_task_reminders, send_subtask_reminders, send_overdu
 logger = logging.getLogger(__name__)
 
 class Command(BaseCommand):
-    help = 'Send reminders for tasks and their subtasks with a due reminder_time'
+    help = 'Send reminders and overdue notifications for tasks and subtasks'
 
     def handle(self, *args, **options):
         now_utc = timezone.now()
@@ -20,20 +20,16 @@ class Command(BaseCommand):
             if not task.due_date or not task.reminder_time:
                 continue
 
-            user = task.user
-            if not user or not user.timezone:
-                continue
-
             try:
-                user_timezone = pytz.timezone(user.timezone)
-                reminder_local = datetime.combine(task.due_date, task.reminder_time)
-                reminder_localized = user_timezone.localize(reminder_local)
-                reminder_utc = reminder_localized.astimezone(pytz.UTC)
+                # due_date and reminder_time are stored in UTC already
+                reminder_dt_utc = datetime.combine(
+                    task.due_date, task.reminder_time
+                ).replace(tzinfo=pytz.UTC)
 
-                if reminder_utc <= now_utc <= reminder_utc + timedelta(minutes=2):
+                if reminder_dt_utc <= now_utc <= reminder_dt_utc + timedelta(minutes=2):
                     send_task_reminders(task_id=task.id)
                     task.reminder_sent = True
-                    task.save()
+                    task.save(update_fields=["reminder_sent"])
                     self.stdout.write(f"Reminder sent for task: {task.title}")
             except Exception as e:
                 logger.error(f"Error sending task reminder: {e}")
@@ -44,44 +40,39 @@ class Command(BaseCommand):
             if not subtask.due_date or not subtask.reminder_time:
                 continue
 
-            user = subtask.task.user if subtask.task else None
-            if not user or not user.timezone:
-                continue
-
             try:
-                user_timezone = pytz.timezone(user.timezone)
-                reminder_local = datetime.combine(subtask.due_date, subtask.reminder_time)
-                reminder_localized = user_timezone.localize(reminder_local)
-                reminder_utc = reminder_localized.astimezone(pytz.UTC)
+                # due_date and reminder_time are stored in UTC already
+                reminder_dt_utc = datetime.combine(
+                    subtask.due_date, subtask.reminder_time
+                ).replace(tzinfo=pytz.UTC)
 
-                if reminder_utc <= now_utc <= reminder_utc + timedelta(minutes=2):
-                    send_subtask_reminders(task_id=subtask.id)  # or use a different method
+                if reminder_dt_utc <= now_utc <= reminder_dt_utc + timedelta(minutes=2):
+                    send_subtask_reminders(task_id=subtask.id)
                     subtask.reminder_sent = True
-                    subtask.save()
+                    subtask.save(update_fields=["reminder_sent"])
                     self.stdout.write(f"Reminder sent for subtask: {subtask.title}")
             except Exception as e:
                 logger.error(f"Error sending subtask reminder: {e}")
-
 
         # ----- Overdue Tasks -----
         overdue_tasks = Task.objects.filter(
             status__in=["pending", "in_progress"],
             due_date__lt=now_utc.date(),
-            overdue_notified=False 
+            overdue_notified=False
         )
         for task in overdue_tasks:
             try:
                 if task.status == "completed":
-                    continue  # ✅ don't notify completed tasks
+                    continue
 
-                # set overdue status + reason
+                # Mark overdue + set reason
                 if task.status == "pending":
                     task.overdue_reason = "not_started"
                 elif task.status == "in_progress":
                     task.overdue_reason = "unfinished"
 
                 task.status = "overdue"
-                task.overdue_notified = True 
+                task.overdue_notified = True
                 task.save(update_fields=["status", "overdue_reason", "overdue_notified"])
 
                 send_overdue_task_notifications(task_id=task.id)
@@ -92,8 +83,8 @@ class Command(BaseCommand):
         # ----- Overdue SubTasks -----
         overdue_subtasks = SubTask.objects.filter(
             status__in=["pending", "in_progress"],
-            due_date__lt=now_utc.date()
-            
+            due_date__lt=now_utc.date(),
+            overdue_notified=False
         )
         for subtask in overdue_subtasks:
             try:
@@ -101,3 +92,4 @@ class Command(BaseCommand):
                 self.stdout.write(f"Overdue notification sent for subtask: {subtask.title}")
             except Exception as e:
                 logger.error(f"Error sending overdue subtask notification: {e}")
+

@@ -414,6 +414,7 @@ def send_overdue_task_notifications(task_id=None):
 
 def send_overdue_subtask_notifications(subtask_id):
     from goals.models import SubTask
+
     try:
         subtask = SubTask.objects.get(id=subtask_id, status__in=["pending", "in_progress"])
     except SubTask.DoesNotExist:
@@ -431,9 +432,9 @@ def send_overdue_subtask_notifications(subtask_id):
 
     subtask.status = "overdue"
     subtask.overdue_notified = True
-    subtask.save(update_fields=["status", "overdue_reason","overdue_notified"])
+    subtask.save(update_fields=["status", "overdue_reason", "overdue_notified"])
 
-    # --- Notify (in-app + email) ---
+    # --- Create in-app notification ---
     Notification.objects.create(
         user=user,
         content_type=ContentType.objects.get_for_model(subtask),
@@ -443,7 +444,7 @@ def send_overdue_subtask_notifications(subtask_id):
         type="overdue"
     )
 
-    # (Optional) send email
+    # --- Optional email ---
     subject = "⚠️ Overdue Subtask in Kommitly"
     from_email = 'no-reply@kommitly.com'
     to = [user.email]
@@ -467,8 +468,8 @@ def send_overdue_subtask_notifications(subtask_id):
     msg.send()
 
     logger.info(f"Overdue alert sent for subtask: {subtask.title} to {user.email}")
-
-
+    
+    
 
 def send_overdue_ai_subtask_notifications(subtask_id=None):
     now_utc = timezone.now()
