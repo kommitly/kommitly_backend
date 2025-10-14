@@ -100,3 +100,19 @@ class MarkNotificationAsReadView(APIView):
             return Response(status=status.HTTP_204_NO_CONTENT)
         except Notification.DoesNotExist:
             return Response({"detail": "Notification not found."}, status=status.HTTP_404_NOT_FOUND)
+
+
+class MarkAllNotificationsAsReadView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    @swagger_auto_schema(
+        operation_description="Mark all notifications as read for the authenticated user.",
+        tags=["Notifications"],
+        responses={200: "All notifications marked as read", 401: "Unauthorized"}
+    )
+    def patch(self, request):
+        updated_count = Notification.objects.filter(user=request.user, is_read=False).update(is_read=True)
+        return Response(
+            {"message": f"{updated_count} notifications marked as read."},
+            status=status.HTTP_200_OK
+        )
