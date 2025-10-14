@@ -10,6 +10,7 @@ from notifications.models import Notification
 
 time.sleep(10)
 
+
 class Command(BaseCommand):
     help = "Send reminders for upcoming daily activities"
 
@@ -36,23 +37,39 @@ class Command(BaseCommand):
             start_utc = start_local.astimezone(pytz.UTC)
 
             if start_utc <= now_utc <= start_utc + window:
-                # Build base message
                 message = f"⏰ Reminder: {activity.title} is starting now!"
 
-                # Try to link content_object (task, subtask, or ai_subtask)
                 linked_object = None
+                link = None
+
+                # ✅ Task link
                 if activity.task:
                     linked_object = activity.task
-                elif getattr(activity, "subtask", None):
+                    link = f"https://kommitly-frontend.vercel.app/dashboard/tasks/{activity.task.id}/"
+
+                # ✅ Subtask link → parent task page
+                elif activity.subtask:
                     linked_object = activity.subtask
-                elif getattr(activity, "ai_subtask", None):
+                    if activity.subtask.task:
+                        link = f"https://kommitly-frontend.vercel.app/dashboard/tasks/{activity.subtask.task.id}/"
+
+                # ✅ AI Subtask link → full ai-goal/task/subtask path
+                elif activity.ai_subtask:
                     linked_object = activity.ai_subtask
+                    ai_task = activity.ai_subtask.ai_task
+                    ai_goal = getattr(ai_task, "goal", None)
+                    if ai_goal:
+                        link = (
+                            f"https://kommitly-frontend.vercel.app/dashboard/"
+                            f"ai-goal/{ai_goal.id}/task/{ai_task.id}/subtask/{activity.ai_subtask.id}"
+                        )
 
                 # Create notification
                 notification_data = {
                     "user": user,
                     "message": message,
                     "type": "reminder",
+                    "link": link,
                 }
 
                 if linked_object:
@@ -64,7 +81,7 @@ class Command(BaseCommand):
 
                 Notification.objects.create(**notification_data)
 
-                # (Optional) send email
+                # Optional email reminder
                 if user.email:
                     send_mail(
                         subject=f"Reminder: {activity.title} starting soon",
@@ -73,6 +90,8 @@ class Command(BaseCommand):
                         recipient_list=[user.email],
                     )
 
+                # Mark as sent
                 activity.reminder_sent = True
                 activity.save()
+
                 self.stdout.write(self.style.SUCCESS(f"Reminder sent for {activity.title}"))
