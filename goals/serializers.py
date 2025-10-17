@@ -1026,7 +1026,9 @@ class DailyTemplateSerializer(serializers.ModelSerializer):
 
 class DailyActivityHistorySerializer(serializers.ModelSerializer):
     activity_title = serializers.CharField(source='activity.title', read_only=True)
+    template = serializers.IntegerField(source='activity.template.id', read_only=True)
+
 
     class Meta:
         model = DailyActivityHistory
-        fields = ['id', 'activity', 'activity_title', 'date', 'completed', 'completed_at']
+        fields = ['id', 'activity', 'activity_title', 'template' ,'date', 'completed', 'completed_at']
