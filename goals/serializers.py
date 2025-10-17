@@ -944,6 +944,10 @@ class RoutineSerializer(serializers.ModelSerializer):
         subtasks = validated_data.pop("subtasks", [])
         ai_subtasks = validated_data.pop("ai_subtasks", [])
 
+        # Check if ANY task/subtask was passed in the request body
+        # This determines if we should auto-create a placeholder
+        should_create_placeholder = not tasks and not subtasks and not ai_subtasks
+
         if not validated_data.get("name"):
             validated_data["name"] = f"{validated_data['frequency'].capitalize()} Routine"
 
@@ -960,37 +964,21 @@ class RoutineSerializer(serializers.ModelSerializer):
             ai_subtask.routine = routine
             ai_subtask.save()
 
-        # --- Create placeholders if none exist ---
-        if not routine.ai_subtasks.exists() and getattr(routine, "subtask_template_title", None):
-            AiSubTask.objects.create(
-                title=routine.subtask_template_title,
-                description=getattr(routine, "subtask_template_description", "") or "",
-                due_date=timezone.make_aware(datetime.combine(routine.start_date, routine.time_of_day or time(8, 0))),
-                reminder_time=routine.reminder_time,
-                routine=routine,
-                status="pending",
-            )
-
-        if not routine.subtasks.exists() and getattr(routine, "subtask_template_title", None):
-            SubTask.objects.create(
-                title=routine.subtask_template_title,
-                description=getattr(routine, "subtask_template_description", "") or "",
-                due_date=timezone.make_aware(datetime.combine(routine.start_date, routine.time_of_day or time(8, 0))),
-                reminder_time=routine.reminder_time,
-                routine=routine,
-                status="pending",
-            )
-
-        if not routine.tasks.exists() and getattr(routine, "task_template_title", None):
+        # --- Create *only a Task* placeholder if none were passed and a template exists ---
+        if should_create_placeholder and getattr(routine, "subtask_template_title", None):
             Task.objects.create(
-                title=routine.task_template_title,
-                description=getattr(routine, "task_template_description", "") or "",
+                user=routine.user,
+                title=routine.subtask_template_title,
+                description=getattr(routine, "subtask_template_description", "") or "",
                 due_date=timezone.make_aware(datetime.combine(routine.start_date, routine.time_of_day or time(8, 0))),
                 reminder_time=routine.reminder_time,
                 routine=routine,
                 status="pending",
             )
             
+            # NOTE: You must REMOVE the blocks that create AiSubTask and SubTask
+            # otherwise they will STILL run because routine.ai_subtasks.exists() is False
+
         routine.refresh_from_db()
         return routine
 

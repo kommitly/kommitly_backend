@@ -76,22 +76,25 @@ class Command(BaseCommand):
             # --- Today’s due and reminder datetimes (already UTC) ---
             due_utc_today = datetime.combine(today, routine.time_of_day or time(8, 0))
             reminder_utc_today = datetime.combine(today, routine.reminder_time or time(8, 0))
+            self.stdout.write(self.style.SUCCESS(f"due date utc today is : {due_utc_today}"))
+            self.stdout.write(self.style.SUCCESS(f"reminder utc today is : {reminder_utc_today}"))
+
 
             # --- Reactivate existing AiSubTasks ---
             for ai_subtask in routine.ai_subtasks.all():
-                if ai_subtask.due_date.date() < today:
+                if ai_subtask.due_date.date() <= today - timedelta(days=1):
                     reset_instance(ai_subtask, due_utc_today, reminder_utc_today)
                     self.stdout.write(self.style.SUCCESS(f"[AiSubTask] Reactivated: {ai_subtask.title}"))
 
             # --- Reactivate existing SubTasks ---
             for subtask in routine.subtasks.all():
-                if subtask.due_date.date() < today:
+                if subtask.due_date.date() <= today - timedelta(days=1):
                     reset_instance(subtask, due_utc_today, reminder_utc_today)
                     self.stdout.write(self.style.SUCCESS(f"[SubTask] Reactivated: {subtask.title}"))
 
             # --- Reactivate existing Tasks ---
             for task in routine.tasks.all():
-                if task.due_date.date() < today:
+                if task.due_date.date() <= today - timedelta(days=1):
                     reset_instance(task, due_utc_today, reminder_utc_today)
                     self.stdout.write(self.style.SUCCESS(f"[Task] Reactivated: {task.title}"))
 

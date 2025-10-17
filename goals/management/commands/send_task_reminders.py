@@ -21,11 +21,14 @@ class Command(BaseCommand):
                 continue
 
             try:
-                # due_date and reminder_time are stored in UTC already
-                reminder_dt_utc = datetime.combine(
-                    task.due_date, task.reminder_time
-                ).replace(tzinfo=pytz.UTC)
+                due_utc = task.due_date  # already UTC aware
+                reminder_time_utc = task.reminder_time  # stored as UTC time
 
+                # Combine date + reminder_time (UTC)
+                reminder_dt_utc = datetime.combine(due_utc.date(), reminder_time_utc).replace(tzinfo=pytz.UTC)
+
+
+                
                 if reminder_dt_utc <= now_utc <= reminder_dt_utc + timedelta(minutes=2):
                     send_task_reminders(task_id=task.id)
                     task.reminder_sent = True

@@ -62,13 +62,10 @@ def send_task_reminders(task_id=None, user_id=None):
             user_email = user.email
 
             # Combine due date and reminder time into a datetime
-            reminder_local = datetime.combine(task.due_date, task.reminder_time)
+            due_utc = task.due_date  # Already UTC-aware
+            reminder_utc = datetime.combine(due_utc.date(), task.reminder_time).replace(tzinfo=pytz.UTC)
 
-            # Localize if naive
-            if timezone.is_naive(reminder_local):
-                reminder_local = user_timezone.localize(reminder_local)
-
-            reminder_utc = reminder_local.astimezone(pytz.UTC)
+         
             logger.debug(f"Reminder time (UTC) for task '{task.title}': {reminder_utc}, current time: {current_time}")
 
             if reminder_utc <= current_time <= reminder_utc + timedelta(minutes=2):
@@ -141,12 +138,10 @@ def send_subtask_reminders(subtask_id=None):
                 continue
 
             user_timezone = pytz.timezone(user.timezone)
-            reminder_local = datetime.combine(subtask.due_date, subtask.reminder_time)
+            due_utc = subtask.due_date  # Already UTC-aware
+            reminder_utc = datetime.combine(due_utc.date(), subtask.reminder_time).replace(tzinfo=pytz.UTC)
 
-            if timezone.is_naive(reminder_local):
-                reminder_local = user_timezone.localize(reminder_local)
-
-            reminder_utc = reminder_local.astimezone(pytz.UTC)
+            
 
             if reminder_utc <= current_time <= reminder_utc + timedelta(minutes=2):
                 subject = "⏰ Subtask Reminder from Kommitly"
@@ -227,14 +222,9 @@ def send_ai_task_reminders(task_id=None, user_id=None):
             user_timezone = pytz.timezone(user.timezone)
             user_email = user.email
 
-            # Combine due date and reminder time into a datetime
-            reminder_local = datetime.combine(ai_task.due_date, ai_task.reminder_time)
+            due_utc = ai_task.due_date  # Already UTC-aware
+            reminder_utc = datetime.combine(due_utc.date(), ai_task.reminder_time).replace(tzinfo=pytz.UTC)
 
-            # Localize if naive
-            if timezone.is_naive(reminder_local):
-                reminder_local = user_timezone.localize(reminder_local)
-
-            reminder_utc = reminder_local.astimezone(pytz.UTC)
             logger.debug(f"Reminder time (UTC) for ai task '{ai_task.title}': {reminder_utc}, current time: {current_time}")
 
             if reminder_utc <= current_time <= reminder_utc + timedelta(minutes=2):
@@ -316,7 +306,7 @@ def send_ai_subtask_reminders(subtask_id=None, user_id=None):
             reminder_utc = datetime.combine(due_utc.date(), ai_subtask.reminder_time).replace(tzinfo=pytz.UTC)
 
             logger.debug(
-                f"Reminder time (UTC) for ai task '{ai_subtask.title}': {reminder_utc}, current time: {current_time}"
+                f"Reminder time (UTC) for ai subtask  '{ai_subtask.title}': {reminder_utc}, current time: {current_time}"
             )
 
             # Check 2-minute window
