@@ -848,6 +848,7 @@ class UpdateAiGoalSerializer(serializers.ModelSerializer):
         fields = ['title', 'description', 'category', 'progress']
 
 
+
 class RoutineSerializer(serializers.ModelSerializer):
     tasks = serializers.PrimaryKeyRelatedField(
         queryset=Task.objects.all(), many=True, required=False
@@ -860,7 +861,6 @@ class RoutineSerializer(serializers.ModelSerializer):
     )
 
     due_date = serializers.DateTimeField(write_only=True, required=False)
-
     name = serializers.CharField(required=False)
     start_date = serializers.DateField(required=False)
     user = serializers.HiddenField(default=serializers.CurrentUserDefault())
@@ -869,79 +869,98 @@ class RoutineSerializer(serializers.ModelSerializer):
         model = Routine
         fields = '__all__'
 
+    # ---------------------------
+    # HELPER METHOD
+    # ---------------------------
+    def get_user_timezone(self, obj=None):
+        user_tz = None
+        if obj and getattr(obj, "user", None) and getattr(obj.user, "timezone", None):
+            user_tz = obj.user.timezone
+        elif self.context.get("request") and hasattr(self.context["request"].user, "timezone"):
+            user_tz = self.context["request"].user.timezone
+
+        if not user_tz:
+            return pytz.UTC
+
+        try:
+            return pytz.timezone(user_tz)
+        except Exception:
+            return pytz.UTC
+
+    # ---------------------------
+    # VALIDATION
+    # ---------------------------
     def validate(self, data):
-        # Convert empty strings to None to avoid type errors
+        # Convert empty strings to None
         if data.get("custom_interval") == "":
             data["custom_interval"] = None
         if data.get("custom_unit") == "":
             data["custom_unit"] = None
 
         frequency = data.get("frequency")
-
         if frequency == "custom":
             if not data.get("custom_interval") or not data.get("custom_unit"):
                 raise serializers.ValidationError(
                     "For custom frequency, both custom_interval and custom_unit are required."
                 )
         else:
-            # Make sure non-custom frequencies don't accidentally include these
             data["custom_interval"] = None
             data["custom_unit"] = None
 
+        user_tz = self.get_user_timezone(self.instance or None)
+        base_date = timezone.localdate()  # today
+
+        # Convert reminder_time to UTC
+        reminder_time = data.get("reminder_time")
+        if reminder_time:
+            if isinstance(reminder_time, str):
+                h, m, s = map(int, reminder_time.split(":"))
+                reminder_time = time(h, m, s)
+
+            local_dt = datetime.combine(base_date, reminder_time)
+            local_dt = user_tz.localize(local_dt, is_dst=None)
+            utc_dt = local_dt.astimezone(pytz.UTC)
+            data["reminder_time"] = utc_dt.time()
+
+        # Convert time_of_day to UTC
+        time_of_day = data.get("time_of_day")
+        if time_of_day:
+            if isinstance(time_of_day, str):
+                h, m, s = map(int, time_of_day.split(":"))
+                time_of_day = time(h, m, s)
+
+            local_dt = datetime.combine(base_date, time_of_day)
+            local_dt = user_tz.localize(local_dt, is_dst=None)
+            utc_dt = local_dt.astimezone(pytz.UTC)
+            data["time_of_day"] = utc_dt.time()
+
         return data
 
-
+    # ---------------------------
+    # CREATE
+    # ---------------------------
     def create(self, validated_data):
         tasks = validated_data.pop("tasks", [])
         subtasks = validated_data.pop("subtasks", [])
         ai_subtasks = validated_data.pop("ai_subtasks", [])
-        due_date = validated_data.pop("due_date", None)
-
-        # --- Set start_date and time_of_day from due_date ---
-        if due_date:
-            validated_data["start_date"] = due_date.date()
-            validated_data["time_of_day"] = due_date.time()
-            if validated_data.get("frequency") == "weekly":
-                validated_data["day_of_week"] = due_date.weekday()
-
-            if not validated_data.get("end_date"):
-                freq = validated_data.get("frequency")
-                if freq == "daily":
-                    validated_data["end_date"] = validated_data["start_date"] + timedelta(days=7)
-                elif freq == "weekly":
-                    validated_data["end_date"] = validated_data["start_date"] + timedelta(weeks=4)
-                elif freq == "monthly":
-                    validated_data["end_date"] = validated_data["start_date"] + relativedelta(months=3)
-                elif freq == "custom":
-                    interval = validated_data.get("custom_interval", 1)
-                    unit = validated_data.get("custom_unit")
-                    if unit == "days":
-                        validated_data["end_date"] = validated_data["start_date"] + timedelta(days=interval)
-                    elif unit == "weeks":
-                        validated_data["end_date"] = validated_data["start_date"] + timedelta(weeks=interval)
-                    elif unit == "months":
-                        validated_data["end_date"] = validated_data["start_date"] + relativedelta(months=interval)
 
         if not validated_data.get("name"):
             validated_data["name"] = f"{validated_data['frequency'].capitalize()} Routine"
 
-        # --- Create the routine ---
         routine = Routine.objects.create(**validated_data)
 
         # --- Link existing tasks/subtasks if passed ---
         for task in tasks:
             task.routine = routine
             task.save()
-
         for subtask in subtasks:
             subtask.routine = routine
             subtask.save()
-
         for ai_subtask in ai_subtasks:
             ai_subtask.routine = routine
             ai_subtask.save()
 
-        # --- Create initial placeholders if none exist (so cron doesn't have to) ---
+        # --- Create placeholders if none exist ---
         if not routine.ai_subtasks.exists() and getattr(routine, "subtask_template_title", None):
             AiSubTask.objects.create(
                 title=routine.subtask_template_title,
@@ -974,25 +993,23 @@ class RoutineSerializer(serializers.ModelSerializer):
 
         return routine
 
+    # ---------------------------
+    # UPDATE
+    # ---------------------------
     def update(self, instance, validated_data):
-        # Use frequency from payload if present else instance value
         frequency = validated_data.get("frequency", instance.frequency)
 
-        # Handle custom frequency recalculation
         if frequency == "custom":
             custom_interval = validated_data.get("custom_interval", instance.custom_interval)
             custom_unit = validated_data.get("custom_unit", instance.custom_unit)
             start_date = validated_data.get("start_date", instance.start_date)
 
-            # Ensure start_date is a date object (it might come in as a string)
             if isinstance(start_date, str):
                 try:
                     start_date = datetime.strptime(start_date, "%Y-%m-%d").date()
                 except ValueError:
-                    # fallback to instance.start_date if parsing fails
                     start_date = instance.start_date
 
-            # CORRECT: don't multiply the interval by 7 (use it directly)
             if custom_unit == "days":
                 end_date = start_date + timedelta(days=custom_interval)
             elif custom_unit == "weeks":
@@ -1000,13 +1017,12 @@ class RoutineSerializer(serializers.ModelSerializer):
             elif custom_unit == "months":
                 end_date = start_date + relativedelta(months=custom_interval)
             else:
-                # fallback: don't overwrite if unknown unit
                 end_date = validated_data.get("end_date", instance.end_date)
 
             validated_data["end_date"] = end_date
 
-        # Save changes
         return super().update(instance, validated_data)
+
 
 
 class DailyActivitySerializer(serializers.ModelSerializer):
