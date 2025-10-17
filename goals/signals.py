@@ -1,6 +1,6 @@
 import pytz
 from datetime import datetime
-from django.db.models.signals import post_save, post_delete, pre_delete, 
+from django.db.models.signals import post_save, post_delete, pre_delete
 from django.dispatch import receiver
 from django.utils import timezone
 from .models import AiSubTask, AiTask, AiGoal, Routine, SubTask, Task  # Make sure to import your models
