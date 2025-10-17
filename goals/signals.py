@@ -175,11 +175,7 @@ def sync_task_to_routine(sender, instance, **kwargs):
 # ----------------------------------------------
 # ----------------------------------------------
 
-# --- Handle tasks added to routine later via M2M ---
-@receiver(m2m_changed, sender=Routine.tasks.through)
-def sync_new_tasks_to_routine(sender, instance, action, pk_set, **kwargs):
-    if action == "post_add":
-        sync_routine_to_tasks(Routine, instance)
+
 
 # -------- Routine ↔ SubTask (Full Sync) --------
 
