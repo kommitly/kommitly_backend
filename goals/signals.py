@@ -1,6 +1,6 @@
 import pytz
 from datetime import datetime
-from django.db.models.signals import post_save, post_delete, pre_delete
+from django.db.models.signals import post_save, post_delete, pre_delete, m2m_changed
 from django.dispatch import receiver
 from django.utils import timezone
 from .models import AiSubTask, AiTask, AiGoal, Routine, SubTask, Task  # Make sure to import your models
@@ -109,7 +109,6 @@ def sync_ai_subtask_to_routine(sender, instance, **kwargs):
 # ----------------------------------------------
 
 # -------- Routine ↔ Task (Full Sync) --------
-
 @receiver(post_save, sender=Routine)
 def sync_routine_to_tasks(sender, instance, **kwargs):
     if kwargs.get('skip_sync'):
@@ -117,20 +116,20 @@ def sync_routine_to_tasks(sender, instance, **kwargs):
 
     routine_time_of_day = instance.time_of_day
     routine_reminder_time = instance.reminder_time
-    update_fields = []
 
-    for task in instance.tasks.all():
+    # Reload tasks to ensure we get newly added ones
+    tasks = instance.tasks.all().select_related("user")
+    for task in tasks:
         needs_save = False
 
         # 1. Sync REMINDER TIME
         if routine_reminder_time and task.reminder_time != routine_reminder_time:
             task.reminder_time = routine_reminder_time
             needs_save = True
-            update_fields.append("reminder_time")
 
         # 2. Sync DUE DATE TIME component
         if routine_time_of_day:
-            current_date = task.due_date.date() if task.due_date else timezone.now().date()
+            current_date = task.due_date.date() if task.due_date else instance.start_date or timezone.now().date()
             
             new_due_date = timezone.make_aware(
                 datetime.combine(current_date, routine_time_of_day),
@@ -140,11 +139,10 @@ def sync_routine_to_tasks(sender, instance, **kwargs):
             if task.due_date is None or task.due_date.time() != routine_time_of_day:
                 task.due_date = new_due_date
                 needs_save = True
-                update_fields.append("due_date")
-        
+
         if needs_save:
-            task.save(update_fields=list(set(update_fields)), skip_sync=True)
-            update_fields = []
+            task.save(update_fields=["due_date", "reminder_time"], skip_sync=True)
+
 
 @receiver(post_save, sender=Task)
 def sync_task_to_routine(sender, instance, **kwargs):
@@ -176,6 +174,12 @@ def sync_task_to_routine(sender, instance, **kwargs):
 
 # ----------------------------------------------
 # ----------------------------------------------
+
+# --- Handle tasks added to routine later via M2M ---
+@receiver(m2m_changed, sender=Routine.tasks.through)
+def sync_new_tasks_to_routine(sender, instance, action, pk_set, **kwargs):
+    if action == "post_add":
+        sync_routine_to_tasks(Routine, instance)
 
 # -------- Routine ↔ SubTask (Full Sync) --------
 
