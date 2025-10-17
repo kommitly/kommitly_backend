@@ -5,8 +5,8 @@ from rest_framework.response import Response
 from datetime import datetime, time, date
 from django.utils import timezone
 from rest_framework import status, permissions, generics
-from .models import Goal, Task, AiGoal, AiTask, SubTask, AiSubTask, Routine, DailyActivity, DailyTemplate
-from .serializers import GoalSerializer, TaskSerializer, CreateGoalSerializer, CreateTaskSerializer, CreateAiTaskSerializer,AiGoalSerializer, AiTaskSerializer, CreateAiGoalSerializer, UserProfileSerializer, UpdateAiGoalSerializer, SubTaskSerializer, AiSubTaskSerializer, RoutineSerializer,DailyTemplateSerializer, DailyActivitySerializer
+from .models import Goal, Task, AiGoal, AiTask, SubTask, AiSubTask, Routine, DailyActivity, DailyTemplate, DailyActivityHistory
+from .serializers import GoalSerializer, TaskSerializer, CreateGoalSerializer, CreateTaskSerializer, CreateAiTaskSerializer,AiGoalSerializer, AiTaskSerializer, CreateAiGoalSerializer, UserProfileSerializer, UpdateAiGoalSerializer, SubTaskSerializer, AiSubTaskSerializer, RoutineSerializer,DailyTemplateSerializer, DailyActivitySerializer, DailyActivityHistorySerializer
 import kommitly_backend.settings as st
 from drf_yasg.utils import swagger_auto_schema
 from django.core.exceptions import ValidationError
@@ -1900,28 +1900,30 @@ class DailyTemplateDetailView(generics.RetrieveUpdateDestroyAPIView):
 
 
 class DailyActivityListCreateView(generics.ListCreateAPIView):
-    serializer_class = DailyActivitySerializer
     permission_classes = [permissions.IsAuthenticated]
 
+    def get_serializer_class(self):
+        view_type = self.request.query_params.get("view", "today")
+        if view_type == "history":
+            return DailyActivityHistorySerializer
+        return DailyActivitySerializer
+
     def get_queryset(self):
-        user=self.request.user
-        view_type = self.request.query_params.get("view", "today")  # default = today
+        user = self.request.user
+        view_type = self.request.query_params.get("view", "today")
         today = timezone.localdate()
 
-        # Filter based on query param
         if view_type == "history":
-            return DailyActivity.objects.filter(
-                template__user=user,
-                date__lt=today
-            ).order_by("-date", "start_time")
+            # Return historical activities
+            return DailyActivityHistory.objects.filter(
+                activity__template__user=user
+            ).order_by("-date")
 
         # Default: today's activities
         return DailyActivity.objects.filter(
             template__user=user,
             date=today
         ).order_by("start_time")
-
-        
 
     def perform_create(self, serializer):
         template_id = self.request.data.get("template")
