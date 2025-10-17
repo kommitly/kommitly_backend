@@ -990,7 +990,8 @@ class RoutineSerializer(serializers.ModelSerializer):
                 routine=routine,
                 status="pending",
             )
-
+            
+        routine.refresh_from_db()
         return routine
 
     # ---------------------------
