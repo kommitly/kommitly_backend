@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Goal, Task, AiGoal, AiTask, SubTask, AiSubTask, Routine, DailyTemplate, DailyActivity
+from .models import Goal, Task, AiGoal, AiTask, SubTask, AiSubTask, Routine, DailyTemplate, DailyActivity, DailyActivityHistory
 from users.models import User
 from django.utils import timezone
 
@@ -1022,3 +1022,11 @@ class DailyTemplateSerializer(serializers.ModelSerializer):
         model = DailyTemplate
         fields = "__all__"
         read_only_fields = ["user"]
+
+
+class DailyActivityHistorySerializer(serializers.ModelSerializer):
+    activity_title = serializers.CharField(source='activity.title', read_only=True)
+
+    class Meta:
+        model = DailyActivityHistory
+        fields = ['id', 'activity', 'activity_title', 'date', 'completed', 'completed_at']

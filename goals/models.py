@@ -416,3 +416,9 @@ class DailyActivity(models.Model):
     
     def __str__(self):
         return f"{self.title} ({'Done' if self.completed else 'Pending'}) - {self.date}"
+
+class DailyActivityHistory(models.Model):
+    activity = models.ForeignKey(DailyActivity, on_delete=models.CASCADE)
+    date = models.DateField()
+    completed = models.BooleanField(default=False)
+    completed_at = models.DateTimeField(null=True, blank=True)
