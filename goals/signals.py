@@ -1,6 +1,6 @@
 import pytz
 from datetime import datetime
-from django.db.models.signals import post_save, post_delete, pre_delete, m2m_changed
+from django.db.models.signals import post_save, post_delete, pre_delete, 
 from django.dispatch import receiver
 from django.utils import timezone
 from .models import AiSubTask, AiTask, AiGoal, Routine, SubTask, Task  # Make sure to import your models
@@ -109,6 +109,7 @@ def sync_ai_subtask_to_routine(sender, instance, **kwargs):
 # ----------------------------------------------
 
 # -------- Routine ↔ Task (Full Sync) --------
+
 @receiver(post_save, sender=Routine)
 def sync_routine_to_tasks(sender, instance, **kwargs):
     if kwargs.get('skip_sync'):
@@ -116,21 +117,25 @@ def sync_routine_to_tasks(sender, instance, **kwargs):
 
     routine_time_of_day = instance.time_of_day
     routine_reminder_time = instance.reminder_time
+    update_fields = []
 
-    # Reload tasks to ensure we get newly added ones
-    tasks = instance.tasks.all().select_related("user")
-    for task in tasks:
+    for task in instance.tasks.all():
         needs_save = False
 
         # 1. Sync REMINDER TIME
-        if routine_reminder_time and task.reminder_time != routine_reminder_time:
+        if routine_reminder_time and (task.reminder_time is None or task.reminder_time != routine_reminder_time):
             task.reminder_time = routine_reminder_time
             needs_save = True
+            update_fields.append("reminder_time")
 
         # 2. Sync DUE DATE TIME component
         if routine_time_of_day:
-            current_date = task.due_date.date() if task.due_date else instance.start_date or timezone.now().date()
-            
+            # Use today's local date if task.due_date is None
+            current_date = (
+                task.due_date.astimezone(timezone.get_current_timezone()).date()
+                if task.due_date else timezone.localdate()
+            )
+
             new_due_date = timezone.make_aware(
                 datetime.combine(current_date, routine_time_of_day),
                 timezone.get_current_timezone()
@@ -139,9 +144,12 @@ def sync_routine_to_tasks(sender, instance, **kwargs):
             if task.due_date is None or task.due_date.time() != routine_time_of_day:
                 task.due_date = new_due_date
                 needs_save = True
+                update_fields.append("due_date")
 
         if needs_save:
-            task.save(update_fields=["due_date", "reminder_time"], skip_sync=True)
+            task.save(update_fields=list(set(update_fields)), skip_sync=True)
+            update_fields = []
+
 
 
 @receiver(post_save, sender=Task)
@@ -155,23 +163,25 @@ def sync_task_to_routine(sender, instance, **kwargs):
         update_fields = []
 
         # 1. Sync REMINDER TIME
-        if instance.reminder_time and routine.reminder_time != instance.reminder_time:
+        if instance.reminder_time and (
+            routine.reminder_time is None or routine.reminder_time != instance.reminder_time
+        ):
             routine.reminder_time = instance.reminder_time
             needs_save = True
             update_fields.append("reminder_time")
 
         # 2. Sync TIME OF DAY
         if instance.due_date and isinstance(instance.due_date, datetime):
-            new_time_of_day = instance.due_date.time() 
-            
-            if routine.time_of_day != new_time_of_day:
+            local_due_date = instance.due_date.astimezone(timezone.get_current_timezone())
+            new_time_of_day = local_due_date.time()
+
+            if routine.time_of_day is None or routine.time_of_day != new_time_of_day:
                 routine.time_of_day = new_time_of_day
                 needs_save = True
                 update_fields.append("time_of_day")
-        
+
         if needs_save:
             routine.save(update_fields=list(set(update_fields)), skip_sync=True)
-
 # ----------------------------------------------
 # ----------------------------------------------
 
