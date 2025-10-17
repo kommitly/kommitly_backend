@@ -18,7 +18,7 @@ class Command(BaseCommand):
         now_utc = timezone.now()
         window = timedelta(minutes=5)  # tolerance window
 
-        activities = DailyActivity.objects.filter(reminder_sent=False, template__is_active=True)
+        activities = DailyActivity.objects.filter(reminder_sent=False, template__is_active=True, completed=False)
 
         for activity in activities:
             user = activity.template.user
