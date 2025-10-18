@@ -57,10 +57,11 @@ class Command(BaseCommand):
             except Exception as e:
                 logger.error(f"Error sending subtask reminder: {e}")
 
+      
         # ----- Overdue Tasks -----
         overdue_tasks = Task.objects.filter(
-            status__in=["pending", "in_progress"],
-            due_date__lt=now_utc.date(),
+            status__in=["pending", "in-progress"],
+            due_date__lt=now_utc,
             overdue_notified=False
         )
         for task in overdue_tasks:
@@ -71,7 +72,7 @@ class Command(BaseCommand):
                 # Mark overdue + set reason
                 if task.status == "pending":
                     task.overdue_reason = "not_started"
-                elif task.status == "in_progress":
+                elif task.status == "in-progress":
                     task.overdue_reason = "unfinished"
 
                 task.status = "overdue"
@@ -79,20 +80,20 @@ class Command(BaseCommand):
                 task.save(update_fields=["status", "overdue_reason", "overdue_notified"])
 
                 send_overdue_task_notifications(task_id=task.id)
-                self.stdout.write(f"Overdue notification sent for task: {task.title}")
+                self.stdout.write(f"⚠️ Overdue notification sent for task: {task.title}")
             except Exception as e:
                 logger.error(f"Error sending overdue task notification: {e}")
 
         # ----- Overdue SubTasks -----
         overdue_subtasks = SubTask.objects.filter(
-            status__in=["pending", "in_progress"],
-            due_date__lt=now_utc.date(),
+            status__in=["pending", "in-progress"],
+            due_date__lt=now_utc,
             overdue_notified=False
         )
         for subtask in overdue_subtasks:
             try:
                 send_overdue_subtask_notifications(subtask_id=subtask.id)
-                self.stdout.write(f"Overdue notification sent for subtask: {subtask.title}")
+                self.stdout.write(f"⚠️ Overdue notification sent for subtask: {subtask.title}")
             except Exception as e:
                 logger.error(f"Error sending overdue subtask notification: {e}")
 
