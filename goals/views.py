@@ -4,6 +4,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from datetime import datetime, time, date
 from django.utils import timezone
+import pytz
 from rest_framework import status, permissions, generics
 from .models import Goal, Task, AiGoal, AiTask, SubTask, AiSubTask, Routine, DailyActivity, DailyTemplate, DailyActivityHistory
 from .serializers import GoalSerializer, TaskSerializer, CreateGoalSerializer, CreateTaskSerializer, CreateAiTaskSerializer,AiGoalSerializer, AiTaskSerializer, CreateAiGoalSerializer, UserProfileSerializer, UpdateAiGoalSerializer, SubTaskSerializer, AiSubTaskSerializer, RoutineSerializer,DailyTemplateSerializer, DailyActivitySerializer, DailyActivityHistorySerializer
@@ -1911,18 +1912,25 @@ class DailyActivityListCreateView(generics.ListCreateAPIView):
     def get_queryset(self):
         user = self.request.user
         view_type = self.request.query_params.get("view", "today")
-        today = timezone.localdate()
+        now_utc = timezone.now()
+       
+        # ✅ Convert UTC → user’s local timezone
+        try:
+            user_tz = pytz.timezone(user.timezone)
+        except Exception:
+            user_tz = pytz.UTC
+
+        user_local_today = now_utc.astimezone(user_tz).date()
 
         if view_type == "history":
-            # Return historical activities
             return DailyActivityHistory.objects.filter(
                 activity__template__user=user
             ).order_by("-date")
 
-        # Default: today's activities
+        # ✅ Use user-local "today"
         return DailyActivity.objects.filter(
             template__user=user,
-            date=today
+            date=user_local_today
         ).order_by("start_time")
 
     def perform_create(self, serializer):
