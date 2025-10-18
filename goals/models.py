@@ -374,6 +374,7 @@ class Routine(models.Model):
     subtask_template_title = models.CharField(max_length=255, blank=True, null=True)
     subtask_template_description = models.TextField(blank=True, null=True)
     reminder_time = models.TimeField(null=True, blank=True)  # Time to send reminders
+    last_reset = models.DateField(null=True, blank=True)
 
 
     def save(self, *args, **kwargs):
@@ -387,6 +388,7 @@ class Routine(models.Model):
 
     def __str__(self):
         return f"{self.name} ({self.frequency})"
+
 
 class DailyTemplate(models.Model):
     user = models.ForeignKey('users.User', on_delete=models.CASCADE, related_name="daily_templates")

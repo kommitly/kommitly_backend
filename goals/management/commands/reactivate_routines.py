@@ -1,9 +1,8 @@
-from datetime import datetime, time, timedelta
+from datetime import datetime, time, timedelta, timezone as dt_timezone
 from dateutil.relativedelta import relativedelta
-
 from django.core.management.base import BaseCommand
 from django.utils import timezone
-
+from django.utils.timezone import make_aware
 from goals.models import Routine, AiSubTask, SubTask, Task
 
 
@@ -40,11 +39,16 @@ class Command(BaseCommand):
         self.stdout.write(self.style.SUCCESS(f"DEBUG: Found {routines.count()} active routines"))
 
         for routine in routines:
-            self.stdout.write(self.style.SUCCESS(f"DEBUG: Processing routine {routine.id} - {routine.name}"))
+            self.stdout.write(self.style.SUCCESS(f"DEBUG: Processing routine {routine.id} - {routine.subtask_template_title}"))
 
             # Skip if past end_date
             if routine.end_date and today > routine.end_date:
                 self.stdout.write(f"Skipping routine {routine.id}: past end_date")
+                continue
+
+            # ✅ Skip if already reset today
+            if routine.last_reset and routine.last_reset >= today:
+                self.stdout.write(self.style.WARNING(f"Skipping routine {routine.id}: already reset today ({routine.last_reset})"))
                 continue
 
             # Determine if routine triggers today
@@ -73,27 +77,36 @@ class Command(BaseCommand):
                 self.stdout.write(f"Routine {routine.id} does not trigger today")
                 continue
 
-            # --- Today’s due and reminder datetimes (already UTC) ---
-            due_utc_today = datetime.combine(today, routine.time_of_day or time(8, 0))
-            reminder_utc_today = datetime.combine(today, routine.reminder_time or time(8, 0))
+            # --- Today’s due and reminder datetimes (UTC aware) ---
+            due_utc_today = make_aware(datetime.combine(today, routine.time_of_day or time(8, 0)), timezone=dt_timezone.utc)
+            reminder_utc_today = make_aware(datetime.combine(today, routine.reminder_time or time(8, 0)), timezone=dt_timezone.utc)
+
             self.stdout.write(self.style.SUCCESS(f"due date utc today is : {due_utc_today}"))
             self.stdout.write(self.style.SUCCESS(f"reminder utc today is : {reminder_utc_today}"))
 
-
             # --- Reactivate existing AiSubTasks ---
             for ai_subtask in routine.ai_subtasks.all():
+                if not ai_subtask.due_date:
+                    self.stdout.write(self.style.WARNING(f"[AiSubTask] Skipped (no due_date): {ai_subtask.title}"))
+                    continue
                 if ai_subtask.due_date.date() <= today - timedelta(days=1):
                     reset_instance(ai_subtask, due_utc_today, reminder_utc_today)
                     self.stdout.write(self.style.SUCCESS(f"[AiSubTask] Reactivated: {ai_subtask.title}"))
 
             # --- Reactivate existing SubTasks ---
             for subtask in routine.subtasks.all():
+                if not subtask.due_date:
+                    self.stdout.write(self.style.WARNING(f"[SubTask] Skipped (no due_date): {subtask.title}"))
+                    continue
                 if subtask.due_date.date() <= today - timedelta(days=1):
                     reset_instance(subtask, due_utc_today, reminder_utc_today)
                     self.stdout.write(self.style.SUCCESS(f"[SubTask] Reactivated: {subtask.title}"))
 
             # --- Reactivate existing Tasks ---
             for task in routine.tasks.all():
+                if not task.due_date:
+                    self.stdout.write(self.style.WARNING(f"[Task] Skipped (no due_date): {task.title}"))
+                    continue
                 if task.due_date.date() <= today - timedelta(days=1):
                     reset_instance(task, due_utc_today, reminder_utc_today)
                     self.stdout.write(self.style.SUCCESS(f"[Task] Reactivated: {task.title}"))
@@ -140,3 +153,8 @@ class Command(BaseCommand):
                         status="pending",
                     )
                     self.stdout.write(self.style.SUCCESS(f"[Task] CREATED (fallback): {new_task.title}"))
+
+            # ✅ Mark routine as reset today
+            routine.last_reset = today
+            routine.save(update_fields=["last_reset"])
+            self.stdout.write(self.style.SUCCESS(f"Routine {routine.id} marked as reset for {today}"))
