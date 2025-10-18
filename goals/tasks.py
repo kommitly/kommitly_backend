@@ -357,49 +357,82 @@ def send_ai_subtask_reminders(subtask_id=None, user_id=None):
 
 @shared_task
 def send_overdue_task_notifications(task_id=None):
-    try:
-        task = Task.objects.get(id=task_id, status="overdue")
-    except Task.DoesNotExist:
-        logger.warning(f"No pending task found with id={task_id}")
-        return
+    now_utc = timezone.now()
 
-    user = task.user or (task.goal.user if task.goal else None)
-    if not user:
-        logger.error(f"Overdue task '{task.title}' has no associated user.")
-        return
-
-    user_email = user.email
-    subject = "⚠️ Overdue Task Alert from Kommitly"
-    from_email = "no-reply@kommitly.com"
-    to = [user_email]
-
-    context = {
-        "task": task,
-        "user": user,
-        "app_link": f"https://kommitly-frontend.vercel.app/dashboard/tasks/{task.id}/"
-    }
-    text_content = f"⚠️ Your task '{task.title}' is overdue! Please update it in Kommitly."
+    if task_id:
+        try:
+            task = Task.objects.get(
+                id=task_id,
+                status__in=["pending", "in-progress","overdue"],
+                due_date__lt=now_utc
+                )
+            tasks=[task]
+        except Task.DoesNotExist:
+            logger.warning(f"No pending task found with id={task_id}")
+            return
     
-    try:
-        html_content = render_to_string("email/task_overdue.html", context)
-    except TemplateDoesNotExist:
-        html_content = text_content
+    else:
+        tasks = Task.objects.filter(
+            status__in=["pending", "in-progress","overdue"],
+            due_date__lt=now_utc
+        )
 
-    msg = EmailMultiAlternatives(subject, text_content, from_email, to)
-    msg.attach_alternative(html_content, "text/html")
-    msg.send()
+    
+    for task in tasks:
+        
+        try:
+            # Set overdue status + reason
+            if task.status == "pending":
+                task.overdue_reason = "not_started"
+            elif task.status == "in-progress":
+                task.overdue_reason = "unfinished"
 
-    # ✅ In-app notification
-    Notification.objects.create(
-        user=user,
-        content_type=ContentType.objects.get_for_model(task),
-        object_id=task.id,
-        message=f"⚠️ Your task '{task.title}' is overdue! Mark it as completed if done.",
-        link=f"https://kommitly-frontend.vercel.app/dashboard/tasks/{task.id}/",
-        type="overdue"
-    )
+            task.status = "overdue"
+            task.overdue_notified = True
+            task.save(update_fields=["status", "overdue_reason", "overdue_notified"])
 
-    logger.info(f"Overdue notification sent for task: {task.title} to {user_email}")
+            user = task.user
+           
+            if not user:
+                continue
+
+
+
+
+  
+            subject = f"⚠️ Overdue Task: {task.title}"
+            from_email = "no-reply@kommitly.com"
+            to = [user.email]
+
+            context = {
+                "task": task,
+                "user": user,
+                "app_link": f"https://kommitly-frontend.vercel.app/dashboard/tasks/{task.id}/"
+            }
+            text_content = f"⚠️ Your task '{task.title}' is overdue! Please review it in Kommitly."
+            html_content = render_to_string("email/task_overdue.html", context)
+            
+
+            msg = EmailMultiAlternatives(subject, text_content, from_email, to)
+            msg.attach_alternative(html_content, "text/html")
+            msg.send()
+
+            # ✅ In-app notification
+            Notification.objects.create(
+                user=user,
+                content_type=ContentType.objects.get_for_model(task),
+                object_id=task.id,
+                message=f"⚠️ Overdue: '{task.title}' needs your attention .",
+                link=context["app_link"],
+                type="overdue"
+            )
+
+            logger.info(f"Overdue notification sent for task: {task.title} to {user_email}")
+
+        except Exception as e:
+            logger.error(f"Error sending overdue Task notification: {str(e)}")
+
+
 
 
 def send_overdue_subtask_notifications(subtask_id):

@@ -449,7 +449,7 @@ class TaskSerializer(serializers.ModelSerializer):
             "id", "goal", "user", "title", "description", "due_date", "status",
             "completed_at", "subtasks", "overdue_reason", "task_timeline",
             "reminder_time", "last_updated", "reminder_sent", "tag",
-            "ai_answer", "routine", "created_at"
+            "ai_answer", "routine", "created_at","overdue_notified"
         ]
 
     # ---------------------------
