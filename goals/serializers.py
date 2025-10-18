@@ -537,22 +537,27 @@ class TaskSerializer(serializers.ModelSerializer):
     # UPDATE LOGIC
     # ---------------------------
     def update(self, instance, validated_data):
-        old_due_date = instance.due_date
-        new_due_date = validated_data.get("due_date", old_due_date)
-        user_tz = self.get_user_timezone(instance)
-
-        # Proceed with normal update
+        validated_data = self._apply_due_date_status(validated_data, instance)
         instance = super().update(instance, validated_data)
 
-        # ✅ Reset overdue status if due date moved to the future
+        user_tz = self.get_user_timezone(instance)
+        new_due_date = validated_data.get("due_date", instance.due_date)
         now_utc = timezone.now()
+
+        # ✅ Reset overdue status if due_date moved to future
         if instance.status == "overdue" and new_due_date > now_utc:
             instance.status = "pending"
             instance.overdue_reason = None
             instance.save(update_fields=["status", "overdue_reason"])
             print(f"DEBUG: Task {instance.id} status reset to 'pending' (new due_date is in the future)")
 
-        # ✅ Set default reminder_time if not changed or now invalid
+        # ✅ If reminder_time was updated, reset reminder_sent
+        if "reminder_time" in validated_data:
+            instance.reminder_sent = False
+            instance.save(update_fields=["reminder_sent"])
+            print(f"DEBUG: Reminder time updated — reminder_sent reset to False")
+        
+        # ✅ Set default reminder_time if not changed
         if "reminder_time" not in validated_data:
             default_reminder_dt = new_due_date - timedelta(minutes=15)
             instance.reminder_time = default_reminder_dt.time()
@@ -563,6 +568,11 @@ class TaskSerializer(serializers.ModelSerializer):
         else:
             # Ensure reminder is still before due_date
             reminder_dt = datetime.combine(new_due_date.date(), instance.reminder_time)
+
+            # ✅ Make reminder_dt timezone-aware (UTC)
+            if timezone.is_naive(reminder_dt):
+                reminder_dt = timezone.make_aware(reminder_dt, timezone=pytz.UTC)
+
             if reminder_dt >= new_due_date:
                 default_reminder_dt = new_due_date - timedelta(minutes=15)
                 instance.reminder_time = default_reminder_dt.time()
@@ -570,6 +580,25 @@ class TaskSerializer(serializers.ModelSerializer):
                 print(f"DEBUG: Reminder adjusted to 15 minutes before due_date → {instance.reminder_time}")
 
         return instance
+
+    def _apply_due_date_status(self, validated_data, instance=None):
+        now = timezone.now()
+        due_date = validated_data.get("due_date", getattr(instance, "due_date", None))
+        status = validated_data.get("status", getattr(instance, "status", None))
+
+        if status != "completed" and due_date:
+            if due_date <= now:
+                validated_data["status"] = "overdue"
+                if not validated_data.get("overdue_reason") and getattr(instance, "overdue_reason", None) is None:
+                    validated_data["overdue_reason"] = "not_started"
+            else:
+                if status == "overdue":
+                    validated_data["status"] = "pending"
+                    validated_data["reminder_sent"] = False
+                    validated_data["overdue_reason"] = None
+                    validated_data["overdue_notified"] = False
+        return validated_data
+
 
     # ---------------------------
     # TO REPRESENTATION
