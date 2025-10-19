@@ -45,7 +45,7 @@ from .views import (
     DailyActivityCompleteView,
     SuggestedDailyTemplateView,
     SaveSuggestedTemplateView,
-    trigger_cron_command
+    TriggerCronCommandView
 
 
     
@@ -98,7 +98,7 @@ urlpatterns= [
     path("daily-activities/<int:pk>/complete/", DailyActivityCompleteView.as_view(), name="daily-activity-complete"),
     path("daily-templates/suggestions/", SuggestedDailyTemplateView.as_view(), name="suggested-templates"),
     path("daily-templates/save-suggestion/", SaveSuggestedTemplateView.as_view(), name="save-suggested-template"),
-    path("cron/<str:command_name>/", trigger_cron_command)
+    path("cron/<str:command_name>/", TriggerCronCommandView.as_view(), name="trigger-cron-command"),
 
  
     
