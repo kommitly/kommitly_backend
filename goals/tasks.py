@@ -357,6 +357,7 @@ def send_ai_subtask_reminders(subtask_id=None, user_id=None):
 
 @shared_task
 def send_overdue_task_notifications(task_id=None):
+
     now_utc = timezone.now()
 
     if task_id:
@@ -379,6 +380,8 @@ def send_overdue_task_notifications(task_id=None):
 
     
     for task in tasks:
+        self.stdout.write(self.style.SUCCESS(f"Found Helper for: {task.title}"))
+            
         
         try:
             # Set overdue status + reason

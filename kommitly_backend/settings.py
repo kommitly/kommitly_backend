@@ -269,3 +269,5 @@ CHANNEL_LAYERS = {
         },
     },
 }
+
+CRON_SECRET_KEY = os.getenv("CRON_SECRET_KEY")

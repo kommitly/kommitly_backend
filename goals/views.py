@@ -19,6 +19,9 @@ from django.db.models import Prefetch
 from .tasks import send_task_reminders
 from django.db.models import Q
 from .constants import FIXED_ACTIVITIES
+from django.core.management import call_command
+from django.conf import settings
+
 
 
 
@@ -2134,3 +2137,75 @@ class SaveSuggestedTemplateView(APIView):
 
         serializer = DailyTemplateSerializer(template)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+
+class TriggerCronCommandView(APIView):
+    permission_classes = [permissions.AllowAny]
+
+    @swagger_auto_schema(
+        operation_summary="Trigger a management command remotely",
+        operation_description=(
+            "This endpoint allows authorized external services (like cronjob.org) to "
+            "trigger specific Django management commands via URL. A valid `key` query "
+            "parameter is required for authentication."
+        ),
+        manual_parameters=[
+            openapi.Parameter(
+                "command_name",
+                openapi.IN_PATH,
+                description="Name of the management command to trigger.",
+                type=openapi.TYPE_STRING,
+                enum=[
+                    "send_task_reminders",
+                    "send_ai_task_reminders",
+                    "send_ai_subtask_reminders",
+                    "reactivate_routines",
+                    "send_daily_activity_reminders",
+                    "reset_daily_activity_reminders",
+                    "cleanup_notifications",
+                ],
+                required=True,
+            ),
+            openapi.Parameter(
+                "key",
+                openapi.IN_QUERY,
+                description="Security key to authorize the request.",
+                type=openapi.TYPE_STRING,
+                required=True,
+            ),
+        ],
+        responses={
+            200: openapi.Response(
+                description="Command executed successfully",
+                examples={"application/json": {"status": "send_task_reminders executed successfully"}},
+            ),
+            400: openapi.Response(
+                description="Invalid command name",
+                examples={"application/json": {"error": "Invalid command"}},
+            ),
+            403: openapi.Response(
+                description="Unauthorized access",
+                examples={"application/json": {"error": "Unauthorized"}},
+            ),
+        },
+    )
+    def get(self, request, command_name):
+        key = request.GET.get("key")
+        if key != settings.CRON_SECRET_KEY:
+            return Response({"error": "Unauthorized"}, status=status.HTTP_403_FORBIDDEN)
+
+        valid_commands = [
+            "send_task_reminders",
+            "send_ai_task_reminders",
+            "send_ai_subtask_reminders",
+            "reactivate_routines",
+            "send_daily_activity_reminders",
+            "reset_daily_activity_reminders",
+            "cleanup_notifications",
+        ]
+
+        if command_name not in valid_commands:
+            return Response({"error": "Invalid command"}, status=status.HTTP_400_BAD_REQUEST)
+
+        call_command(command_name)
+        return Response({"status": f"{command_name} executed successfully"}, status=status.HTTP_200_OK)
