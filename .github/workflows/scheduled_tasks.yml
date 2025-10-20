@@ -33,7 +33,7 @@ jobs:
       - name: Run Periodic Reminder Commands (Every 5 Minutes)
         env:
           # --- ESSENTIAL DJANGO/DB SECRETS ---
-          DJANGO_SECRET_KEY: ${{ secrets.SECRET_KEY }}
+          SECRET_KEY: ${{ secrets.SECRET_KEY }}
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
           
           # --- EMAIL SECRETS (Needed for reminders) ---
@@ -71,7 +71,7 @@ jobs:
       - name: Run Hourly Commands
         env:
           # --- ESSENTIAL DJANGO/DB SECRETS ---
-          DJANGO_SECRET_KEY: ${{ secrets.SECRET_KEY }}
+          SECRET_KEY: ${{ secrets.SECRET_KEY }}
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
 
           # --- HOURLY COMMANDS DON'T NEED ALL EMAIL/AI KEYS, but include them for consistency if needed ---
@@ -100,7 +100,7 @@ jobs:
       - name: Run Daily Cleanup Command
         env:
           # --- ESSENTIAL DJANGO/DB SECRETS ---
-          DJANGO_SECRET_KEY: ${{ secrets.SECRET_KEY }}
+          SECRET_KEY: ${{ secrets.SECRET_KEY }}
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
           
           # --- CLEANUP COMMANDS LIKELY DON'T NEED EMAIL/AI KEYS ---
