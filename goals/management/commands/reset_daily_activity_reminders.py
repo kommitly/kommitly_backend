@@ -88,7 +88,7 @@ class Command(BaseCommand):
         )
 
         # ✅ Log summary to file
-        with open("/home/shanon/kommitly/kommitly_backend/daily_activity_reset.log", "a") as f:
-            f.write(
-                f"[{now_utc}] Reset {total_reset} activities for {total_users} users, archived {total_archived}\n"
-            )
+        # with open("/home/shanon/kommitly/kommitly_backend/daily_activity_reset.log", "a") as f:
+        #     f.write(
+        #         f"[{now_utc}] Reset {total_reset} activities for {total_users} users, archived {total_archived}\n"
+        #     )
