@@ -1,0 +1,138 @@
+# .github/workflows/scheduled_tasks.yml
+
+name: Scheduled Django Management Tasks
+
+on:
+  # The workflow must be triggered at the *maximum* frequency of your jobs.
+  schedule:
+    - cron: '0 0 * * *'    # Daily: Cleanup (0 0 * * *)
+    - cron: '0 * * * *'    # Hourly: Reactivate and Reset (0 * * * *)
+    - cron: '*/5 * * * *'  # Periodic: Reminders (Every 5 minutes)
+
+jobs:
+  # --- Periodic Jobs (*/5 * * * *) ---
+  periodic_reminders:
+    runs-on: ubuntu-latest
+    # Only run this job if the triggering schedule was the 5-minute one.
+    if: github.event_name == 'schedule' && github.event.schedule == '*/5 * * * *'
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12.3'
+
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+      
+      - name: Run Periodic Reminder Commands (Every 5 Minutes)
+        env:
+          # --- ESSENTIAL DJANGO/DB SECRETS ---
+          SECRET_KEY: ${{ secrets.SECRET_KEY }}
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+
+          GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
+          
+          # --- EMAIL SECRETS (Needed for reminders) ---
+          EMAIL_BACKEND: ${{ secrets.EMAIL_BACKEND }}
+          EMAIL_HOST: ${{ secrets.EMAIL_HOST }}
+          EMAIL_PORT: ${{ secrets.EMAIL_PORT }}
+          EMAIL_USE_TLS: ${{ secrets.EMAIL_USE_TLS }}
+          EMAIL_HOST_USER: ${{ secrets.EMAIL_HOST_USER }}
+          EMAIL_HOST_PASSWORD: ${{ secrets.EMAIL_HOST_PASSWORD }}
+
+          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+          
+          
+          
+        run: |
+          echo "Starting periodic reminders (every 5 minutes)..."
+          python manage.py send_task_reminders
+          python manage.py send_ai_subtask_reminders
+          python manage.py send_daily_activity_reminders
+          
+  # --- Hourly Jobs (0 * * * *) ---
+  hourly_tasks:
+    runs-on: ubuntu-latest
+    # Only run this job if the triggering schedule was the hourly one.
+    if: github.event_name == 'schedule' && github.event.schedule == '0 * * * *'
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12.3'
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run Hourly Commands
+        env:
+          # --- ESSENTIAL DJANGO/DB SECRETS ---
+          SECRET_KEY: ${{ secrets.SECRET_KEY }}
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+
+          GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
+          
+          # --- EMAIL SECRETS (Needed for reminders) ---
+          EMAIL_BACKEND: ${{ secrets.EMAIL_BACKEND }}
+          EMAIL_HOST: ${{ secrets.EMAIL_HOST }}
+          EMAIL_PORT: ${{ secrets.EMAIL_PORT }}
+          EMAIL_USE_TLS: ${{ secrets.EMAIL_USE_TLS }}
+          EMAIL_HOST_USER: ${{ secrets.EMAIL_HOST_USER }}
+          EMAIL_HOST_PASSWORD: ${{ secrets.EMAIL_HOST_PASSWORD }}
+
+          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+
+          # --- HOURLY COMMANDS DON'T NEED ALL EMAIL/AI KEYS, but include them for consistency if needed ---
+        run: |
+          echo "Starting hourly tasks..."
+          python manage.py reactivate_routines
+          python manage.py reset_daily_activity_reminders
+          
+  # --- Daily Job (0 0 * * *) ---
+  daily_cleanup:
+    runs-on: ubuntu-latest
+    # Only run this job if the triggering schedule was the daily one.
+    if: github.event_name == 'schedule' && github.event.schedule == '0 0 * * *'
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12.3'
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run Daily Cleanup Command
+        env:
+          # --- ESSENTIAL DJANGO/DB SECRETS ---
+          SECRET_KEY: ${{ secrets.SECRET_KEY }}
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+
+          GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
+          
+          # --- EMAIL SECRETS (Needed for reminders) ---
+          EMAIL_BACKEND: ${{ secrets.EMAIL_BACKEND }}
+          EMAIL_HOST: ${{ secrets.EMAIL_HOST }}
+          EMAIL_PORT: ${{ secrets.EMAIL_PORT }}
+          EMAIL_USE_TLS: ${{ secrets.EMAIL_USE_TLS }}
+          EMAIL_HOST_USER: ${{ secrets.EMAIL_HOST_USER }}
+          EMAIL_HOST_PASSWORD: ${{ secrets.EMAIL_HOST_PASSWORD }}
+
+          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+          
+          # --- CLEANUP COMMANDS LIKELY DON'T NEED EMAIL/AI KEYS ---
+        run: |
+          echo "Starting daily cleanup..."
+          python manage.py cleanup_notifications
