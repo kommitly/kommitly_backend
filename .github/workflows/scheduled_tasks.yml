@@ -35,6 +35,8 @@ jobs:
           # --- ESSENTIAL DJANGO/DB SECRETS ---
           SECRET_KEY: ${{ secrets.SECRET_KEY }}
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
+
+          GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
           
           # --- EMAIL SECRETS (Needed for reminders) ---
           EMAIL_HOST: ${{ secrets.EMAIL_HOST }}
