@@ -76,6 +76,15 @@ jobs:
           SECRET_KEY: ${{ secrets.SECRET_KEY }}
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
 
+          GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
+          
+          # --- EMAIL SECRETS (Needed for reminders) ---
+          EMAIL_HOST: ${{ secrets.EMAIL_HOST }}
+          EMAIL_PORT: ${{ secrets.EMAIL_PORT }}
+          EMAIL_USE_TLS: ${{ secrets.EMAIL_USE_TLS }}
+          EMAIL_HOST_USER: ${{ secrets.EMAIL_HOST_USER }}
+          EMAIL_HOST_PASSWORD: ${{ secrets.EMAIL_HOST_PASSWORD }}
+
           # --- HOURLY COMMANDS DON'T NEED ALL EMAIL/AI KEYS, but include them for consistency if needed ---
         run: |
           echo "Starting hourly tasks..."
@@ -104,6 +113,15 @@ jobs:
           # --- ESSENTIAL DJANGO/DB SECRETS ---
           SECRET_KEY: ${{ secrets.SECRET_KEY }}
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
+
+          GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
+          
+          # --- EMAIL SECRETS (Needed for reminders) ---
+          EMAIL_HOST: ${{ secrets.EMAIL_HOST }}
+          EMAIL_PORT: ${{ secrets.EMAIL_PORT }}
+          EMAIL_USE_TLS: ${{ secrets.EMAIL_USE_TLS }}
+          EMAIL_HOST_USER: ${{ secrets.EMAIL_HOST_USER }}
+          EMAIL_HOST_PASSWORD: ${{ secrets.EMAIL_HOST_PASSWORD }}
           
           # --- CLEANUP COMMANDS LIKELY DON'T NEED EMAIL/AI KEYS ---
         run: |
