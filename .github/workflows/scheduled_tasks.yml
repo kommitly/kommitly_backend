@@ -45,6 +45,8 @@ jobs:
           EMAIL_USE_TLS: ${{ secrets.EMAIL_USE_TLS }}
           EMAIL_HOST_USER: ${{ secrets.EMAIL_HOST_USER }}
           EMAIL_HOST_PASSWORD: ${{ secrets.EMAIL_HOST_PASSWORD }}
+
+          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
           
           
           
@@ -87,6 +89,8 @@ jobs:
           EMAIL_HOST_USER: ${{ secrets.EMAIL_HOST_USER }}
           EMAIL_HOST_PASSWORD: ${{ secrets.EMAIL_HOST_PASSWORD }}
 
+          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+
           # --- HOURLY COMMANDS DON'T NEED ALL EMAIL/AI KEYS, but include them for consistency if needed ---
         run: |
           echo "Starting hourly tasks..."
@@ -125,6 +129,8 @@ jobs:
           EMAIL_USE_TLS: ${{ secrets.EMAIL_USE_TLS }}
           EMAIL_HOST_USER: ${{ secrets.EMAIL_HOST_USER }}
           EMAIL_HOST_PASSWORD: ${{ secrets.EMAIL_HOST_PASSWORD }}
+
+          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
           
           # --- CLEANUP COMMANDS LIKELY DON'T NEED EMAIL/AI KEYS ---
         run: |
