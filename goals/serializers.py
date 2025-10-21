@@ -1049,6 +1049,7 @@ class DailyActivitySerializer(serializers.ModelSerializer):
         fields = "__all__"
         read_only_fields = ["template"]
 
+
 class DailyTemplateSerializer(serializers.ModelSerializer):
     activities = DailyActivitySerializer(many=True, read_only=True)
 
@@ -1056,6 +1057,17 @@ class DailyTemplateSerializer(serializers.ModelSerializer):
         model = DailyTemplate
         fields = "__all__"
         read_only_fields = ["user"]
+
+    
+    def create(self, validated_data):
+        # The user will be passed by the view's perform_create method
+        user = validated_data.pop('user', None) 
+        
+        # Now create the template using all validated data
+        # 'name', 'description', etc., are included in validated_data
+        template = DailyTemplate.objects.create(user=user, **validated_data)
+        
+        return template
 
 
 class DailyActivityHistorySerializer(serializers.ModelSerializer):

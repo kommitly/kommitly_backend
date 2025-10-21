@@ -5,9 +5,7 @@ myenv/
 venv
 
 *.log
-
 cron.log
-
 ai_cron.log
 ai_subtask_cron.log
 daily_activity_cron.log
