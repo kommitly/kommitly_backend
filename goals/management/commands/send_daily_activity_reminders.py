@@ -15,7 +15,7 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         self.stdout.write(self.style.NOTICE("Starting daily activity reminder check..."))
         
-        window_minutes = 8
+        window_minutes = 12
         now_utc = timezone.now()
         past_utc = now_utc - timedelta(minutes=window_minutes)
         
@@ -31,7 +31,7 @@ class Command(BaseCommand):
             date=now_utc.date() 
         ).select_related("template", "template__user")
 
-        self.stdout.write(self.style.NOTICE(f"Fetched {activities.count()} potential activities based on UTC date. {now_utc.date() }"))
+        self.stdout.write(self.style.NOTICE(f"Fetched {activities.count()} potential activities based on UTC date. {now_utc}"))
 
         for activity in activities:
             user = activity.template.user
@@ -50,7 +50,7 @@ class Command(BaseCommand):
 
             # --- LOGGING THE CHECK ---
             self.stdout.write(
-                f"Checking {activity.title} (ID:{activity.id}) for user {user.email}: "
+                f"Checking {activity.title} (ID:{activity.id}) for user {user.email} at {now_utc}: "
                 f"Activity Date={activity.date}, User Local Date={user_today}"
             )
 
