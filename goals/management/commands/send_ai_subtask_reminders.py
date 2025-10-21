@@ -8,6 +8,7 @@ from goals.tasks import send_ai_subtask_reminders, send_overdue_ai_subtask_notif
 
 logger = logging.getLogger(__name__)
 
+REMINDER_WINDOW_MINUTES = 8
 class Command(BaseCommand):
     help = 'Send reminders for AI subtasks with a due reminder_time'
 
@@ -16,8 +17,10 @@ class Command(BaseCommand):
         
         now_utc = timezone.now()
 
+        past_utc = now_utc - timedelta(minutes=REMINDER_WINDOW_MINUTES)
+
         # --- Pending reminders ---
-        ai_subtasks = AiSubTask.objects.filter(status__in=['pending', 'overdue'], reminder_sent=False)
+        ai_subtasks = AiSubTask.objects.filter(status__in=['pending', 'overdue'], reminder_sent=False, due_date__lte=now_utc.date() + timedelta(days=1))
         logger.info(f"Found {ai_subtasks.count()} AI subtasks pending reminders.")
 
         for ai_subtask in ai_subtasks:
@@ -48,7 +51,7 @@ class Command(BaseCommand):
                 )
 
                 # Check if reminder is due (within 2-minute window)
-                if reminder_utc <= now_utc <= reminder_utc + timedelta(minutes=2):
+                if past_utc <= reminder_utc <= now_utc:
                     send_ai_subtask_reminders(subtask_id=ai_subtask.id)
                     self.stdout.write(f"[{now_utc:%Y-%m-%d %H:%M:%S}] Reminder sent for AI subtask: {ai_subtask.title}")
 

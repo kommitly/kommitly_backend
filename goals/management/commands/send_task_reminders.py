@@ -8,6 +8,7 @@ from goals.tasks import send_task_reminders, send_subtask_reminders, send_overdu
 
 logger = logging.getLogger(__name__)
 
+REMINDER_WINDOW_MINUTES = 8
 class Command(BaseCommand):
     help = 'Send reminders and overdue notifications for tasks and subtasks'
 
@@ -15,6 +16,8 @@ class Command(BaseCommand):
         self.stdout.write(self.style.NOTICE("Starting Task reminder check..."))
         
         now_utc = timezone.now()
+
+        past_utc = now_utc - timedelta(minutes=REMINDER_WINDOW_MINUTES)
 
 
         # ----- Task reminders -----
@@ -50,7 +53,7 @@ class Command(BaseCommand):
 
 
                 
-                if reminder_utc <= now_utc <= reminder_utc + timedelta(minutes=2):
+                if past_utc <= reminder_utc <= now_utc:
                     send_task_reminders(task_id=task.id)
                     #task.reminder_sent = True
                     #task.save(update_fields=["reminder_sent"])
