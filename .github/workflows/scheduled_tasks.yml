@@ -3,18 +3,21 @@
 name: Scheduled Django Management Tasks
 
 on:
-  # The workflow must be triggered at the *maximum* frequency of your jobs.
+  # Daily and Hourly jobs remain on the reliable built-in schedule
   schedule:
     - cron: '0 0 * * *'    # Daily: Cleanup (0 0 * * *)
     - cron: '0 * * * *'    # Hourly: Reactivate and Reset (0 * * * *)
-    - cron: '*/5 * * * *'  # Periodic: Reminders (Every 5 minutes)
+  
+  # --- New trigger for the 1-minute reminders (triggered externally) ---
+  repository_dispatch:
+    types: [minute_reminder_trigger] # This event name must match the API payload sent by cron-job.org
 
 jobs:
-  # --- Periodic Jobs (*/5 * * * *) ---
+  # --- Periodic Jobs (TRIGGERED BY REPOSITORY_DISPATCH) ---
   periodic_reminders:
     runs-on: ubuntu-latest
-    # Only run this job if the triggering schedule was the 5-minute one.
-    if: github.event_name == 'schedule' && github.event.schedule == '*/5 * * * *'
+    # CRUCIAL CHANGE: The 'if' condition now checks for the repository_dispatch event type.
+    if: github.event_name == 'repository_dispatch' && github.event.action == 'minute_reminder_trigger'
 
     steps:
       - name: Checkout repository
@@ -30,7 +33,7 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
       
-      - name: Run Periodic Reminder Commands (Every 5 Minutes)
+      - name: Run Periodic Reminder Commands (Every Minute via External Cron)
         env:
           # --- ESSENTIAL DJANGO/DB SECRETS ---
           SECRET_KEY: ${{ secrets.SECRET_KEY }}
@@ -48,18 +51,18 @@ jobs:
 
           GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
           
-          
-          
         run: |
-          echo "Starting periodic reminders (every 3 minutes)..."
+          echo "Starting periodic reminders (External Dispatch)..."
           python manage.py send_task_reminders
           python manage.py send_ai_subtask_reminders
           python manage.py send_daily_activity_reminders
           
+  # ----------------------------------------------------------------------------------
+  
   # --- Hourly Jobs (0 * * * *) ---
   hourly_tasks:
     runs-on: ubuntu-latest
-    # Only run this job if the triggering schedule was the hourly one.
+    # Condition remains the same
     if: github.event_name == 'schedule' && github.event.schedule == '0 * * * *'
 
     steps:
@@ -91,16 +94,17 @@ jobs:
 
           GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
 
-          # --- HOURLY COMMANDS DON'T NEED ALL EMAIL/AI KEYS, but include them for consistency if needed ---
         run: |
           echo "Starting hourly tasks..."
           python manage.py reactivate_routines
           python manage.py reset_daily_activity_reminders
           
+  # ----------------------------------------------------------------------------------
+
   # --- Daily Job (0 0 * * *) ---
   daily_cleanup:
     runs-on: ubuntu-latest
-    # Only run this job if the triggering schedule was the daily one.
+    # Condition remains the same
     if: github.event_name == 'schedule' && github.event.schedule == '0 0 * * *'
 
     steps:
@@ -132,7 +136,6 @@ jobs:
 
           GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
           
-          # --- CLEANUP COMMANDS LIKELY DON'T NEED EMAIL/AI KEYS ---
         run: |
           echo "Starting daily cleanup..."
           python manage.py cleanup_notifications
