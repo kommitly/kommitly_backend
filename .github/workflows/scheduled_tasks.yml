@@ -7,14 +7,14 @@ on:
   schedule:
     - cron: '0 0 * * *'    # Daily: Cleanup (0 0 * * *)
     - cron: '0 * * * *'    # Hourly: Reactivate and Reset (0 * * * *)
-    - cron: '*/5 * * * *'  # Periodic: Reminders (Every 5 minutes)
+    - cron: '*/3 * * * *'  # Periodic: Reminders (Every 3 minutes)
 
 jobs:
-  # --- Periodic Jobs (*/5 * * * *) ---
+  # --- Periodic Jobs (*/3 * * * *) ---
   periodic_reminders:
     runs-on: ubuntu-latest
-    # Only run this job if the triggering schedule was the 5-minute one.
-    if: github.event_name == 'schedule' && github.event.schedule == '*/5 * * * *'
+    # Only run this job if the triggering schedule was the 3-minute one.
+    if: github.event_name == 'schedule' && github.event.schedule == '*/3 * * * *'
 
     steps:
       - name: Checkout repository
@@ -30,7 +30,7 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
       
-      - name: Run Periodic Reminder Commands (Every 5 Minutes)
+      - name: Run Periodic Reminder Commands (Every 3 Minutes)
         env:
           # --- ESSENTIAL DJANGO/DB SECRETS ---
           SECRET_KEY: ${{ secrets.SECRET_KEY }}
@@ -51,7 +51,7 @@ jobs:
           
           
         run: |
-          echo "Starting periodic reminders (every 5 minutes)..."
+          echo "Starting periodic reminders (every 3 minutes)..."
           python manage.py send_task_reminders
           python manage.py send_ai_subtask_reminders
           python manage.py send_daily_activity_reminders
