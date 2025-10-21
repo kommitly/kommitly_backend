@@ -12,6 +12,8 @@ class Command(BaseCommand):
     help = 'Send reminders and overdue notifications for tasks and subtasks'
 
     def handle(self, *args, **options):
+        self.stdout.write(self.style.NOTICE("Starting Task reminder check..."))
+        
         now_utc = timezone.now()
 
 

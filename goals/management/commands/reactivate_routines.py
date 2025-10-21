@@ -29,6 +29,8 @@ class Command(BaseCommand):
     help = "Reactivates AiSubTasks, SubTasks, and Tasks linked to active routines, updating due dates for the current cycle."
 
     def handle(self, *args, **kwargs):
+        self.stdout.write(self.style.NOTICE("Starting daily Reactivate Routines check..."))
+        
         # Use UTC today
         now_utc = timezone.now()
         today = now_utc.date()

@@ -12,6 +12,8 @@ class Command(BaseCommand):
     help = 'Send reminders for AI tasks with a due reminder_time'
 
     def handle(self, *args, **options):
+        self.stdout.write(self.style.NOTICE("Starting ai task reminder check..."))
+        
         now_utc = timezone.now()
         ai_tasks = AiTask.objects.filter(status='in-progress', reminder_sent=False)
 
