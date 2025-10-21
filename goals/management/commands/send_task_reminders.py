@@ -8,7 +8,8 @@ from goals.tasks import send_task_reminders, send_subtask_reminders, send_overdu
 
 logger = logging.getLogger(__name__)
 
-REMINDER_WINDOW_MINUTES = 8
+REMINDER_WINDOW_MINUTES = 5
+
 class Command(BaseCommand):
     help = 'Send reminders and overdue notifications for tasks and subtasks'
 
