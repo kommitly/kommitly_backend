@@ -15,7 +15,8 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         self.stdout.write(self.style.NOTICE("Starting daily activity reminder check..."))
         
-        window_minutes = 12
+        window_minutes = 5
+        
         now_utc = timezone.now()
         past_utc = now_utc - timedelta(minutes=window_minutes)
         

@@ -8,7 +8,8 @@ from goals.tasks import send_ai_subtask_reminders, send_overdue_ai_subtask_notif
 
 logger = logging.getLogger(__name__)
 
-REMINDER_WINDOW_MINUTES = 8
+REMINDER_WINDOW_MINUTES = 5
+
 class Command(BaseCommand):
     help = 'Send reminders for AI subtasks with a due reminder_time'
 
