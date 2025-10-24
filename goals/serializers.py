@@ -1063,10 +1063,40 @@ class DailyTemplateSerializer(serializers.ModelSerializer):
         # The user will be passed by the view's perform_create method
         user = validated_data.pop('user', None) 
         
-        # Now create the template using all validated data
-        # 'name', 'description', etc., are included in validated_data
+        # Check if the name matches the expected default template name
+        is_default_template = validated_data.get('name') == "My Daily Plan"
+        
+        # Create the template object first
         template = DailyTemplate.objects.create(user=user, **validated_data)
         
+        # --- NEW LOGIC: ONLY CREATE ACTIVITIES FOR THE DEFAULT TEMPLATE ---
+        if is_default_template:
+            # Check if FIXED_ACTIVITIES exists and is iterable
+            if 'FIXED_ACTIVITIES' in globals() and isinstance(FIXED_ACTIVITIES, list):
+                # Create the default fixed activities for this new template
+                daily_activities_to_create = []
+                for activity_data in FIXED_ACTIVITIES:
+                    # Clone the activity data, and link it to the new template
+                    activity_data_copy = activity_data.copy()
+                    
+                    daily_activities_to_create.append(
+                        DailyActivity(
+                            template=template,
+                            title=activity_data_copy['name'],
+                            description=activity_data_copy.get('description'),
+                            start_time=activity_data_copy['start_time'],
+                            end_time=activity_data_copy.get('end_time'),
+                            is_fixed=True, # Ensure these are marked as fixed
+                            # Default date is handled by the model
+                        )
+                    )
+                
+                # Bulk create for efficiency
+                DailyActivity.objects.bulk_create(daily_activities_to_create)
+            else:
+                 # Log an error if FIXED_ACTIVITIES is missing or wrong format
+                 print("WARNING: FIXED_ACTIVITIES data not found or improperly defined.")
+
         return template
 
 
