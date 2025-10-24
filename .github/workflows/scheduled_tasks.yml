@@ -5,53 +5,44 @@ name: Scheduled Django Management Tasks
 on:
   # Daily and Hourly jobs remain on the reliable built-in schedule
   schedule:
-    - cron: '0 0 * * *'    # Daily: Cleanup (0 0 * * *)
-    - cron: '0 * * * *'    # Hourly: Reactivate and Reset (0 * * * *)
+    - cron: '0 0 * * *'    # Daily: Cleanup
+    - cron: '0 * * * *'    # Hourly: Reactivate and Reset
     
-  # --- New trigger for the 1-minute reminders (triggered externally) ---
+  # --- Trigger for the 1-minute reminders (triggered externally) ---
   repository_dispatch:
-    types: [minute_reminder_trigger] # This event name must match the API payload sent by cron-job.org
+    types: [minute_reminder_trigger]
 
 jobs:
   # --- Periodic Jobs (TRIGGERED BY REPOSITORY_DISPATCH - RUNS EVERY MINUTE) ---
   periodic_reminders:
     runs-on: ubuntu-latest
-    # CRUCIAL CHANGE: The 'if' condition now checks for the repository_dispatch event type.
     if: github.event_name == 'repository_dispatch' && github.event.action == 'minute_reminder_trigger'
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # 1. Set up Python with an output for the cache directory
-      - name: Set up Python
+      # 1. Set up Python with built-in caching (FIXED: Handles cache path automatically)
+      - name: Set up Python and Cache Dependencies
         uses: actions/setup-python@v5
-        id: setup-python # Added ID to reference in cache
         with:
           python-version: '3.12.3'
+          cache: 'pip' # Enables caching for the pip dependency cache
+          cache-dependency-path: 'requirements.txt' # Key is based on this file
       
-      # 2. Use Cache for Dependencies
-      - name: Cache Python Dependencies
-        uses: actions/cache@v4
-        id: cache-deps
-        with:
-          path: ${{ steps.setup-python.outputs.cache-path }}
-          # The key changes only if requirements.txt changes, forcing a rebuild
-          key: ${{ runner.os }}-python-${{ steps.setup-python.outputs.python-version }}-${{ hashFiles('requirements.txt') }}
-
-      # 3. Install Dependencies ONLY if the cache misses (install-dependencies job)
+      # 2. Install Dependencies (Runs quickly if cache is hit)
       - name: Install Dependencies
-        if: steps.cache-deps.outputs.cache-hit != 'true'
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
       - name: Run Periodic Reminder Commands (Every Minute via External Cron)
         env:
-          # --- SECRETS --- (List remains the same)
+          # --- ESSENTIAL DJANGO/DB SECRETS ---
           SECRET_KEY: ${{ secrets.SECRET_KEY }}
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
           GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
+          # --- EMAIL SECRETS ---
           EMAIL_BACKEND: ${{ secrets.EMAIL_BACKEND }}
           EMAIL_HOST: ${{ secrets.EMAIL_HOST }}
           EMAIL_PORT: ${{ secrets.EMAIL_PORT }}
@@ -62,45 +53,41 @@ jobs:
           
         run: |
           echo "Starting periodic reminders (External Dispatch)..."
-          # Now it jumps straight to running the tasks
           python manage.py send_task_reminders
           python manage.py send_ai_subtask_reminders
           python manage.py send_daily_activity_reminders
           
   # ----------------------------------------------------------------------------------
   
-  # --- Hourly Jobs (0 * * * *) - Also updated for caching ---
+  # --- Hourly Jobs (0 * * * *) - UPDATED FOR CACHING ---
   hourly_tasks:
     runs-on: ubuntu-latest
     if: github.event_name == 'schedule' && github.event.schedule == '0 * * * *'
 
     steps:
       - uses: actions/checkout@v4
-      - name: Set up Python
+      
+      # 1. Set up Python with built-in caching (FIXED)
+      - name: Set up Python and Cache Dependencies
         uses: actions/setup-python@v5
-        id: setup-python-hourly
         with:
           python-version: '3.12.3'
+          cache: 'pip'
+          cache-dependency-path: 'requirements.txt'
           
-      - name: Cache Python Dependencies
-        uses: actions/cache@v4
-        id: cache-deps-hourly
-        with:
-          path: ${{ steps.setup-python-hourly.outputs.cache-path }}
-          key: ${{ runner.os }}-python-${{ steps.setup-python-hourly.outputs.python-version }}-${{ hashFiles('requirements.txt') }}
-          
+      # 2. Install Dependencies (Runs quickly if cache is hit)
       - name: Install Dependencies
-        if: steps.cache-deps-hourly.outputs.cache-hit != 'true'
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
       - name: Run Hourly Commands
         env:
-          # --- SECRETS --- (List remains the same)
+          # --- ESSENTIAL DJANGO/DB SECRETS ---
           SECRET_KEY: ${{ secrets.SECRET_KEY }}
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
           GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
+          # --- EMAIL SECRETS ---
           EMAIL_BACKEND: ${{ secrets.EMAIL_BACKEND }}
           EMAIL_HOST: ${{ secrets.EMAIL_HOST }}
           EMAIL_PORT: ${{ secrets.EMAIL_PORT }}
@@ -116,38 +103,35 @@ jobs:
           
   # ----------------------------------------------------------------------------------
 
-  # --- Daily Job (0 0 * * *) - Also updated for caching ---
+  # --- Daily Job (0 0 * * *) - UPDATED FOR CACHING ---
   daily_cleanup:
     runs-on: ubuntu-latest
     if: github.event_name == 'schedule' && github.event.schedule == '0 0 * * *'
 
     steps:
       - uses: actions/checkout@v4
-      - name: Set up Python
+      
+      # 1. Set up Python with built-in caching (FIXED)
+      - name: Set up Python and Cache Dependencies
         uses: actions/setup-python@v5
-        id: setup-python-daily
         with:
           python-version: '3.12.3'
+          cache: 'pip'
+          cache-dependency-path: 'requirements.txt'
           
-      - name: Cache Python Dependencies
-        uses: actions/cache@v4
-        id: cache-deps-daily
-        with:
-          path: ${{ steps.setup-python-daily.outputs.cache-path }}
-          key: ${{ runner.os }}-python-${{ steps.setup-python-daily.outputs.python-version }}-${{ hashFiles('requirements.txt') }}
-          
+      # 2. Install Dependencies (Runs quickly if cache is hit)
       - name: Install Dependencies
-        if: steps.cache-deps-daily.outputs.cache-hit != 'true'
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
       - name: Run Daily Cleanup Command
         env:
-          # --- SECRETS --- (List remains the same)
+          # --- ESSENTIAL DJANGO/DB SECRETS ---
           SECRET_KEY: ${{ secrets.SECRET_KEY }}
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
           GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
+          # --- EMAIL SECRETS ---
           EMAIL_BACKEND: ${{ secrets.EMAIL_BACKEND }}
           EMAIL_HOST: ${{ secrets.EMAIL_HOST }}
           EMAIL_PORT: ${{ secrets.EMAIL_PORT }}
