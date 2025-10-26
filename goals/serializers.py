@@ -138,14 +138,14 @@ class SubTaskSerializer(serializers.ModelSerializer):
             instance.save(update_fields=["reminder_time", "reminder_sent"])
             print(f"DEBUG: Default reminder set to 15 minutes before due_date → {instance.reminder_time}")
 
-        else:
-            # Ensure reminder is still before due_date
-            reminder_dt = datetime.combine(new_due_date.date(), instance.reminder_time)
-            if reminder_dt >= new_due_date:
-                default_reminder_dt = new_due_date - timedelta(minutes=15)
-                instance.reminder_time = default_reminder_dt.time()
-                instance.save(update_fields=["reminder_time"])
-                print(f"DEBUG: Reminder adjusted to 15 minutes before due_date → {instance.reminder_time}")
+        # else:
+        #     # Ensure reminder is still before due_date
+        #     reminder_dt = datetime.combine(new_due_date.date(), instance.reminder_time)
+        #     if reminder_dt >= new_due_date:
+        #         default_reminder_dt = new_due_date - timedelta(minutes=15)
+        #         instance.reminder_time = default_reminder_dt.time()
+        #         instance.save(update_fields=["reminder_time"])
+        #         print(f"DEBUG: Reminder adjusted to 15 minutes before due_date → {instance.reminder_time}")
 
         return instance
 
@@ -189,11 +189,6 @@ class AiSubTaskSerializer(serializers.ModelSerializer):
             print(f"DEBUG: AiSubTask {instance.id} status reset to 'pending' (new due_date is in the future)")
 
         # ✅ If reminder_time was updated, reset reminder_sent
-        if "reminder_time" in validated_data:
-            instance.reminder_sent = False
-            instance.save(update_fields=["reminder_sent"])
-            print(f"DEBUG: Reminder time updated — reminder_sent reset to False")
-        
         # ✅ Set default reminder_time if not changed
         if "reminder_time" not in validated_data:
             default_reminder_dt = new_due_date - timedelta(minutes=15)
@@ -202,20 +197,7 @@ class AiSubTaskSerializer(serializers.ModelSerializer):
             instance.save(update_fields=["reminder_time", "reminder_sent"])
             print(f"DEBUG: Default reminder set to 15 minutes before due_date → {instance.reminder_time}")
 
-        else:
-            # Ensure reminder is still before due_date
-            reminder_dt = datetime.combine(new_due_date.date(), instance.reminder_time)
-
-            # ✅ Make reminder_dt timezone-aware (UTC)
-            if timezone.is_naive(reminder_dt):
-                reminder_dt = timezone.make_aware(reminder_dt, timezone=pytz.UTC)
-
-            if reminder_dt >= new_due_date:
-                default_reminder_dt = new_due_date - timedelta(minutes=15)
-                instance.reminder_time = default_reminder_dt.time()
-                instance.save(update_fields=["reminder_time"])
-                print(f"DEBUG: Reminder adjusted to 15 minutes before due_date → {instance.reminder_time}")
-
+           
         return instance
 
     # ---------------------------
@@ -565,19 +547,19 @@ class TaskSerializer(serializers.ModelSerializer):
             instance.save(update_fields=["reminder_time", "reminder_sent"])
             print(f"DEBUG: Default reminder set to 15 minutes before due_date → {instance.reminder_time}")
 
-        else:
-            # Ensure reminder is still before due_date
-            reminder_dt = datetime.combine(new_due_date.date(), instance.reminder_time)
+        # else:
+        #     # Ensure reminder is still before due_date
+        #     reminder_dt = datetime.combine(new_due_date.date(), instance.reminder_time)
 
-            # ✅ Make reminder_dt timezone-aware (UTC)
-            if timezone.is_naive(reminder_dt):
-                reminder_dt = timezone.make_aware(reminder_dt, timezone=pytz.UTC)
+        #     # ✅ Make reminder_dt timezone-aware (UTC)
+        #     if timezone.is_naive(reminder_dt):
+        #         reminder_dt = timezone.make_aware(reminder_dt, timezone=pytz.UTC)
 
-            if reminder_dt >= new_due_date:
-                default_reminder_dt = new_due_date - timedelta(minutes=15)
-                instance.reminder_time = default_reminder_dt.time()
-                instance.save(update_fields=["reminder_time"])
-                print(f"DEBUG: Reminder adjusted to 15 minutes before due_date → {instance.reminder_time}")
+        #     if reminder_dt >= new_due_date:
+        #         default_reminder_dt = new_due_date - timedelta(minutes=15)
+        #         instance.reminder_time = default_reminder_dt.time()
+        #         instance.save(update_fields=["reminder_time"])
+        #         print(f"DEBUG: Reminder adjusted to 15 minutes before due_date → {instance.reminder_time}")
 
         return instance
 
