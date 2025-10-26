@@ -1,5 +1,6 @@
 import logging
 from threading import Thread
+from django.core.mail import send_mail
 from urllib.parse import urlencode
 from django.shortcuts import render, redirect
 from rest_framework.views import APIView
@@ -10,7 +11,7 @@ from .serializers import CreateUserSerializer, UserSerializer, GoogleUserSeriali
 import kommitly_backend.settings as st
 from drf_yasg.utils import swagger_auto_schema
 from django.core.exceptions import ValidationError
-from django.core.mail import send_mail
+
 from django.shortcuts import get_object_or_404
 from asgiref.sync import async_to_sync
 from channels.layers import get_channel_layer
@@ -160,13 +161,12 @@ class CreateUserView(APIView):
 
                 logger.debug(f"Sending email verification to: {user}")
 
-                send_async_email(
-                subject="Verify your Kommitly Account",
-                message=f"Hi {user.first_name},\n\nClick the link below to verify your account:\n{verification_link}",
-                from_email="no-reply@kommitly.com",
-                recipient_list=[user.email],
-            )
-
+                send_mail(
+                    subject="Verify your Kommitly Account",
+                    message=f"Hi {user.first_name},\n\nClick the link below to verify your account:\n{verification_link}",
+                    from_email="no-reply@kommitly.com",
+                    recipient_list=[user.email],
+                )
 
 
                 user_data= UserSerializer(user).data
