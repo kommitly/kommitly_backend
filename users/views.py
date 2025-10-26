@@ -38,9 +38,8 @@ def send_async_email(subject, message, from_email, recipient_list):
     def _send():
         try:
             send_mail(subject, message, from_email, recipient_list)
+            logger.info(f"✅ Verification email sent to {recipient_list}")
         except Exception as e:
-            import logging
-            logger = logging.getLogger(__name__)
             logger.error(f"Email sending failed: {e}")
 
     Thread(target=_send).start()
@@ -156,6 +155,7 @@ class CreateUserView(APIView):
                 
                 # Send verification email
                 verification_link = f"https://kommitly-backend.onrender.com/api/verify/{user.verification_token}/"
+
                 send_async_email(
                 subject="Verify your Kommitly Account",
                 message=f"Hi {user.first_name},\n\nClick the link below to verify your account:\n{verification_link}",
