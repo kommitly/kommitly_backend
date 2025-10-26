@@ -158,6 +158,8 @@ class CreateUserView(APIView):
                 # Send verification email
                 verification_link = f"https://kommitly-backend.onrender.com/api/verify/{user.verification_token}/"
 
+                logger.debug(f"Sending email verification to: {user}")
+
                 send_async_email(
                 subject="Verify your Kommitly Account",
                 message=f"Hi {user.first_name},\n\nClick the link below to verify your account:\n{verification_link}",
