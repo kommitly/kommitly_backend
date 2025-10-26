@@ -1,5 +1,4 @@
 import logging
-from threading import Thread
 from django.core.mail import send_mail
 from urllib.parse import urlencode
 from django.shortcuts import render, redirect
@@ -32,20 +31,7 @@ user = get_user_model()
 logger = logging.getLogger(__name__)
 
 
-def send_async_email(subject, message, from_email, recipient_list):
-    """
-    Send email in a background thread to prevent blocking the main request.
-    """
-    def _send():
-        try:
-            send_mail(subject, message, from_email, recipient_list)
-            logger.debug(f" DEBUG: Sending email to {recipient_list}")
-            print(f"DEBUG: Sending email to {recipient_list}")
-        except Exception as e:
-            logger.debug(f"DEBUG: Email sending failed: {e}")
-            print(f"DEBUG: Email sending failed: {e}")
 
-    Thread(target=_send).start()
 
 
 
