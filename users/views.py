@@ -38,9 +38,9 @@ def send_async_email(subject, message, from_email, recipient_list):
     def _send():
         try:
             send_mail(subject, message, from_email, recipient_list)
-            logger.info(f"✅ Verification email sent to {recipient_list}")
+            print(f"DEBUG: Sending email to {recipient_list}")
         except Exception as e:
-            logger.error(f"Email sending failed: {e}")
+            print(f"DEBUG: Email sending failed: {e}")
 
     Thread(target=_send).start()
 
