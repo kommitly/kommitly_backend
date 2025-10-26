@@ -1,4 +1,5 @@
 import logging
+from threading import Thread
 from urllib.parse import urlencode
 from django.shortcuts import render, redirect
 from rest_framework.views import APIView
@@ -28,6 +29,24 @@ user = get_user_model()
 
 #Configure logging
 logger = logging.getLogger(__name__)
+
+
+def send_async_email(subject, message, from_email, recipient_list):
+    """
+    Send email in a background thread to prevent blocking the main request.
+    """
+    def _send():
+        try:
+            send_mail(subject, message, from_email, recipient_list)
+        except Exception as e:
+            import logging
+            logger = logging.getLogger(__name__)
+            logger.error(f"Email sending failed: {e}")
+
+    Thread(target=_send).start()
+
+
+
 
 class GoogleAuthView(APIView):
     permission_classes = [permissions.AllowAny]
@@ -137,12 +156,13 @@ class CreateUserView(APIView):
                 
                 # Send verification email
                 verification_link = f"https://kommitly-backend.onrender.com/api/verify/{user.verification_token}/"
-                send_mail(
-                    subject="Verify your Kommitly Account",
-                    message=f"Hi {user.first_name},\n\nClick the link below to verify your account:\n{verification_link}",
-                    from_email="no-reply@kommitly.com",
-                    recipient_list=[user.email],
-                )
+                send_async_email(
+                subject="Verify your Kommitly Account",
+                message=f"Hi {user.first_name},\n\nClick the link below to verify your account:\n{verification_link}",
+                from_email="no-reply@kommitly.com",
+                recipient_list=[user.email],
+            )
+
 
 
                 user_data= UserSerializer(user).data
