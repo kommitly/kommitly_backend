@@ -97,7 +97,7 @@ class Command(BaseCommand):
                 notification_data = {
                     "user": user,
                     "message": message,
-                    "type": "reminder",
+                    "type": "template-reminder",
                     "link": link,
                 }
 
