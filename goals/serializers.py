@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Goal, Task, AiGoal, AiTask, SubTask, AiSubTask, Routine, DailyTemplate, DailyActivity, DailyActivityHistory
+from .models import Goal, Task, AiGoal, AiTask, SubTask, AiSubTask, Routine, Template, DailyActivity, DailyActivityHistory
 from users.models import User
 from django.utils import timezone
 
@@ -1050,11 +1050,11 @@ class DailyActivitySerializer(serializers.ModelSerializer):
         read_only_fields = ["template"]
 
 
-class DailyTemplateSerializer(serializers.ModelSerializer):
+class TemplateSerializer(serializers.ModelSerializer):
     activities = DailyActivitySerializer(many=True, read_only=True)
 
     class Meta:
-        model = DailyTemplate
+        model = Template
         fields = "__all__"
         read_only_fields = ["user"]
 
@@ -1064,13 +1064,13 @@ class DailyTemplateSerializer(serializers.ModelSerializer):
         user = validated_data.pop('user', None) 
         
         # Check if the name matches the expected default template name
-        is_default_template = validated_data.get('name') == "My Daily Plan"
+        is_daily_plan_template = validated_data.get('is_daily_plan', False)
         
         # Create the template object first
-        template = DailyTemplate.objects.create(user=user, **validated_data)
+        template = Template.objects.create(user=user, **validated_data)
         
         # --- NEW LOGIC: ONLY CREATE ACTIVITIES FOR THE DEFAULT TEMPLATE ---
-        if is_default_template:
+        if is_daily_plan_template:
             # Check if FIXED_ACTIVITIES exists and is iterable
             if 'FIXED_ACTIVITIES' in globals() and isinstance(FIXED_ACTIVITIES, list):
                 # Create the default fixed activities for this new template

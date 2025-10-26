@@ -38,12 +38,12 @@ from .views import (
     AnswerTaskQuestionView,
     RoutineListCreateView,
     RoutineDetailView,
-    DailyTemplateListCreateView,
-    DailyTemplateDetailView,
+    TemplateListCreateView,
+    TemplateDetailView,
     DailyActivityListCreateView,
     DailyActivityDetailView,
     DailyActivityCompleteView,
-    SuggestedDailyTemplateView,
+    SuggestedTemplateView,
     SaveSuggestedTemplateView
   
 
@@ -90,12 +90,12 @@ urlpatterns= [
     path('tasks/<int:task_id>/answer/', AnswerTaskQuestionView.as_view(), name='answer_task_question'),
     path('routines/', RoutineListCreateView.as_view(), name='routine_list_create'),
     path('routines/<int:pk>/', RoutineDetailView.as_view(), name='routine_detail'),
-    path("daily-templates/", DailyTemplateListCreateView.as_view(), name="daily-template-list-create"),
-    path("daily-templates/<int:pk>/", DailyTemplateDetailView.as_view(), name="daily-template-detail"),
+    path("daily-templates/", TemplateListCreateView.as_view(), name="daily-template-list-create"),
+    path("daily-templates/<int:pk>/", TemplateDetailView.as_view(), name="daily-template-detail"),
     path("daily-activities/", DailyActivityListCreateView.as_view(), name="daily-activity-list-create"),
     path("daily-activities/<int:pk>/", DailyActivityDetailView.as_view(), name="daily-activity-detail"),
     path("daily-activities/<int:pk>/complete/", DailyActivityCompleteView.as_view(), name="daily-activity-complete"),
-    path("daily-templates/suggestions/", SuggestedDailyTemplateView.as_view(), name="suggested-templates"),
+    path("daily-templates/suggestions/", SuggestedTemplateView.as_view(), name="suggested-templates"),
     path("daily-templates/save-suggestion/", SaveSuggestedTemplateView.as_view(), name="save-suggested-template")
 
  

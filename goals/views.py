@@ -6,8 +6,8 @@ from datetime import datetime, time, date
 from django.utils import timezone
 import pytz
 from rest_framework import status, permissions, generics
-from .models import Goal, Task, AiGoal, AiTask, SubTask, AiSubTask, Routine, DailyActivity, DailyTemplate, DailyActivityHistory
-from .serializers import GoalSerializer, TaskSerializer, CreateGoalSerializer, CreateTaskSerializer, CreateAiTaskSerializer,AiGoalSerializer, AiTaskSerializer, CreateAiGoalSerializer, UserProfileSerializer, UpdateAiGoalSerializer, SubTaskSerializer, AiSubTaskSerializer, RoutineSerializer,DailyTemplateSerializer, DailyActivitySerializer, DailyActivityHistorySerializer
+from .models import Goal, Task, AiGoal, AiTask, SubTask, AiSubTask, Routine, DailyActivity, Template, DailyActivityHistory
+from .serializers import GoalSerializer, TaskSerializer, CreateGoalSerializer, CreateTaskSerializer, CreateAiTaskSerializer,AiGoalSerializer, AiTaskSerializer, CreateAiGoalSerializer, UserProfileSerializer, UpdateAiGoalSerializer, SubTaskSerializer, AiSubTaskSerializer, RoutineSerializer,TemplateSerializer, DailyActivitySerializer, DailyActivityHistorySerializer
 import kommitly_backend.settings as st
 from drf_yasg.utils import swagger_auto_schema
 from django.core.exceptions import ValidationError
@@ -1839,12 +1839,12 @@ class RoutineDetailView(generics.RetrieveUpdateDestroyAPIView):
 
 
 
-class DailyTemplateListCreateView(generics.ListCreateAPIView):
-    serializer_class = DailyTemplateSerializer
+class TemplateListCreateView(generics.ListCreateAPIView):
+    serializer_class = TemplateSerializer
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
-        return DailyTemplate.objects.filter(user=self.request.user)
+        return Template.objects.filter(user=self.request.user)
 
     def perform_create(self, serializer):
         
@@ -1854,7 +1854,7 @@ class DailyTemplateListCreateView(generics.ListCreateAPIView):
     @swagger_auto_schema(
         operation_description="Get all daily templates for the authenticated user",
         tags=["Daily Templates"],
-        responses={200: DailyTemplateSerializer(many=True)}
+        responses={200: TemplateSerializer(many=True)}
     )
     def get(self, request, *args, **kwargs):
         return super().get(request, *args, **kwargs)
@@ -1862,24 +1862,24 @@ class DailyTemplateListCreateView(generics.ListCreateAPIView):
     @swagger_auto_schema(
         operation_description="Create a new daily template (first one includes default template suggestion)",
         tags=["Daily Templates"],
-        request_body=DailyTemplateSerializer,
-        responses={201: DailyTemplateSerializer}
+        request_body=TemplateSerializer,
+        responses={201: TemplateSerializer}
     )
     def post(self, request, *args, **kwargs):
         return super().post(request, *args, **kwargs)
 
 
-class DailyTemplateDetailView(generics.RetrieveUpdateDestroyAPIView):
-    serializer_class = DailyTemplateSerializer
+class TemplateDetailView(generics.RetrieveUpdateDestroyAPIView):
+    serializer_class = TemplateSerializer
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
-        return DailyTemplate.objects.filter(user=self.request.user)
+        return Template.objects.filter(user=self.request.user)
 
     @swagger_auto_schema(
         operation_description="Retrieve a specific daily template by ID",
         tags=["Daily Templates"],
-        responses={200: DailyTemplateSerializer, 404: "Not Found"}
+        responses={200: TemplateSerializer, 404: "Not Found"}
     )
     def get(self, request, *args, **kwargs):
         return super().get(request, *args, **kwargs)
@@ -1887,8 +1887,8 @@ class DailyTemplateDetailView(generics.RetrieveUpdateDestroyAPIView):
     @swagger_auto_schema(
         operation_description="Update a daily template by ID (partial updates supported)",
         tags=["Daily Templates"],
-        request_body=DailyTemplateSerializer,
-        responses={200: DailyTemplateSerializer, 400: "Bad Request", 404: "Not Found"}
+        request_body=TemplateSerializer,
+        responses={200: TemplateSerializer, 400: "Bad Request", 404: "Not Found"}
     )
     def put(self, request, *args, **kwargs):
         return super().put(request, *args, **kwargs)
@@ -2032,7 +2032,7 @@ class DailyActivityCompleteView(generics.UpdateAPIView):
             status=status.HTTP_200_OK,
         )
 
-class SuggestedDailyTemplateView(APIView):
+class SuggestedTemplateView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
     @swagger_auto_schema(
@@ -2068,7 +2068,7 @@ class SuggestedDailyTemplateView(APIView):
 
         # Get names of templates the user already has
         existing_names = set(
-            DailyTemplate.objects.filter(user=user).values_list("name", flat=True)
+            Template.objects.filter(user=user).values_list("name", flat=True)
         )
 
         # Only show suggestions not already saved
@@ -2108,7 +2108,7 @@ class SaveSuggestedTemplateView(APIView):
         responses={
             201: openapi.Response(
                 description="Template created successfully",
-                schema=DailyTemplateSerializer,
+                schema=TemplateSerializer,
             ),
         },
     )
@@ -2118,7 +2118,7 @@ class SaveSuggestedTemplateView(APIView):
         description = request.data.get("description", "")
         activities = request.data.get("activities", [])
 
-        template = DailyTemplate.objects.create(
+        template = Template.objects.create(
             user=user,
             name=name,
             description=description,
@@ -2134,6 +2134,6 @@ class SaveSuggestedTemplateView(APIView):
                 is_fixed=True,
             )
 
-        serializer = DailyTemplateSerializer(template)
+        serializer = TemplateSerializer(template)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 

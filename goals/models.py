@@ -390,15 +390,16 @@ class Routine(models.Model):
         return f"{self.name} ({self.frequency})"
 
 
-class DailyTemplate(models.Model):
+class Template(models.Model):
     user = models.ForeignKey('users.User', on_delete=models.CASCADE, related_name="daily_templates")
     name = models.CharField(max_length=255, default="My Daily Plan")
     description = models.TextField(blank=True, null=True)
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
+    is_daily_plan = models.BooleanField(default=False)
 
 class DailyActivity(models.Model):
-    template = models.ForeignKey(DailyTemplate, on_delete=models.CASCADE, related_name="activities")
+    template = models.ForeignKey(Template, on_delete=models.CASCADE, related_name="activities")
     title = models.CharField(max_length=255)
     description = models.TextField(blank=True, null=True)
     start_time = models.TimeField()
