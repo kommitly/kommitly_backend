@@ -9,6 +9,7 @@
         background-color: #f9fafb;
         margin: 0;
         padding: 0;
+        color: black;
       }
       .container {
         background-color: #ffffff;
@@ -18,71 +19,93 @@
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
         padding: 40px 30px;
       }
+    
       .logo {
-        text-align: center;
+        background-color: #4F378A;
         margin-bottom: 30px;
+        padding: 30px;
+        display: flex;
+        justify-content: start;
+        align-items: center;
+        
+        
       }
-      .logo img {
-        width: 100px;
+
+      h1 {
+        color: white;
+        margin-left: 0.4rem;
+        font-size: 2.4rem;
       }
-      h2 {
-        color: #111827;
-        text-align: center;
-      }
+     
+     
       p {
         color: #4b5563;
         line-height: 1.6;
         font-size: 15px;
       }
-      .btn {
-        display: inline-block;
-        background-color: #2563eb;
-        color: #ffffff;
-        padding: 12px 24px;
-        text-decoration: none;
-        border-radius: 8px;
-        font-weight: 600;
-        margin-top: 20px;
-      }
+      .button {
+          
+            color: white;
+            padding: 10px 20px;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: bold;
+        }
       .footer {
-        text-align: center;
-        color: #9ca3af;
-        font-size: 13px;
+        text-align: start;
+        color: #49454F;
+        font-size: 10px;
         margin-top: 40px;
       }
     </style>
   </head>
   <body>
-    <div class="container">
-      <div class="logo">
-        <img
-          src="https://kommitly-frontend.vercel.app/logo192.png"
-          alt="Kommitly Logo"
-        />
+    <div class="container" >
+      <div class="logo ">
+        <svg width="64" height="109" viewBox="0 0 64 109" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M31.3536 23.1342C34.3679 23.1342 37.323 24.3064 39.7619 26.4697L58.6992 43.2663C61.2882 45.5627 61.723 49.9273 59.6425 52.7347L47.2048 69.5176L1.9344 25.0352C1.2727 24.385 1.63573 23.1344 2.48617 23.1344L31.3536 23.1342Z" fill="#10D3F1"/>
+      <path d="M43.4496 73.9714C44.652 72.3814 44.4661 69.8997 43.0416 68.5204L28.0595 54.0145L2.18288 88.8602C1.92488 89.2077 2.14331 89.7605 2.53851 89.7605L12.0044 89.7609L28.486 89.761C30.4094 89.761 32.2284 88.8057 33.4972 87.1284L43.4496 73.9714Z" fill="#20A0E6" stroke="#10D3F1"/>
+      </svg>
+      <h1 >
+        Kommitly
+      </h1>
+
       </div>
 
-      <h2>Welcome to Kommitly, {{ user.first_name }}!</h2>
+      <div >
+
+
+
+      <h2>Welcome to Kommitly, <span style="color: #4F378A;">{{ user.first_name }}! </span></h2>
       <p>
         We're excited to have you join our accountability community. Before you
         can start setting goals and tracking your progress, please verify your
         email address.
       </p>
 
-      <p style="text-align: center">
-        <a href="{{ verification_link }}" class="btn">Verify My Account</a>
+      <p style="margin-bottom: 30px; margin-top: 30px;">
+        <a href="{{ verification_link }}"class="button" style="background-color: #4F378A; color: #F4F1FF; font-weight: 100; border-radius: 10px; 
+        box-shadow: inset 0px 4px 4px rgba(43, 24, 89, 0.15),
+                    -8px 0px 12px rgba(43, 24, 89, 0.10),
+                    0px 8px 12px rgba(43, 24, 89, 0.50);">
+        Verify My Account
+      </a>
+       </p>
+
+    
+
       </p>
 
-      <p>
-        Or copy and paste this link into your browser:
-        <br />
-        <a href="{{ verification_link }}">{{ verification_link }}</a>
-      </p>
+      <p style="font-size: small; color: #4F378A;">Thank you for joining Kommitly! 💪</p>
 
-      <p>Thank you for joining Kommitly! 💪</p>
-
-      <div class="footer">
-        <p>&copy; 2025 Kommitly. All rights reserved.</p>
+      <div >
+        <p class="footer">&copy; 2025 Kommitly. All rights reserved.</p>
       </div>
     </div>
+      </div>
+
   </body>
 </html>
+
+
+ 

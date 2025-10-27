@@ -427,7 +427,7 @@ class CreateTaskSerializer(serializers.ModelSerializer):
         if due_date and reminder_time:
             reminder_datetime = datetime.combine(due_date.date(), reminder_time)
             reminder_datetime = make_aware(reminder_datetime, user_timezone)
-            validated_data['due_date'] = reminder_datetime.astimezone(pytz.UTC)
+            validated_data['due_date'] = due_date.astimezone(pytz.UTC)
             validated_data['reminder_time'] = reminder_datetime.astimezone(pytz.UTC).time()
 
         task = Task.objects.create(user=user, **validated_data)
