@@ -9,7 +9,9 @@ class Command(BaseCommand):
     help = "Send verification emails for users who haven't received them yet"
 
     def handle(self, *args, **options):
-        unverified_users = User.objects.filter(is_verified=False)
+        unverified_users = User.objects.filter(is_verified=False, email_sent=False)
         for user in unverified_users:
             send_verification_email(user)
-        logger.info("Verification email job completed.")
+            user.email_sent = True
+            user.save(update_fields=["email_sent"])
+        logger.info(f"Verification email job completed. Emails sent to {unverified_users.count()} users.")
