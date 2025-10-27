@@ -1,8 +1,36 @@
-from celery import shared_task
-from django.core.mail import send_mail
+import logging
+from django.core.mail import EmailMultiAlternatives
+from django.template.loader import render_to_string
+from django.template import TemplateDoesNotExist
+from templates import email
+from django.contrib.contenttypes.models import ContentType
 
-@shared_task
-def send_verification_email(user_id, first_name, email, verification_link):
+
+logger = logging.getLogger(__name__)
+
+def send_verification_email(user):
+    logger.debug(f"Sending verification email to: {user}")
+
+    """
+    Sends a verification email to a newly registered user.
+    """
+    verification_link = f"https://kommitly-backend.onrender.com/api/verify/{user.verification_token}/"
     subject = "Verify your Kommitly Account"
-    message = f"Hi {first_name},\n\nClick the link below to verify your account:\n{verification_link}"
-    send_mail(subject, message, "no-reply@kommitly.com", [email])
+    from_email = "no-reply@kommitly.com"
+    to = [user.email]
+
+    context = {
+        "user": user,
+        "verification_link": verification_link,
+    }
+
+    text_content = f"Hi {user.first_name}, please verify your account: {verification_link}"
+    html_content = render_to_string("email/verify-email.html", context)
+
+    try:
+        msg = EmailMultiAlternatives(subject, text_content, from_email, to)
+        msg.attach_alternative(html_content, "text/html")
+        msg.send()
+        logger.info(f"Verification email sent to {user.email}")
+    except Exception as e:
+        logger.error(f"Failed to send verification email to {user.email}: {e}")

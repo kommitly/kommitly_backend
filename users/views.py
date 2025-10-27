@@ -1,6 +1,5 @@
 import logging
-from django.template.loader import render_to_string
-from django.core.mail import EmailMultiAlternatives
+
 from urllib.parse import urlencode
 from django.shortcuts import render, redirect
 from rest_framework.views import APIView
@@ -19,7 +18,7 @@ from rest_framework_simplejwt.tokens import AccessToken
 from .models import User, generate_verification_token
 from timezonefinder import TimezoneFinder
 import traceback
-
+from .tasks import send_verification_email
 from google.auth.transport.requests import Request
 from google.oauth2 import id_token
 from django.contrib.auth import get_user_model
@@ -143,22 +142,8 @@ class CreateUserView(APIView):
 
                 
                 # Send verification email
-                verification_link = f"https://kommitly-backend.onrender.com/api/verify/{user.verification_token}/"
-                subject = "Verify your Kommitly Account"
-                from_email = "no-reply@kommitly.com"
-                to = [user.email]
+                send_verification_email(user)
 
-                context = {
-                    "user": user,
-                    "verification_link": verification_link,
-                }
-
-                text_content = f"Hi {user.first_name}, please verify your account: {verification_link}"
-                html_content = render_to_string("email/verify-email.html", context)
-
-                msg = EmailMultiAlternatives(subject, text_content, from_email, to)
-                msg.attach_alternative(html_content, "text/html")
-                msg.send()
 
 
                 user_data= UserSerializer(user).data
