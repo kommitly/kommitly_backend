@@ -1,9 +1,10 @@
 from django .urls import path
-from .views import CreateUserView, LoginUserView, VerifyUserView, CheckVerificationStatusView, GetUserView, UpdateAuthenticatedUserView, UpdateUserByEmailView, DeleteAuthenticatedUserView, DeleteUserByEmailView, GetTimezoneView, GoogleAuthView
+from .views import CreateUserView, LoginUserView, VerifyUserView, CheckVerificationStatusView, GetUserView, UpdateAuthenticatedUserView, UpdateUserByEmailView, DeleteAuthenticatedUserView, DeleteUserByEmailView, GetTimezoneView, GoogleAuthView, SendVerificationEmailView
 
 
 urlpatterns = [
     path("users/signup", CreateUserView.as_view(), name="user_signup"),
+    path("users/send-verification-email/", SendVerificationEmailView.as_view(), name="send_verification_email"),
     path("verify/<str:token>/", VerifyUserView.as_view(), name="verify_user"),
     path("users/get-user/<str:email>/", GetUserView.as_view(), name="get_user_details"),
     path("users/user/update/", UpdateAuthenticatedUserView.as_view(), name="update_user_details"),
