@@ -422,24 +422,43 @@ class CreateTaskSerializer(serializers.ModelSerializer):
         request = self.context.get('request')
         user = request.user if request else None
         user_timezone = pytz.timezone(user.timezone) if user and user.timezone else pytz.UTC
-
+        print(f"DEBUG: Found user timezone → {user_timezone}")
         due_date = validated_data.get('due_date')
         reminder_time = validated_data.get('reminder_time')
+
         print(f"DEBUG: Found user due date → {due_date}")
         print(f"DEBUG: Found user reminder → {reminder_time}")
 
-        if due_date and reminder_time:
-            # Combine date + time into local datetime
-            reminder_datetime_local = datetime.combine(due_date.date(), reminder_time)
+        if due_date:
+            # --- THE SIMPLE FIX IS HERE ---
+            # 1. Force the datetime back to naive (stripping the +00:00 added by DRF).
+            #    This assumes the input time is always the user's intended local time.
+            if timezone.is_aware(due_date):
+                 due_date_naive = due_date.replace(tzinfo=None)
+            else:
+                 due_date_naive = due_date # Should technically not happen if USE_TZ=True
 
-            # Localize it properly to user's timezone
+            # 2. Localize the naive datetime using the user's timezone.
+            due_date_local = user_timezone.localize(due_date_naive)
+
+            # 3. Convert to UTC for storage.
+            due_date_utc = due_date_local.astimezone(pytz.UTC)
+            validated_data['due_date'] = due_date_utc
+
+            print(f"DEBUG: Local due date → {due_date_local}")
+            print(f"DEBUG: UTC due date → {due_date_utc}")
+
+        if due_date and reminder_time:
+            # For the reminder, use the correctly localized date component.
+            # Convert the final UTC due_date back to the local date for combination.
+            date_component_local = validated_data['due_date'].astimezone(user_timezone).date()
+            
+            # Combine date + time into local datetime
+            reminder_datetime_local = datetime.combine(date_component_local, reminder_time)
             reminder_datetime_local = user_timezone.localize(reminder_datetime_local)
 
             # Convert to UTC
             reminder_datetime_utc = reminder_datetime_local.astimezone(pytz.UTC)
-
-            # Save the UTC versions
-            validated_data['due_date'] = due_date.astimezone(pytz.UTC)
             validated_data['reminder_time'] = reminder_datetime_utc.time()
 
             print(f"DEBUG: Local reminder datetime → {reminder_datetime_local}")
@@ -447,6 +466,7 @@ class CreateTaskSerializer(serializers.ModelSerializer):
 
         task = Task.objects.create(user=user, **validated_data)
         return task
+
 
 
 
