@@ -18,7 +18,6 @@ from rest_framework_simplejwt.tokens import AccessToken
 from .models import User, generate_verification_token
 from timezonefinder import TimezoneFinder
 import traceback
-from .tasks import send_verification_email
 from google.auth.transport.requests import Request
 from google.oauth2 import id_token
 from django.contrib.auth import get_user_model
@@ -141,8 +140,7 @@ class CreateUserView(APIView):
                 user.save()
 
                 
-                # Send verification email
-                send_verification_email(user)
+           
 
 
 
