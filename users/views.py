@@ -1,5 +1,6 @@
 import logging
-from django.core.mail import send_mail
+from django.template.loader import render_to_string
+from django.core.mail import EmailMultiAlternatives
 from urllib.parse import urlencode
 from django.shortcuts import render, redirect
 from rest_framework.views import APIView
@@ -10,7 +11,6 @@ from .serializers import CreateUserSerializer, UserSerializer, GoogleUserSeriali
 import kommitly_backend.settings as st
 from drf_yasg.utils import swagger_auto_schema
 from django.core.exceptions import ValidationError
-
 from django.shortcuts import get_object_or_404
 from asgiref.sync import async_to_sync
 from channels.layers import get_channel_layer
@@ -104,87 +104,77 @@ class GoogleAuthView(APIView):
             logger.error(f"Invalid ID token: {str(e)}")
             return Response({"error": "Invalid ID token."}, status=status.HTTP_401_UNAUTHORIZED)
 
+# Create user
 class CreateUserView(APIView):
-    permission_classes = [permissions.AllowAny]
-
+    permission_classes = [
+        permissions.AllowAny,
+    ]
     @swagger_auto_schema(
-        tags=["User"],
+        tags= ["User"],
         request_body=CreateUserSerializer,
         responses={
             201: UserSerializer,
             400: "Validation error",
-            500: "Unexpected error",
+            500: "Unexpected error",       
         },
-        operation_description="Register a new user",
+        operation_description="Register a User",
     )
-    def post(self, request, *args, **kwargs):
+    def post (self, request, *args, **kwargs):
+        """
+        Create a new user
+        """
         serializer = CreateUserSerializer(data=request.data)
-        if not serializer.is_valid():
+        if serializer.is_valid():
+            try: 
+                validated_data = serializer.validated_data
+                user = User(
+                    first_name = validated_data["first_name"],
+                    last_name = validated_data["last_name"],
+                    email = validated_data["email"],
+                    timezone = validated_data["timezone"],
+                    is_verified=False,
+
+                )
+
+                # Hash password
+                user.set_password(validated_data["password"])
+                user.verification_token = generate_verification_token() #Generate token here.
+                user.save()
+
+                
+                # Send verification email
+                verification_link = f"https://kommitly-backend.onrender.com/api/verify/{user.verification_token}/"
+                subject = "Verify your Kommitly Account"
+                from_email = "no-reply@kommitly.com"
+                to = [user.email]
+
+                context = {
+                    "user": user,
+                    "verification_link": verification_link,
+                }
+
+                text_content = f"Hi {user.first_name}, please verify your account: {verification_link}"
+                html_content = render_to_string("email/verify-email.html", context)
+
+                msg = EmailMultiAlternatives(subject, text_content, from_email, to)
+                msg.attach_alternative(html_content, "text/html")
+                msg.send()
+
+
+                user_data= UserSerializer(user).data
+                logger.debug(f"User created {user}")
+                return Response(user_data, status=status.HTTP_201_CREATED)
+            # Catches validation errors. This is used to handle unexpected validation errors that might occur during other parts of the code execution, not just during serializer validation.
+            except ValidationError as e:
+                logger.error(f"Validation error {str(e)}")
+                return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+            # Catches any other unexpected errors
+            except Exception as e:
+                logger.error(f"Unexpexted error {str(e)}")
+                return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        # If the serializer is not valid, return a 400 error
+        else: 
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-        try:
-            validated_data = serializer.validated_data
-            user = User(
-                first_name=validated_data["first_name"],
-                last_name=validated_data["last_name"],
-                email=validated_data["email"],
-                timezone=validated_data["timezone"],
-                is_verified=False,
-            )
-            user.set_password(validated_data["password"])
-            user.verification_token = generate_verification_token()
-            user.save()
-
-            logger.debug(f"User created: {user}")
-            user_data = UserSerializer(user).data
-            return Response(user_data, status=status.HTTP_201_CREATED)
-
-        except ValidationError as e:
-            logger.error(f"Validation error: {str(e)}")
-            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
-
-        except Exception as e:
-            logger.error(f"Unexpected error: {str(e)}")
-            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-
-class SendVerificationEmailView(APIView):
-    permission_classes = [permissions.AllowAny]
-
-    @swagger_auto_schema(
-        tags=["User"],
-        operation_description="Send a verification email to a registered user",
-        responses={
-            200: "Verification email sent successfully",
-            404: "User not found",
-            400: "Email is required",
-        },
-    )
-    def post(self, request, *args, **kwargs):
-        email = request.data.get("email")
-        if not email:
-            return Response({"error": "Email is required"}, status=status.HTTP_400_BAD_REQUEST)
-
-        try:
-            user = User.objects.get(email=email)
-            verification_link = f"https://kommitly-backend.onrender.com/api/verify/{user.verification_token}/"
-
-            send_mail(
-                subject="Verify your Kommitly Account",
-                message=f"Hi {user.first_name},\n\nClick the link below to verify your account:\n{verification_link}",
-                from_email="no-reply@kommitly.com",
-                recipient_list=[user.email],
-            )
-
-            logger.debug(f"Verification email sent to {user.email}")
-            return Response({"message": "Verification email sent successfully"}, status=status.HTTP_200_OK)
-
-        except User.DoesNotExist:
-            return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
-
-        except Exception as e:
-            logger.error(f"Unexpected error: {str(e)}")
-            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 

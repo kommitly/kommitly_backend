@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Verify your Kommitly Account</title>
+    <style>
+      body {
+        font-family: "Helvetica Neue", Arial, sans-serif;
+        background-color: #f9fafb;
+        margin: 0;
+        padding: 0;
+      }
+      .container {
+        background-color: #ffffff;
+        max-width: 600px;
+        margin: 40px auto;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        padding: 40px 30px;
+      }
+      .logo {
+        text-align: center;
+        margin-bottom: 30px;
+      }
+      .logo img {
+        width: 100px;
+      }
+      h2 {
+        color: #111827;
+        text-align: center;
+      }
+      p {
+        color: #4b5563;
+        line-height: 1.6;
+        font-size: 15px;
+      }
+      .btn {
+        display: inline-block;
+        background-color: #2563eb;
+        color: #ffffff;
+        padding: 12px 24px;
+        text-decoration: none;
+        border-radius: 8px;
+        font-weight: 600;
+        margin-top: 20px;
+      }
+      .footer {
+        text-align: center;
+        color: #9ca3af;
+        font-size: 13px;
+        margin-top: 40px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="logo">
+        <img
+          src="https://kommitly-frontend.vercel.app/logo192.png"
+          alt="Kommitly Logo"
+        />
+      </div>
+
+      <h2>Welcome to Kommitly, {{ user.first_name }}!</h2>
+      <p>
+        We're excited to have you join our accountability community. Before you
+        can start setting goals and tracking your progress, please verify your
+        email address.
+      </p>
+
+      <p style="text-align: center">
+        <a href="{{ verification_link }}" class="btn">Verify My Account</a>
+      </p>
+
+      <p>
+        Or copy and paste this link into your browser:
+        <br />
+        <a href="{{ verification_link }}">{{ verification_link }}</a>
+      </p>
+
+      <p>Thank you for joining Kommitly! 💪</p>
+
+      <div class="footer">
+        <p>&copy; {{ now|date:"Y" }} Kommitly. All rights reserved.</p>
+      </div>
+    </div>
+  </body>
+</html>
