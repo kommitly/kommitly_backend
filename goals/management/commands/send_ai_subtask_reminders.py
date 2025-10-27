@@ -21,7 +21,7 @@ class Command(BaseCommand):
         past_utc = now_utc - timedelta(minutes=REMINDER_WINDOW_MINUTES)
 
         # --- Pending reminders ---
-        ai_subtasks = AiSubTask.objects.filter(status__in=['pending', 'overdue'], reminder_sent=False, due_date__lte=now_utc.date() + timedelta(days=1))
+        ai_subtasks = AiSubTask.objects.filter(status__in=['pending', 'overdue'], reminder_sent=False)
         logger.info(f"Found {ai_subtasks.count()} AI subtasks pending reminders.")
 
         for ai_subtask in ai_subtasks:
@@ -84,5 +84,6 @@ class Command(BaseCommand):
 
             except Exception as e:
                 logger.error(f"Error sending overdue AI subtask notification: {str(e)}")
+
 
         self.stdout.write("AI subtask reminder & overdue check complete.")

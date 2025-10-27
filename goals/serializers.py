@@ -103,7 +103,14 @@ class SubTaskSerializer(serializers.ModelSerializer):
                 except Exception:
                     raise serializers.ValidationError({"reminder_time": "Invalid time format. Use HH:MM:SS."})
 
-            local_due_date = data["due_date"].astimezone(user_tz).date()
+            now_utc = timezone.now()
+            base_due_date = (
+                data.get("due_date")
+                or getattr(self.instance, "due_date", None)
+                or now_utc  # fallback to current UTC datetime
+            )
+
+            local_due_date = base_due_date.astimezone(user_tz).date()
             reminder_dt_local = user_tz.localize(datetime.combine(local_due_date, reminder_time), is_dst=None)
             reminder_dt_utc = reminder_dt_local.astimezone(pytz.UTC)
             data["reminder_time"] = reminder_dt_utc.time()
@@ -296,13 +303,18 @@ class AiSubTaskSerializer(serializers.ModelSerializer):
                 except Exception:
                     raise serializers.ValidationError({"reminder_time": "Invalid time format. Use HH:MM:SS."})
 
-            base_due_date = data.get("due_date") or getattr(self.instance, "due_date", None)
-            if base_due_date:
-                local_due_date = base_due_date.astimezone(user_tz).date()
-                reminder_dt_local = user_tz.localize(datetime.combine(local_due_date, reminder_time), is_dst=None)
-                reminder_dt_utc = reminder_dt_local.astimezone(pytz.UTC)
-                data["reminder_time"] = reminder_dt_utc.time()
-                print(f"DEBUG: Final reminder_time (UTC component) → {data['reminder_time']}")
+            now_utc = timezone.now()
+            base_due_date = (
+                data.get("due_date")
+                or getattr(self.instance, "due_date", None)
+                or now_utc  # fallback to current UTC datetime
+            )
+
+            local_due_date = base_due_date.astimezone(user_tz).date()
+            reminder_dt_local = user_tz.localize(datetime.combine(local_due_date, reminder_time), is_dst=None)
+            reminder_dt_utc = reminder_dt_local.astimezone(pytz.UTC)
+            data["reminder_time"] = reminder_dt_utc.time()
+            print(f"DEBUG: Final reminder_time (UTC component) → {data['reminder_time']}")
 
 
         return data
@@ -507,7 +519,14 @@ class TaskSerializer(serializers.ModelSerializer):
                 except Exception:
                     raise serializers.ValidationError({"reminder_time": "Invalid time format. Use HH:MM:SS."})
 
-            local_due_date = data["due_date"].astimezone(user_tz).date()
+            now_utc = timezone.now()
+            base_due_date = (
+                data.get("due_date")
+                or getattr(self.instance, "due_date", None)
+                or now_utc  # fallback to current UTC datetime
+            )
+
+            local_due_date = base_due_date.astimezone(user_tz).date()
             reminder_dt_local = user_tz.localize(datetime.combine(local_due_date, reminder_time), is_dst=None)
             reminder_dt_utc = reminder_dt_local.astimezone(pytz.UTC)
             data["reminder_time"] = reminder_dt_utc.time()
