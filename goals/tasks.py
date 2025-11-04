@@ -23,8 +23,6 @@ def reactivate_routines():
     now = timezone.now()
     call_command("reactivate_routines")  # run your management command
     return f"Routines reactivated at {now}"
-
-
 @shared_task
 def send_task_reminders(task_id=None, user_id=None):
     current_time = timezone.now()
@@ -41,33 +39,35 @@ def send_task_reminders(task_id=None, user_id=None):
     elif user_id:
         tasks = Task.objects.filter(status='pending', user_id=user_id)
         logger.info(f"Sending reminders for user_id: {user_id}")
-        logger.debug(f"Tasks for user_id {user_id}: {tasks}")
 
     else:
         tasks = Task.objects.filter(status='pending')
 
     for task in tasks:
         try:
-            user = task.user or (task.goal.user if task.goal else None)
-
+            user = task.user or (task.goal.user if getattr(task, 'goal', None) else None)
             if not user:
                 logger.error(f"Task '{task.title}' has no associated user.")
                 continue
 
-            if not task.due_date or not task.reminder_time:
-                logger.warning(f"Task '{task.title}' is missing due_date or reminder_time")
+            if not task.reminder_time:
+                logger.warning(f"Task '{task.title}' has no reminder_time; skipping.")
                 continue
 
             user_timezone = pytz.timezone(user.timezone)
             user_email = user.email
 
-            # Combine due date and reminder time into a datetime
-            due_utc = task.due_date  # Already UTC-aware
-            reminder_utc = datetime.combine(due_utc.date(), task.reminder_time).replace(tzinfo=pytz.UTC)
+            # Combine due date (or today if null) and reminder time
+            if task.due_date:
+                date_component = task.due_date.date()
+            else:
+                date_component = current_time.date()
 
-         
-            logger.debug(f"Reminder time (UTC) for task '{task.title}': {reminder_utc}, current time: {current_time}")
+            reminder_utc = datetime.combine(date_component, task.reminder_time).replace(tzinfo=pytz.UTC)
 
+            logger.debug(f"Reminder check for '{task.title}': reminder_utc={reminder_utc}, now={current_time}")
+
+            # Trigger within 2-minute window
             if reminder_utc <= current_time <= reminder_utc + timedelta(minutes=2):
                 subject = "⏰ Task Reminder from Kommitly"
                 from_email = 'no-reply@kommitly.com'
@@ -77,32 +77,35 @@ def send_task_reminders(task_id=None, user_id=None):
                     'user': user,
                     'app_link': f"https://kommitly-frontend.vercel.app/dashboard/tasks/{task.id}/"
                 }
+
                 text_content = f"Reminder: {task.title} is due soon! Visit your Kommitly app to manage it."
+
                 try:
                     html_content = render_to_string('email/task_reminder.html', context)
                 except TemplateDoesNotExist as e:
-                    logger.error(f"Template does not exist: {e}")
-                    raise e
+                    logger.error(f"Template missing: {e}")
+                    html_content = text_content
 
                 msg = EmailMultiAlternatives(subject, text_content, from_email, to)
                 msg.attach_alternative(html_content, "text/html")
                 msg.send()
 
-                 # ✅ In-app notification
+                # Create in-app notification
                 Notification.objects.create(
                     user=user,
                     content_type=ContentType.objects.get_for_model(task),
                     object_id=task.id,
                     message=f"⏰ Reminder: '{task.title}' is due soon.",
                     link=f"https://kommitly-frontend.vercel.app/dashboard/tasks/{task.id}/",
-                    type="reminder"
+                    type="reminder",
                 )
 
                 task.reminder_sent = True
-                task.save()
-                logger.info(f"Reminder sent for task: {task.title} to {user_email}")
+                task.save(update_fields=["reminder_sent"])
+                logger.info(f"✅ Reminder sent for task '{task.title}' to {user_email}")
+
             else:
-                logger.debug(f"Not yet time to send reminder for task '{task.title}'")
+                logger.debug(f"⏳ Not yet time for reminder: '{task.title}'")
 
         except Exception as e:
             logger.error(f"Error with task '{task.title}': {str(e)}")
