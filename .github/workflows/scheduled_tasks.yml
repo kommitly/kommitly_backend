@@ -1,5 +1,3 @@
-# .github/workflows/scheduled_tasks.yml
-
 name: Scheduled Django Management Tasks
 
 on:
@@ -7,7 +5,8 @@ on:
   schedule:
     - cron: '0 0 * * *'    # Daily: Cleanup
     - cron: '0 * * * *'    # Hourly: Reactivate and Reset
-    
+    - cron: '0 0 * * SAT'  # Weekly: Generate weekly reports (Saturday midnight)
+
   # --- Trigger for the 1-minute reminders (triggered externally) ---
   repository_dispatch:
     types: [minute_reminder_trigger]
@@ -22,27 +21,23 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # 1. Set up Python with built-in caching (FIXED: Handles cache path automatically)
       - name: Set up Python and Cache Dependencies
         uses: actions/setup-python@v5
         with:
           python-version: '3.12.3'
-          cache: 'pip' # Enables caching for the pip dependency cache
-          cache-dependency-path: 'requirements.txt' # Key is based on this file
+          cache: 'pip'
+          cache-dependency-path: 'requirements.txt'
       
-      # 2. Install Dependencies (Runs quickly if cache is hit)
       - name: Install Dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Run Periodic Reminder Commands (Every Minute via External Cron)
+      - name: Run Periodic Reminder Commands
         env:
-          # --- ESSENTIAL DJANGO/DB SECRETS ---
           SECRET_KEY: ${{ secrets.SECRET_KEY }}
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
           GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
-          # --- EMAIL SECRETS ---
           EMAIL_BACKEND: ${{ secrets.EMAIL_BACKEND }}
           EMAIL_HOST: ${{ secrets.EMAIL_HOST }}
           EMAIL_PORT: ${{ secrets.EMAIL_PORT }}
@@ -55,12 +50,12 @@ jobs:
           echo "Starting periodic reminders (External Dispatch)..."
           python manage.py send_task_reminders
           python manage.py send_ai_subtask_reminders
-          python manage.py send_daily_activity_reminders
-          python manage.py send_pending_verifications
-          
+          python.manage.py send_daily_activity_reminders
+          python.manage.py send_pending_verifications
+
   # ----------------------------------------------------------------------------------
   
-  # --- Hourly Jobs (0 * * * *) - UPDATED FOR CACHING ---
+  # --- Hourly Jobs (0 * * * *) ---
   hourly_tasks:
     runs-on: ubuntu-latest
     if: github.event_name == 'schedule' && github.event.schedule == '0 * * * *'
@@ -68,7 +63,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       
-      # 1. Set up Python with built-in caching (FIXED)
       - name: Set up Python and Cache Dependencies
         uses: actions/setup-python@v5
         with:
@@ -76,7 +70,6 @@ jobs:
           cache: 'pip'
           cache-dependency-path: 'requirements.txt'
           
-      # 2. Install Dependencies (Runs quickly if cache is hit)
       - name: Install Dependencies
         run: |
           python -m pip install --upgrade pip
@@ -84,11 +77,9 @@ jobs:
 
       - name: Run Hourly Commands
         env:
-          # --- ESSENTIAL DJANGO/DB SECRETS ---
           SECRET_KEY: ${{ secrets.SECRET_KEY }}
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
           GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
-          # --- EMAIL SECRETS ---
           EMAIL_BACKEND: ${{ secrets.EMAIL_BACKEND }}
           EMAIL_HOST: ${{ secrets.EMAIL_HOST }}
           EMAIL_PORT: ${{ secrets.EMAIL_PORT }}
@@ -104,7 +95,7 @@ jobs:
           
   # ----------------------------------------------------------------------------------
 
-  # --- Daily Job (0 0 * * *) - UPDATED FOR CACHING ---
+  # --- Daily Cleanup Job (0 0 * * *) ---
   daily_cleanup:
     runs-on: ubuntu-latest
     if: github.event_name == 'schedule' && github.event.schedule == '0 0 * * *'
@@ -112,7 +103,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       
-      # 1. Set up Python with built-in caching (FIXED)
       - name: Set up Python and Cache Dependencies
         uses: actions/setup-python@v5
         with:
@@ -120,7 +110,6 @@ jobs:
           cache: 'pip'
           cache-dependency-path: 'requirements.txt'
           
-      # 2. Install Dependencies (Runs quickly if cache is hit)
       - name: Install Dependencies
         run: |
           python -m pip install --upgrade pip
@@ -128,11 +117,9 @@ jobs:
 
       - name: Run Daily Cleanup Command
         env:
-          # --- ESSENTIAL DJANGO/DB SECRETS ---
           SECRET_KEY: ${{ secrets.SECRET_KEY }}
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
           GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
-          # --- EMAIL SECRETS ---
           EMAIL_BACKEND: ${{ secrets.EMAIL_BACKEND }}
           EMAIL_HOST: ${{ secrets.EMAIL_HOST }}
           EMAIL_PORT: ${{ secrets.EMAIL_PORT }}
@@ -144,3 +131,42 @@ jobs:
         run: |
           echo "Starting daily cleanup..."
           python manage.py cleanup_notifications
+
+  # ----------------------------------------------------------------------------------
+
+  # --- Weekly Reports (Saturday 00:00 UTC) ---
+  weekly_reports:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'schedule' && github.event.schedule == '0 0 * * SAT'
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python and Cache Dependencies
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12.3'
+          cache: 'pip'
+          cache-dependency-path: 'requirements.txt'
+
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run Weekly Report Command
+        env:
+          SECRET_KEY: ${{ secrets.SECRET_KEY }}
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
+          EMAIL_BACKEND: ${{ secrets.EMAIL_BACKEND }}
+          EMAIL_HOST: ${{ secrets.EMAIL_HOST }}
+          EMAIL_PORT: ${{ secrets.EMAIL_PORT }}
+          EMAIL_USE_TLS: ${{ secrets.EMAIL_USE_TLS }}
+          EMAIL_HOST_USER: ${{ secrets.EMAIL_HOST_USER }}
+          EMAIL_HOST_PASSWORD: ${{ secrets.EMAIL_HOST_PASSWORD }}
+          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+          
+        run: |
+          echo "Generating weekly AI activity reports..."
+          python manage.py generate_weekly_reports
