@@ -76,6 +76,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'corsheaders.middleware.CorsMiddleware',
+    'users.middleware.update_last_active.UpdateLastActiveMiddleware',
 ]
 
 ROOT_URLCONF = 'kommitly_backend.urls'

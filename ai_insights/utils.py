@@ -1,6 +1,12 @@
+from django.utils import timezone
+from datetime import timedelta
 from groq import Groq
 from django.conf import settings
 import re
+from goals.models import AiSubTask, AiTask, AiGoal, Task
+from .models import AIInsight
+from users.models import User, UserActivity
+import pytz
 
 
 # Function to get insights from GroqCloud
@@ -195,40 +201,191 @@ def parse_insights(response):
 
 
 
-def answer_subtask_question(title, description):
+
+def answer_subtask_question(subtask: AiSubTask):
     try:
-        print(f"Answering subtask: {title}")
+        print(f"Answering ai subtask")
         client = Groq(api_key=settings.GROQ_API_KEY)
 
-           # Add emoji to title
-        lower_title = f"{title} {description}".lower()
-        for key, emoji in EMOJI_MAP.items():
-            if key in lower_title:
-                title = f"{emoji} {title}"
-                break
-        else:
-            title = f"{EMOJI_MAP['default']} {title}"
+        ai_task = subtask.ai_task
+        ai_goal = ai_task.ai_goal if ai_task else None
+
+        # 🧠 Build contextual message for LLM
+        context_parts = []
+        if ai_goal:
+            context_parts.append(f"Goal: {ai_goal.title}")
+        if ai_task:
+            context_parts.append(f"Task: {ai_task.title}\nDescription: {ai_task.description or 'No description'}")
+
+        context_parts.append(f"Subtask: {subtask.title}\nDescription: {subtask.description or 'No description'}")
+        context = "\n\n".join(context_parts)
+
+      
+
+        # 🧩 Build message
+        messages = [
+            {
+                "role": "user",
+                "content": (
+                    f"You are an AI assistant helping me complete my goals.\n\n"
+                    f"Here is the full context:\n{context}\n\n"
+                    f"Now, please help me understand and tackle the **subtask**:\n\n"
+                    f"**Subtask Title:** {subtask.title}\n"
+                    f"Explain clearly what to do, step-by-step. "
+                    f"Assume I have no prior knowledge. Do not tell me to look up things online — explain everything in your own words."
+                )
+            }
+        ]
 
         completion = client.chat.completions.create(
-            model="llama3-70b-8192",
-            messages=[
-                {
-                    "role": "user",
-                    "content": f"Help me tackle this task:\n\n"
-                            f"**Task Title:** {title}\n\n"
-                            f"**Description:** {description}\n\n"
-                        "Give me a clear and complete explanation. Assume I know nothing. Avoid asking me to search or read external resources. Just explain everything I need to know in your own words."
-
-                }
-            ],
+            model="llama-3.3-70b-versatile",
+            messages=messages,
             temperature=0.7,
             max_tokens=2048,
             top_p=1,
             stream=False,
         )
 
-        return completion.choices[0].message.content.strip()
+        answer = completion.choices[0].message.content.strip()
+
+        # 💾 Save to insights for history/reference
+        AIInsight.objects.create(
+            ai_goal=ai_goal,
+            ai_task=ai_task,
+            ai_subtask=subtask,
+            insight_text=answer
+        )
+
+        return answer
 
     except Exception as e:
         print(f"Error answering subtask: {e}")
         return "No answer available."
+
+
+
+
+
+def answer_task_question(task: Task):
+    try:
+        print(f"Answering task: {task.title}")
+        client = Groq(api_key=settings.GROQ_API_KEY)
+
+        goal = task.goal
+        context_parts = []
+
+        # 🧠 Include goal context if available
+        if goal:
+            context_parts.append(
+                f"Goal: {goal.title}\nDescription: {goal.description or 'No description provided.'}"
+            )
+
+        # 🧩 Include task context
+        context_parts.append(
+            f"Task: {task.title}\nDescription: {task.description or 'No description provided.'}"
+        )
+
+        context = "\n\n".join(context_parts)
+
+      
+
+        # 🧩 Build message
+        messages = [
+            {
+                "role": "user",
+                "content": (
+                    f"You are an AI assistant helping me complete my goals.\n\n"
+                    f"Here is the full context:\n{context}\n\n"
+                    f"Now, please help me understand and tackle the **task**:\n\n"
+                    f"**Task Title:** {task.title}\n"
+                    f"Explain clearly what to do, step-by-step. "
+                    f"Assume I have no prior knowledge. Do not tell me to look up things online — explain everything in your own words."
+                )
+            }
+        ]
+
+        completion = client.chat.completions.create(
+            model="llama-3.3-70b-versatile",
+            messages=messages,
+            temperature=0.7,
+            max_tokens=2048,
+            top_p=1,
+            stream=False,
+        )
+
+        answer = completion.choices[0].message.content.strip()
+
+        # 💾 Save to insights for history/reference
+        if getattr(task, "goal", None):  # only if your Task model has a goal field
+            AIInsight.objects.create(
+                ai_goal=task.goal,
+                task=task,
+                insight_text=answer
+            )
+        else:
+            AIInsight.objects.create(
+                task=task,
+                insight_text=answer
+            )
+
+
+        return answer
+
+    except Exception as e:
+        print(f"Error answering task: {e}")
+        return "No answer available."
+
+
+
+
+def generate_weekly_activity_feedback(user):
+    now = timezone.now()
+    week_start = now - timedelta(days=7)
+
+    # Get all activity logs for the user in the last week
+    activities = UserActivity.objects.filter(user=user, timestamp__gte=week_start)
+    if not activities.exists():
+        return None
+
+    # Extract patterns
+    active_days = activities.datetimes("timestamp", "day")
+    inactive_days = [day.strftime("%A") for day in (week_start + timedelta(days=i) for i in range(7))
+                     if day.date() not in [a.date() for a in active_days]]
+    
+    # Determine most active time (hour range)
+    hours = [a.timestamp.astimezone(pytz.timezone(user.timezone)).hour for a in activities]
+    most_active_hour = max(set(hours), key=hours.count)
+    if 5 <= most_active_hour < 12:
+        productive_time = "morning 🌅"
+    elif 12 <= most_active_hour < 17:
+        productive_time = "afternoon ☀️"
+    else:
+        productive_time = "evening 🌙"
+
+    # Compare consistency with last week
+    last_week_start = week_start - timedelta(days=7)
+    last_week_activities = UserActivity.objects.filter(user=user, timestamp__range=(last_week_start, week_start))
+    consistency_change = len(activities) - len(last_week_activities)
+    trend = "increased" if consistency_change > 0 else "dropped"
+
+    # --- AI summary ---
+    client = Groq(api_key=settings.GROQ_API_KEY)
+    completion = client.chat.completions.create(
+        model="llama-3.3-70b-versatile",
+        messages=[
+            {
+                "role": "user",
+                "content": (
+                    f"Generate a short motivational weekly activity summary for {user.first_name}. "
+                    f"They were active on {len(active_days)} days this week, mostly in the {productive_time}. "
+                    f"Inactive days: {', '.join(inactive_days) or 'none 🎉'}. "
+                    f"Their consistency {trend} compared to last week. "
+                    f"Keep the tone friendly, motivational, and concise (3-5 sentences max)."
+                )
+            }
+        ],
+    )
+    insight_text = completion.choices[0].message.content.strip()
+
+    AIInsight.objects.create(user=user, insight_text=insight_text)
+    return insight_text

@@ -1,5 +1,4 @@
 import logging
-
 from urllib.parse import urlencode
 from django.shortcuts import render, redirect
 from rest_framework.views import APIView
@@ -15,7 +14,7 @@ from asgiref.sync import async_to_sync
 from channels.layers import get_channel_layer
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.tokens import AccessToken
-from .models import User, generate_verification_token
+from .models import User, generate_verification_token, UserActivity
 from timezonefinder import TimezoneFinder
 import traceback
 from google.auth.transport.requests import Request
@@ -322,6 +321,16 @@ class LoginUserView(APIView):
 
         refresh = RefreshToken.for_user(user)
         access = refresh.access_token
+
+        # Record login activity
+        UserActivity.objects.create(
+            user=user,
+            activity_type="login",
+            metadata={
+                "ip": request.META.get('REMOTE_ADDR'),
+                "user_agent": request.META.get('HTTP_USER_AGENT'),
+            },
+        )
 
         return Response(
             {

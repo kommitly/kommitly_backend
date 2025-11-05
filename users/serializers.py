@@ -52,6 +52,7 @@ class UserSerializer(serializers.ModelSerializer):
             "is_verified",
             "created_at",
             "updated_at",
-            "email_sent"
-            ""
+            "email_sent",
+            "last_active"
+            
         ]

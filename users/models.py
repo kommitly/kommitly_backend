@@ -5,6 +5,8 @@ from django.core.validators import MinLengthValidator
 from django.contrib.auth.models import AbstractUser
 from django.utils.crypto import get_random_string
 import pytz
+from django.utils import timezone as dj_timezone
+
 
 def generate_verification_token():
     return get_random_string(50)
@@ -25,6 +27,11 @@ class User(AbstractUser):
     timezone = models.CharField(max_length=50, choices=[(tz, tz) for tz in pytz.all_timezones], default='UTC')  # Add timezone field
     email_sent = models.BooleanField(default=False)
 
+    last_active = models.DateTimeField(default=dj_timezone.now)
+
+
+
+
     objects = CustomUserManager()
 
     USERNAME_FIELD = "email"
@@ -33,4 +40,15 @@ class User(AbstractUser):
     def __str__(self):
         return self.first_name + " " + self.last_name   
     
+
+
+class UserActivity(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    user = models.ForeignKey('users.User', on_delete=models.CASCADE, related_name='activities')
+    activity_type = models.CharField(max_length=50, default='login')  # e.g., login, goal_update, task_complete
+    metadata = models.JSONField(blank=True, null=True)  # optional: store context like {"page": "dashboard", "device": "mobile"}
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.user.first_name} active at {self.timestamp}"
    

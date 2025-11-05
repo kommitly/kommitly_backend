@@ -11,7 +11,7 @@ from .serializers import GoalSerializer, TaskSerializer, CreateGoalSerializer, C
 import kommitly_backend.settings as st
 from drf_yasg.utils import swagger_auto_schema
 from django.core.exceptions import ValidationError
-from ai_insights.utils import get_insights, answer_subtask_question
+from ai_insights.utils import get_insights, answer_subtask_question, answer_task_question
 from drf_yasg import openapi
 from users.models import User
 from django.http import Http404
@@ -1704,6 +1704,9 @@ class DeleteAiSubtaskView(APIView):
         ai_subtask.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
+
+
+
 class AnswerAiSubtaskQuestionView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
@@ -1722,7 +1725,7 @@ class AnswerAiSubtaskQuestionView(APIView):
             404: "Subtask not found",
             401: "Unauthorized",
         },
-        operation_description="Generate and store an AI answer for a specific AiSubTask"
+        operation_description="Generate and store an AI answer for a specific AiSubTask",
     )
     def post(self, request, subtask_id):
         try:
@@ -1730,13 +1733,13 @@ class AnswerAiSubtaskQuestionView(APIView):
         except AiSubTask.DoesNotExist:
             return Response({"error": "Subtask not found"}, status=404)
 
-        answer = answer_subtask_question(subtask.title, subtask.description or "")
+        # ✅ Call the new version of your function
+        answer = answer_subtask_question(subtask)
+
         subtask.ai_answer = answer
         subtask.save(update_fields=["ai_answer"])
 
-
         return Response({"answer": answer}, status=200)
-
 
 
 class AnswerTaskQuestionView(APIView):
@@ -1754,22 +1757,29 @@ class AnswerTaskQuestionView(APIView):
                     },
                 ),
             ),
-            404: "task not found",
+            404: "Task not found",
             401: "Unauthorized",
         },
-        operation_description="Generate and store an AI answer for a specific Task"
+        operation_description="Generate and store an AI answer for a specific Task",
     )
     def post(self, request, task_id):
         try:
             task = Task.objects.get(id=task_id, user=request.user)
         except Task.DoesNotExist:
-            return Response({"error": "task not found"}, status=404)
+            return Response({"error": "Task not found"}, status=404)
 
-        answer = answer_subtask_question(task.title, task.description or "")
+        # ✅ Call the correct helper
+        answer = answer_task_question(task)
+
         task.ai_answer = answer
         task.save(update_fields=["ai_answer"])
 
         return Response({"answer": answer}, status=200)
+
+
+
+
+
 
 class RoutineListCreateView(generics.ListCreateAPIView):
     serializer_class = RoutineSerializer

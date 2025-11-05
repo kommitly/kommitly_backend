@@ -5,9 +5,13 @@ class AIInsightSerializer(serializers.ModelSerializer):
     class Meta:
         model = AIInsight
         fields = [
-            'id', 
-            'ai_goal', 
-            'insight_text', 
-            'created_at', 
-            'updated_at'
-            ]
+            'id',
+            'ai_goal',
+            'ai_task',
+            'ai_subtask',
+            'task',
+            'subtask',
+            'insight_text',
+            'created_at',
+            'updated_at',
+        ]
