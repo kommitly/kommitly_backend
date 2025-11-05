@@ -11,5 +11,5 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         self.stdout.write("🚀 Starting weekly report generation...")
-        send_weekly_activity_reports.delay()  # async task
+        send_weekly_activity_reports()  # async task
         self.stdout.write(self.style.SUCCESS("✅ Weekly activity report task dispatched."))
