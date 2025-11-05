@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Weekly Report</title>
+</head>
+<body style="font-family: Arial, sans-serif; background-color: #f8f9fc; padding: 20px;">
+  <div style="max-width: 600px; margin: auto; background: white; padding: 20px; border-radius: 8px;">
+    <h2>Hey {{ user.first_name }} 👋</h2>
+    <p>Here’s your activity summary for <strong>{{ week_range }}</strong>:</p>
+    <blockquote style="font-style: italic; color: #555;">{{ insight_text }}</blockquote>
+    <p>Keep up the great work! 🚀</p>
+    <p><a href="{{ app_link }}" style="color: #6246AC; text-decoration: none;">Go to Dashboard</a></p>
+  </div>
+</body>
+</html>
