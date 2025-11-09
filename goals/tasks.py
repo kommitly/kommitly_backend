@@ -346,14 +346,14 @@ def send_ai_subtask_reminders(subtask_id=None):
             pass # Skip notification creation if ContentType fails
 
         # NOTE: You'll need to make sure Notification is imported and available
-        # Notification.objects.create(
-        #     user=user,
-        #     content_type=content_type,
-        #     object_id=ai_subtask.id,
-        #     message=f"⏰ Reminder: '{ai_subtask.title}' is due soon.",
-        #     link=context['app_link'],
-        #     type="reminder"
-        # )
+        Notification.objects.create(
+            user=user,
+            content_type=content_type,
+            object_id=ai_subtask.id,
+            message=f"⏰ Reminder: '{ai_subtask.title}' is due soon.",
+            link=context['app_link'],
+            type="reminder"
+        )
         
         # Mark reminder sent
         ai_subtask.reminder_sent = True
