@@ -63,7 +63,7 @@ class Command(BaseCommand):
 
                 logger.info(
                     f"✅ {ai_subtask.title}: due_utc={ai_subtask.due_date}, "
-                    f"reminder_local={reminder_local}, reminder_utc={reminder_utc}, now_utc={now_utc}"
+                    f"reminder_local={reminder_local}, reminder_utc={reminder_utc}, now_utc={now_utc}, past_utc={past_utc}"
                 )
 
                 # Check if reminder is due (reminder_utc falls within the past_utc and now_utc window)
