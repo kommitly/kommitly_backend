@@ -50,63 +50,46 @@ def send_task_reminders(task_id=None, user_id=None):
                 logger.error(f"Task '{task.title}' has no associated user.")
                 continue
 
-            if not task.reminder_time:
-                logger.warning(f"Task '{task.title}' has no reminder_time; skipping.")
-                continue
-
-            user_timezone = pytz.timezone(user.timezone)
+           
             user_email = user.email
 
-            # Combine due date (or today if null) and reminder time
-            if task.due_date:
-                date_component = task.due_date.date()
-            else:
-                date_component = current_time.date()
+        
+            subject = "⏰ Task Reminder from Kommitly"
+            from_email = 'no-reply@kommitly.com'
+            to = [user_email]
+            context = {
+                'task': task,
+                'user': user,
+                'app_link': f"https://kommitly-frontend.vercel.app/dashboard/tasks/{task.id}/"
+            }
 
-            reminder_utc = datetime.combine(date_component, task.reminder_time).replace(tzinfo=pytz.UTC)
+            text_content = f"Reminder: {task.title} is due soon! Visit your Kommitly app to manage it."
 
-            logger.debug(f"Reminder check for '{task.title}': reminder_utc={reminder_utc}, now={current_time}")
+            try:
+                html_content = render_to_string('email/task_reminder.html', context)
+            except TemplateDoesNotExist as e:
+                logger.error(f"Template missing: {e}")
+                html_content = text_content
 
-            # Trigger within 2-minute window
-            if reminder_utc <= current_time <= reminder_utc + timedelta(minutes=2):
-                subject = "⏰ Task Reminder from Kommitly"
-                from_email = 'no-reply@kommitly.com'
-                to = [user_email]
-                context = {
-                    'task': task,
-                    'user': user,
-                    'app_link': f"https://kommitly-frontend.vercel.app/dashboard/tasks/{task.id}/"
-                }
+            msg = EmailMultiAlternatives(subject, text_content, from_email, to)
+            msg.attach_alternative(html_content, "text/html")
+            msg.send()
 
-                text_content = f"Reminder: {task.title} is due soon! Visit your Kommitly app to manage it."
+            # Create in-app notification
+            Notification.objects.create(
+                user=user,
+                content_type=ContentType.objects.get_for_model(task),
+                object_id=task.id,
+                message=f"⏰ Reminder: '{task.title}' is due soon.",
+                link=f"https://kommitly-frontend.vercel.app/dashboard/tasks/{task.id}/",
+                type="reminder",
+            )
 
-                try:
-                    html_content = render_to_string('email/task_reminder.html', context)
-                except TemplateDoesNotExist as e:
-                    logger.error(f"Template missing: {e}")
-                    html_content = text_content
+            task.reminder_sent = True
+            task.save(update_fields=["reminder_sent"])
+            logger.info(f"✅ Reminder sent for task '{task.title}' to {user_email}")
 
-                msg = EmailMultiAlternatives(subject, text_content, from_email, to)
-                msg.attach_alternative(html_content, "text/html")
-                msg.send()
-
-                # Create in-app notification
-                Notification.objects.create(
-                    user=user,
-                    content_type=ContentType.objects.get_for_model(task),
-                    object_id=task.id,
-                    message=f"⏰ Reminder: '{task.title}' is due soon.",
-                    link=f"https://kommitly-frontend.vercel.app/dashboard/tasks/{task.id}/",
-                    type="reminder",
-                )
-
-                task.reminder_sent = True
-                task.save(update_fields=["reminder_sent"])
-                logger.info(f"✅ Reminder sent for task '{task.title}' to {user_email}")
-
-            else:
-                logger.debug(f"⏳ Not yet time for reminder: '{task.title}'")
-
+           
         except Exception as e:
             logger.error(f"Error with task '{task.title}': {str(e)}")
 
@@ -140,11 +123,6 @@ def send_subtask_reminders(subtask_id=None):
                 logger.warning(f"Subtask '{subtask.title}' missing due_date or reminder_time")
                 continue
 
-            user_timezone = pytz.timezone(user.timezone)
-            due_utc = subtask.due_date  # Already UTC-aware
-            reminder_utc = datetime.combine(due_utc.date(), subtask.reminder_time).replace(tzinfo=pytz.UTC)
-
-            
 
             if reminder_utc <= current_time <= reminder_utc + timedelta(minutes=2):
                 subject = "⏰ Subtask Reminder from Kommitly"
