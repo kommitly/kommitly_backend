@@ -55,7 +55,7 @@ class Command(BaseCommand):
                 # Combine the date of the due_utc with the time of the reminder_time_utc
                 # This gives the exact UTC moment the reminder should be sent.
                 # If due_date is a DateTimeField, ensure you're only using its date component.
-                reminder_utc = datetime.combine(due_utc.date(), reminder_time_utc).replace(tzinfo=pytz.UTC)
+                reminder_utc = datetime.combine(now_utc.date(), reminder_time_utc).replace(tzinfo=pytz.UTC)
 
                 # Logging in user local time for clarity
                 reminder_local = reminder_utc.astimezone(user_timezone)
