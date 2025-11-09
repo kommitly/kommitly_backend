@@ -57,7 +57,7 @@ class Command(BaseCommand):
 
             # ✅ only process activities whose date matches user’s local today
             if activity.date != user_today:
-                self.stdout.write(self.style.WARNING(f"Activity {activity.id} skipped: Date mismatch."))
+                self.stdout.write(self.style.WARNING(f"Activity {activity.title} skipped: Date mismatch."))
                 continue
 
             start_local = datetime.combine(user_today, activity.start_time)
@@ -67,7 +67,7 @@ class Command(BaseCommand):
             # ✅ check if it's within the reminder window
             if past_utc <= start_utc <= now_utc:
                 self.stdout.write(self.style.SUCCESS(f"--- MATCH: Sending reminder for {activity.title} ---"))
-                message = f"⏰ Reminder: {activity.title} is starting now!"
+                message = f"⏰ Reminder: {activity.title} is starting now at {start_utc}!"
 
                 link = None
                 linked_object = None
@@ -122,8 +122,8 @@ class Command(BaseCommand):
                 activity.reminder_sent = True
                 activity.save()
 
-                self.stdout.write(self.style.SUCCESS(f"Reminder successfully processed for {activity.title}"))
+                self.stdout.write(self.style.SUCCESS(f"Reminder successfully processed for {activity.title} at {start_utc}"))
             else:
-                 self.stdout.write(f"Activity {activity.id} skipped: Not yet in reminder window or already past.")
+                 self.stdout.write(f"Activity {activity.title} skipped: Not yet in reminder window or already past.")
 
         self.stdout.write(self.style.NOTICE("Daily activity reminder check complete."))

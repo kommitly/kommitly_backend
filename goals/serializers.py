@@ -197,7 +197,7 @@ class AiSubTaskSerializer(serializers.ModelSerializer):
 
         # ✅ If reminder_time was updated, reset reminder_sent
         # ✅ Set default reminder_time if not changed
-        if "reminder_time" not in validated_data:
+        if "reminder_time" not in validated_data and new_due_date:
             default_reminder_dt = new_due_date - timedelta(minutes=15)
             instance.reminder_time = default_reminder_dt.time()
             instance.reminder_sent = False
