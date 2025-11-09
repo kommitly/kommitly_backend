@@ -49,7 +49,7 @@ class Command(BaseCommand):
                     due_utc = None
 
                 # Combine reminder_time + date
-                reminder_utc = datetime.combine(date_component, task.reminder_time).replace(tzinfo=pytz.UTC)
+                reminder_utc = datetime.combine(now_utc.date(), task.reminder_time).replace(tzinfo=pytz.UTC)
                 reminder_local = reminder_utc.astimezone(user_timezone)
                 due_local = due_utc.astimezone(user_timezone) if due_utc else None
 
