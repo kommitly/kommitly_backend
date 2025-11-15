@@ -59,7 +59,7 @@ def send_weekly_activity_reports():
                     "user": user,
                     "insight_text": insight_text,
                     "week_range": f"{(now - timedelta(days=7)).strftime('%b %d')} - {now.strftime('%b %d, %Y')}",
-                    "app_link": "https://kommitly-frontend.vercel.app/dashboard/",
+                    "app_link": "https://kommitly-frontend.vercel.app/dashboard/goals",
                 }
 
                 # Use your email template (HTML + text)
@@ -93,7 +93,7 @@ def send_weekly_activity_reports():
 
                 re_engagement_context = {
                     "user": user,
-                    "app_link": "https://kommitly-frontend.vercel.app/dashboard/",
+                    "app_link": "https://kommitly-frontend.vercel.app/dashboard/goals",
                     "abandoned_goals": goals_to_show,
                 }
 
