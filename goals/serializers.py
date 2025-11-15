@@ -514,7 +514,7 @@ class TaskSerializer(serializers.ModelSerializer):
             "id", "goal", "user", "title", "description", "due_date", "status",
             "completed_at", "subtasks", "overdue_reason", "task_timeline",
             "reminder_time", "last_updated", "reminder_sent", "tag",
-            "ai_answer", "routine", "created_at","overdue_notified"
+            "ai_answer", "routine", "created_at","overdue_notified", "emoji"
         ]
 
     # ---------------------------
@@ -853,7 +853,7 @@ class CreateGoalSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Goal
-        fields = ['title', 'description', 'category','progress' ]
+        fields = ['title', 'description', 'category','progress'  ]
 
     def create(self, validated_data):
         user = self.context['request'].user
@@ -878,7 +878,8 @@ class GoalSerializer(serializers.ModelSerializer):
             'created_at',
             'updated_at',
             'tasks',
-            'tag'
+            'tag',
+            'emoji'
         ]
 
 class CreateAiGoalSerializer(serializers.ModelSerializer):
@@ -930,7 +931,8 @@ class AiGoalSerializer(serializers.ModelSerializer):
             'created_at',
             'updated_at',
             'ai_tasks',
-            'tag'
+            'tag',
+            'emoji'
         ]
 
 

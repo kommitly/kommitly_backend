@@ -17,12 +17,21 @@ class Goal(models.Model):
       
     ]
 
+    
     user = models.ForeignKey('users.User', on_delete=models.CASCADE, related_name='goals')
     title = models.CharField(max_length=255)
     description = models.TextField(blank=True, null=True)
     category = models.CharField(
         max_length=10, choices=CATEGORY_CHOICES, null=True, blank=True
     )
+    STATUS_CHOICES = [
+        ('active', 'Active'),
+        ('completed', 'Completed'),
+        ('abandoned', 'Abandoned'), # New status
+        ('pending', 'Pending'),
+    ]
+    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='active')
+    emoji = models.CharField(max_length=5, blank=True, null=True)
     progress = models.IntegerField(default=0)  # Added progress field
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -46,11 +55,19 @@ class AiGoal(models.Model):
     category = models.CharField(
         max_length=10, choices=CATEGORY_CHOICES, null=True, blank=True
     ) 
+    STATUS_CHOICES = [
+        ('active', 'Active'),
+        ('completed', 'Completed'),
+        ('abandoned', 'Abandoned'), # New status
+        ('pending', 'Pending'),
+    ]
+    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='active')
     progress = models.IntegerField(default=0)  # Added progress field
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     tag = models.CharField(max_length=255, null=True, blank=True)  # Added tag field
-    
+    emoji = models.CharField(max_length=5, blank=True, null=True)
+
 
     def update_progress(self):
         total_subtasks = AiSubTask.objects.filter(ai_task__ai_goal=self).count()
@@ -80,6 +97,7 @@ class Task(models.Model):
     description = models.TextField(null=True, blank=True)
     tag = models.CharField(max_length=255, null=True, blank=True)  # Added tag field
     routine = models.ForeignKey('Routine', related_name='tasks', on_delete=models.CASCADE, null=True, blank=True)
+    emoji = models.CharField(max_length=5, blank=True, null=True)
 
     status = models.CharField(
         max_length=20,

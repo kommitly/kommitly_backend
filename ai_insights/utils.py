@@ -389,3 +389,53 @@ def generate_weekly_activity_feedback(user):
 
     AIInsight.objects.create(user=user, insight_text=insight_text)
     return insight_text
+
+
+
+def ai_generate_tag_and_emoji(title: str):
+    """
+    Uses Groq AI to classify the task/goal into:
+    - tag (category)
+    - emoji (based on meaning)
+
+    DOES NOT change the title.
+    """
+    from groq import Groq
+    client = Groq(api_key=settings.GROQ_API_KEY)
+
+    prompt = f"""
+    Analyze the following goal/task title:
+
+    "{title}"
+
+    Generate:
+    - A category tag (examples: Health & Fitness, Creative Development,
+      Productivity, Learning, Mental Wellness, Career Growth, Financial Planning, Lifestyle, etc.)
+    - One emoji that best represents the title.
+
+    DO NOT modify or rewrite the title.
+    DO NOT suggest a new title.
+    DO NOT return anything except JSON.
+
+    Return ONLY this JSON format:
+
+    {{
+        "tag": "[Category]",
+        "emoji": "[Emoji]"
+    }}
+    """
+
+    completion = client.chat.completions.create(
+        model="llama-3.3-70b-versatile",
+        messages=[{"role": "user", "content": prompt}],
+        max_tokens=150,
+        temperature=0.6,
+    )
+
+    import json
+    raw = completion.choices[0].message.content.strip()
+
+    try:
+        return json.loads(raw)
+    except:
+        return { "tag": "General", "emoji": "✅" }

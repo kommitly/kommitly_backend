@@ -9,7 +9,7 @@ class CustomUserManager(BaseUserManager):
     """
 
     def create_user(self, email, first_name, last_name, password=None, timezone='UTC',**extra_fields ):
-        """
+        """print(f"User found: {target_user.username}. Last active: {target_user.last_active}")
         Create and save a user with the given email and password.
         """
         if not email:

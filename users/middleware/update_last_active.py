@@ -1,5 +1,9 @@
+# Assuming this middleware file is in an app where UserActivity is accessible,
+# or you adjust the import path.
 from django.utils import timezone
 from datetime import timedelta
+# Add this import line:
+from users.models import UserActivity 
 
 class UpdateLastActiveMiddleware:
     def __init__(self, get_response):
@@ -12,9 +16,19 @@ class UpdateLastActiveMiddleware:
             now = timezone.now()
             last_active = request.user.last_active
 
-            # Only update if user hasn't been active in the last 5 minutes
+            # Check if user hasn't been active in the last 5 minutes
             if not last_active or (now - last_active) > timedelta(minutes=5):
+                
+                # 1. UPDATE last_active FIELD (Existing Logic)
                 request.user.last_active = now
                 request.user.save(update_fields=["last_active"])
+                
+                # 2. CREATE A NEW ACTIVITY LOG (New Logic)
+                UserActivity.objects.create(
+                    user=request.user,
+                    activity_type='active_session', # Use a specific type for this middleware
+                    metadata={'path': request.path} # Optional: log the path the user visited
+                )
+                print(f"--- LOGGED NEW ACTIVITY for {request.user.email} ---") # Optional check/debug print
 
         return response

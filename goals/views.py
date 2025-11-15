@@ -11,7 +11,7 @@ from .serializers import GoalSerializer, TaskSerializer, CreateGoalSerializer, C
 import kommitly_backend.settings as st
 from drf_yasg.utils import swagger_auto_schema
 from django.core.exceptions import ValidationError
-from ai_insights.utils import get_insights, answer_subtask_question, answer_task_question
+from ai_insights.utils import get_insights, answer_subtask_question, answer_task_question, ai_generate_tag_and_emoji
 from drf_yasg import openapi
 from users.models import User
 from django.http import Http404
@@ -450,13 +450,21 @@ class CreateGoalView(APIView):
     )
 
     def post(self, request):
-        serializer = CreateGoalSerializer(data=request.data, context={"request": request})
+        data = request.data.copy()
+
+        # If tag or emoji missing → use AI classifier
+        if not data.get("tag") or not data.get("emoji"):
+            ai_result = ai_generate_tag_and_emoji(data.get("title"))
+            data["tag"] = ai_result.get("tag")
+            data["emoji"] = ai_result.get("emoji")
+
+        serializer = CreateGoalSerializer(data=data, context={"request": request})
 
         if serializer.is_valid():
             goal = serializer.save()
             return Response(GoalSerializer(goal).data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
         
@@ -479,10 +487,20 @@ class CreateTaskView(APIView):
 
 
     def post(self, request):
-        serializer = CreateTaskSerializer(data=request.data, context={'request': request})
+        data = request.data.copy()
+
+        # If tag or emoji missing → use AI classifier
+        if not data.get("tag") or not data.get("emoji"):
+            ai_result = ai_generate_tag_and_emoji(data.get("title"))
+            data["tag"] = ai_result.get("tag")
+            data["emoji"] = ai_result.get("emoji")
+
+        serializer = CreateTaskSerializer(data=data, context={'request': request})
+
         if serializer.is_valid():
             task = serializer.save()
             return Response(TaskSerializer(task).data, status=status.HTTP_201_CREATED)
+
         logger.error(f"Task creation failed: {serializer.errors}")
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
