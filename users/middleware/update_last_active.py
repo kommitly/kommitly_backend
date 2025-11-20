@@ -4,6 +4,7 @@ from django.utils import timezone
 from datetime import timedelta
 # Add this import line:
 from users.models import UserActivity 
+from users.utils import log_activity
 
 class UpdateLastActiveMiddleware:
     def __init__(self, get_response):
@@ -24,10 +25,10 @@ class UpdateLastActiveMiddleware:
                 request.user.save(update_fields=["last_active"])
                 
                 # 2. CREATE A NEW ACTIVITY LOG (New Logic)
-                UserActivity.objects.create(
-                    user=request.user,
-                    activity_type='active_session', # Use a specific type for this middleware
-                    metadata={'path': request.path} # Optional: log the path the user visited
+                log_activity(
+                    request.user,
+                    "active_session",
+                    {"path": request.path}
                 )
                 print(f"--- LOGGED NEW ACTIVITY for {request.user.email} ---") # Optional check/debug print
 

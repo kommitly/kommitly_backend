@@ -21,7 +21,7 @@ from django.db.models import Q
 from .constants import FIXED_ACTIVITIES
 from django.core.management import call_command
 from django.conf import settings
-
+from users.utils import log_activity
 
 
 
@@ -424,6 +424,8 @@ class CreateGoalWithAIInsightsView(APIView):
                  
                 }
 
+
+
                 return Response(response_data, status=status.HTTP_201_CREATED)
 
             except Exception as e:
@@ -603,6 +605,12 @@ class UpdateAuthenticatedGoalView(APIView):
         serializer = GoalSerializer(goal, data=request.data, partial=True)
         if serializer.is_valid():
             updated_goal = serializer.save()
+
+            log_activity(
+                request.user,
+                "goal_updated",
+                {"goal_id": updated_goal.id, "title": updated_goal.title}
+            )
             return Response(GoalSerializer(updated_goal).data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -650,6 +658,12 @@ class UpdateAuthenticatedAiGoalView(APIView):
         serializer = UpdateAiGoalSerializer(ai_goal, data=request.data, partial=True)
         if serializer.is_valid():
             updated_goal = serializer.save()
+
+            log_activity(
+                request.user,
+                "ai_goal_updated",
+                {"goal_id": updated_ai_goal.id, "title": updated_ai_goal.title}
+            )
             return Response(AiGoalSerializer(updated_goal).data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -707,6 +721,7 @@ class UserAuthenticatedProfileView(APIView):
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR,
             )
 
+
 class UpdateAuthenticatedTaskView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
@@ -741,6 +756,16 @@ class UpdateAuthenticatedTaskView(APIView):
         serializer = TaskSerializer(task, data=request.data, partial=True)
         if serializer.is_valid():
             updated_task = serializer.save()
+
+            log_activity(
+                request.user,
+                "task_updated",
+                {
+                    "task_id": updated_task.id,
+                    "title": updated_task.title,
+                    "goal_id": updated_task.goal_id,
+                }
+            )
             return Response(TaskSerializer(updated_task).data, status=status.HTTP_200_OK)
         
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -783,6 +808,18 @@ class UpdateAuthenticatedAiTaskView(APIView):
         serializer = AiTaskSerializer(ai_task, data=request.data, partial=True)
         if serializer.is_valid():
             updated_task = serializer.save()
+
+           
+            log_activity(
+                user=request.user,
+                activity_type="ai_task_updated",
+                metadata={
+                    "task_id": updated_task.id,  # <- now using updated_task
+                    "updated_fields": list(request.data.keys()),
+                    "goal_id": updated_task.goal.id if hasattr(updated_task, "goal") else None,
+                }
+            )
+
             return Response(AiTaskSerializer(updated_task).data, status=status.HTTP_200_OK)
             
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -1634,6 +1671,18 @@ class UpdateAiSubtaskView(APIView):
         serializer = AiSubTaskSerializer(subtask, data=request.data, partial=True)  # Allow partial updates
         if serializer.is_valid():
             serializer.save()
+
+            log_activity(
+                user=request.user,
+                activity_type="ai_subtask_updated",
+                metadata={
+                    "subtask_id": updated_subtask.id,
+                    "updated_fields": list(request.data.keys()),
+                    "task_id": task.id,
+                    "goal_id": task.ai_goal.id if hasattr(task, "ai_goal") else None,
+                }
+            )
+            
             return Response(serializer.data, status=status.HTTP_200_OK)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
