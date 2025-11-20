@@ -16,10 +16,13 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.tokens import AccessToken
 from .models import User, generate_verification_token, UserActivity
 from timezonefinder import TimezoneFinder
+from django.utils import timezone
+from datetime import timedelta
 import traceback
 from google.auth.transport.requests import Request
 from google.oauth2 import id_token
 from django.contrib.auth import get_user_model
+from goals.models import Goal, AiGoal, Task, AiTask
 user = get_user_model()
 
 
@@ -580,3 +583,125 @@ class GetTimezoneView(APIView):
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+class DashboardStatsView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request):
+        user = request.user
+        now = timezone.now()
+
+        # 1️⃣ Goals & AI Goals progress
+        user_goals = Goal.objects.filter(user=user)
+        ai_goals = AiGoal.objects.filter(user=user)
+
+        def calc_progress(goal):
+            total_tasks = goal.tasks.count() if hasattr(goal, "tasks") else 0
+            completed_tasks = goal.tasks.filter(completed_at__isnull=False).count() if hasattr(goal, "tasks") else 0
+            return completed_tasks / total_tasks if total_tasks else 0
+
+        goal_progress = [
+            {"goal": g.title, "progress": calc_progress(g)} for g in list(user_goals) + list(ai_goals)
+        ]
+
+        # 2️⃣ Tasks & AI Tasks completed today / this week (with titles)
+        today = now.date()
+        week_start = today - timedelta(days=today.weekday())
+
+        tasks_today_qs = Task.objects.filter(user=user, completed_at__date=today)
+        tasks_week_qs = Task.objects.filter(user=user, completed_at__date__gte=week_start)
+
+        ai_tasks_today_qs = AiTask.objects.filter(ai_goal__user=user, completed_at__date=today)
+        ai_tasks_week_qs = AiTask.objects.filter(ai_goal__user=user, completed_at__date__gte=week_start)
+
+        tasks_completed_today = {
+            "count": tasks_today_qs.count(),
+            "titles": list(tasks_today_qs.values_list("title", flat=True))
+        }
+        tasks_completed_week = {
+            "count": tasks_week_qs.count(),
+            "titles": list(tasks_week_qs.values_list("title", flat=True))
+        }
+        ai_tasks_completed_today = {
+            "count": ai_tasks_today_qs.count(),
+            "titles": list(ai_tasks_today_qs.values_list("title", flat=True))
+        }
+        ai_tasks_completed_week = {
+            "count": ai_tasks_week_qs.count(),
+            "titles": list(ai_tasks_week_qs.values_list("title", flat=True))
+        }
+
+        # 3️⃣ Activity streak / consistency
+        activity_logs = UserActivity.objects.filter(user=user).order_by('created_at')
+        streak = 0
+        max_streak = 0
+        last_day = None
+        for log in activity_logs:
+            log_day = log.created_at.date()
+            if last_day:
+                if (log_day - last_day).days == 1:
+                    streak += 1
+                elif (log_day - last_day).days > 1:
+                    streak = 1
+            else:
+                streak = 1
+            max_streak = max(max_streak, streak)
+            last_day = log_day
+
+        # 4️⃣ Recent activity summary (last 7 days)
+        recent_activity_qs = UserActivity.objects.filter(user=user, created_at__gte=now - timedelta(days=7))
+        activity_summary = {}
+        recent_goal_updates = []
+
+        for act in recent_activity_qs:
+            day = act.created_at.strftime("%Y-%m-%d")
+            activity_summary[day] = activity_summary.get(day, 0) + 1
+
+            if act.activity_type in ["goal_updated", "ai_goal_updated", "task_updated", "ai_task_updated", "ai_subtask_updated"]:
+                recent_goal_updates.append({
+                    "type": act.activity_type,
+                    "metadata": act.metadata,
+                    "timestamp": act.created_at
+                })
+
+        # 5️⃣ Top / least performing tags
+        # Top-performing: tags from completed tasks/goals
+        completed_tasks = Task.objects.filter(user=user, completed_at__isnull=False)
+        completed_ai_tasks = AiTask.objects.filter(ai_goal__user=user, completed_at__isnull=False)
+
+        # Flatten all tags
+        completed_tags = list(completed_tasks.values_list("tag", flat=True)) + \
+                         list(completed_ai_tasks.values_list("tag", flat=True))
+
+        top_tags = Counter([t for t in completed_tags if t]).most_common(5)
+
+        # Least-performing: tags from overdue tasks (tasks with due_date < now and not completed)
+        overdue_tasks = Task.objects.filter(user=user, completed_at__isnull=True, due_date__lt=now)
+        overdue_ai_tasks = AiTask.objects.filter(ai_goal__user=user, completed_at__isnull=True, due_date__lt=now)
+
+        overdue_tags = list(overdue_tasks.values_list("tag", flat=True)) + \
+                       list(overdue_ai_tasks.values_list("tag", flat=True))
+
+        least_tags = Counter([t for t in overdue_tags if t]).most_common()[-5:]  # 5 least performing
+
+        # Popular tags: tags that appear most in activity logs
+        activity_tags = []
+        for act in activity_logs:
+            if act.metadata and "tags" in act.metadata:
+                activity_tags.extend(act.metadata["tags"])
+
+        popular_tags = Counter(activity_tags).most_common(5)
+
+        return Response({
+            "goal_progress": goal_progress,
+            "tasks_completed_today": tasks_completed_today,
+            "tasks_completed_week": tasks_completed_week,
+            "ai_tasks_completed_today": ai_tasks_completed_today,
+            "ai_tasks_completed_week": ai_tasks_completed_week,
+            "current_streak": streak,
+            "longest_streak": max_streak,
+            "recent_activity_summary": activity_summary,
+            "recent_goal_updates": recent_goal_updates,
+            "top_tags": top_tags,
+            "least_tags": least_tags,
+            "popular_tags": popular_tags,
+        })

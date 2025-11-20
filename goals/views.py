@@ -609,8 +609,13 @@ class UpdateAuthenticatedGoalView(APIView):
             log_activity(
                 request.user,
                 "goal_updated",
-                {"goal_id": updated_goal.id, "title": updated_goal.title}
+                {
+                    "goal_id": updated_goal.id,
+                    "title": updated_goal.title,
+                    "tags": [updated_goal.tag] if updated_goal.tag else []
+                }
             )
+
             return Response(GoalSerializer(updated_goal).data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -659,11 +664,16 @@ class UpdateAuthenticatedAiGoalView(APIView):
         if serializer.is_valid():
             updated_goal = serializer.save()
 
-            log_activity(
+           log_activity(
                 request.user,
                 "ai_goal_updated",
-                {"goal_id": updated_ai_goal.id, "title": updated_ai_goal.title}
+                {
+                    "goal_id": updated_ai_goal.id,
+                    "title": updated_ai_goal.title,
+                    "tags": [updated_ai_goal.tag] if updated_ai_goal.tag else []
+                }
             )
+
             return Response(AiGoalSerializer(updated_goal).data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -764,8 +774,15 @@ class UpdateAuthenticatedTaskView(APIView):
                     "task_id": updated_task.id,
                     "title": updated_task.title,
                     "goal_id": updated_task.goal_id,
+                    "tags": list(
+                        filter(
+                            None,
+                            [updated_task.tag, updated_task.goal.tag if updated_task.goal else None]
+                        )
+                    )
                 }
             )
+
             return Response(TaskSerializer(updated_task).data, status=status.HTTP_200_OK)
         
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -814,11 +831,18 @@ class UpdateAuthenticatedAiTaskView(APIView):
                 user=request.user,
                 activity_type="ai_task_updated",
                 metadata={
-                    "task_id": updated_task.id,  # <- now using updated_task
+                    "task_id": updated_task.id,  # using updated_task
                     "updated_fields": list(request.data.keys()),
-                    "goal_id": updated_task.goal.id if hasattr(updated_task, "goal") else None,
+                    "goal_id": updated_task.ai_goal.id if hasattr(updated_task, "ai_goal") else None,
+                    "tags": list(
+                        filter(
+                            None,
+                            [updated_task.ai_goal.tag if updated_task.ai_goal else None]
+                        )
+                    )
                 }
             )
+
 
             return Response(AiTaskSerializer(updated_task).data, status=status.HTTP_200_OK)
             
@@ -1680,9 +1704,16 @@ class UpdateAiSubtaskView(APIView):
                     "updated_fields": list(request.data.keys()),
                     "task_id": task.id,
                     "goal_id": task.ai_goal.id if hasattr(task, "ai_goal") else None,
+                    "tags": list(
+                        filter(
+                            None,
+                            [task.ai_goal.tag if task.ai_goal else None]
+                        )
+                    )
                 }
             )
-            
+
+
             return Response(serializer.data, status=status.HTTP_200_OK)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
