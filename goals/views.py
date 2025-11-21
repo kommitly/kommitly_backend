@@ -664,15 +664,15 @@ class UpdateAuthenticatedAiGoalView(APIView):
         if serializer.is_valid():
             updated_goal = serializer.save()
 
-           log_activity(
-                request.user,
-                "ai_goal_updated",
-                {
-                    "goal_id": updated_ai_goal.id,
-                    "title": updated_ai_goal.title,
-                    "tags": [updated_ai_goal.tag] if updated_ai_goal.tag else []
-                }
-            )
+            log_activity(
+                    request.user,
+                    "ai_goal_updated",
+                    {
+                        "goal_id": updated_ai_goal.id,
+                        "title": updated_ai_goal.title,
+                        "tags": [updated_ai_goal.tag] if updated_ai_goal.tag else []
+                    }
+                )
 
             return Response(AiGoalSerializer(updated_goal).data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
