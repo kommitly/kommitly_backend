@@ -586,6 +586,38 @@ class GetTimezoneView(APIView):
 class DashboardStatsView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
+    @swagger_auto_schema(
+        tags=["Dashboard"],
+        operation_description="Retrieve all dashboard statistics for the authenticated user.",
+        responses={
+            200: openapi.Response(
+                description="Dashboard stats retrieved successfully",
+                examples={
+                    "application/json": {
+                        "goal_progress": [{"goal": "Health", "progress": 0.5}],
+                        "tasks_completed_today": {"count": 2, "titles": ["Task A", "Task B"]},
+                        "tasks_completed_week": {"count": 10, "titles": []},
+                        "ai_tasks_completed_today": {"count": 1, "titles": ["AI Task"]},
+                        "ai_tasks_completed_week": {"count": 4, "titles": []},
+                        "current_streak": 3,
+                        "longest_streak": 7,
+                        "recent_activity_summary": {"2025-02-20": 4},
+                        "recent_goal_updates": [],
+                        "top_tags": [["work", 5]],
+                        "least_tags": [["fitness", 1]],
+                        "popular_tags": [["school", 7]]
+                    }
+                }
+            ),
+            401: "Unauthorized",
+            500: "Unexpected Error"
+        }
+    )
+
+
+
+
+
     def get(self, request):
         user = request.user
         now = timezone.now()
