@@ -67,7 +67,7 @@ class Command(BaseCommand):
             # ✅ check if it's within the reminder window
             if past_utc <= start_utc <= now_utc:
                 self.stdout.write(self.style.SUCCESS(f"--- MATCH: Sending reminder for {activity.title} ---"))
-                message = f"⏰ Reminder: {activity.title} is starting now at {start_utc}!"
+                message = f"⏰ Reminder: {activity.title} is starting now!"
 
                 link = None
                 linked_object = None
