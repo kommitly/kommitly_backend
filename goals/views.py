@@ -668,9 +668,9 @@ class UpdateAuthenticatedAiGoalView(APIView):
                     request.user,
                     "ai_goal_updated",
                     {
-                        "goal_id": updated_ai_goal.id,
-                        "title": updated_ai_goal.title,
-                        "tags": [updated_ai_goal.tag] if updated_ai_goal.tag else []
+                        "goal_id": updated_goal.id,
+                        "title": updated_goal.title,
+                        "tags": [updated_goal.tag] if updated_goal.tag else []
                     }
                 )
 

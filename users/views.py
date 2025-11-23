@@ -23,6 +23,8 @@ from google.auth.transport.requests import Request
 from google.oauth2 import id_token
 from django.contrib.auth import get_user_model
 from goals.models import Goal, AiGoal, Task, AiTask
+from collections import Counter
+
 user = get_user_model()
 
 
@@ -663,12 +665,12 @@ class DashboardStatsView(APIView):
         }
 
         # 3️⃣ Activity streak / consistency
-        activity_logs = UserActivity.objects.filter(user=user).order_by('created_at')
+        activity_logs = UserActivity.objects.filter(user=user).order_by('timestamp')
         streak = 0
         max_streak = 0
         last_day = None
         for log in activity_logs:
-            log_day = log.created_at.date()
+            log_day = log.timestamp.date()
             if last_day:
                 if (log_day - last_day).days == 1:
                     streak += 1
@@ -680,19 +682,19 @@ class DashboardStatsView(APIView):
             last_day = log_day
 
         # 4️⃣ Recent activity summary (last 7 days)
-        recent_activity_qs = UserActivity.objects.filter(user=user, created_at__gte=now - timedelta(days=7))
+        recent_activity_qs = UserActivity.objects.filter(user=user, timestamp__gte=now - timedelta(days=7))
         activity_summary = {}
         recent_goal_updates = []
 
         for act in recent_activity_qs:
-            day = act.created_at.strftime("%Y-%m-%d")
+            day = act.timestamp.strftime("%Y-%m-%d")
             activity_summary[day] = activity_summary.get(day, 0) + 1
 
             if act.activity_type in ["goal_updated", "ai_goal_updated", "task_updated", "ai_task_updated", "ai_subtask_updated"]:
                 recent_goal_updates.append({
                     "type": act.activity_type,
                     "metadata": act.metadata,
-                    "timestamp": act.created_at
+                    "timestamp": act.timestamp
                 })
 
         # 5️⃣ Top / least performing tags
@@ -702,7 +704,7 @@ class DashboardStatsView(APIView):
 
         # Flatten all tags
         completed_tags = list(completed_tasks.values_list("tag", flat=True)) + \
-                         list(completed_ai_tasks.values_list("tag", flat=True))
+                         list(completed_ai_tasks.values_list("ai_goal__tag", flat=True))
 
         top_tags = Counter([t for t in completed_tags if t]).most_common(5)
 
@@ -711,7 +713,7 @@ class DashboardStatsView(APIView):
         overdue_ai_tasks = AiTask.objects.filter(ai_goal__user=user, completed_at__isnull=True, due_date__lt=now)
 
         overdue_tags = list(overdue_tasks.values_list("tag", flat=True)) + \
-                       list(overdue_ai_tasks.values_list("tag", flat=True))
+                       list(overdue_ai_tasks.values_list("ai_goal__tag", flat=True))
 
         least_tags = Counter([t for t in overdue_tags if t]).most_common()[-5:]  # 5 least performing
 
