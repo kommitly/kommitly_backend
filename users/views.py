@@ -628,15 +628,11 @@ class DashboardStatsView(APIView):
         user_goals = Goal.objects.filter(user=user)
         ai_goals = AiGoal.objects.filter(user=user)
 
-        def calc_progress(goal):
-            total_tasks = goal.tasks.count() if hasattr(goal, "tasks") else 0
-            completed_tasks = goal.tasks.filter(completed_at__isnull=False).count() if hasattr(goal, "tasks") else 0
-            return completed_tasks / total_tasks if total_tasks else 0
-
         goal_progress = [
-            {"goal": g.title, "progress": calc_progress(g)} for g in list(user_goals) + list(ai_goals)
+            {"goal": g.title, "progress": g.progress / 100}  # normalize to 0-1 for frontend charts
+            for g in list(user_goals) + list(ai_goals)
         ]
-
+        
         # 2️⃣ Tasks & AI Tasks completed today / this week (with titles)
         today = now.date()
         week_start = today - timedelta(days=today.weekday())
