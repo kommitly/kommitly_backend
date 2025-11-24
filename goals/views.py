@@ -1700,7 +1700,7 @@ class UpdateAiSubtaskView(APIView):
                 user=request.user,
                 activity_type="ai_subtask_updated",
                 metadata={
-                    "subtask_id": updated_subtask.id,
+                    "subtask_id": subtask.id,
                     "updated_fields": list(request.data.keys()),
                     "task_id": task.id,
                     "goal_id": task.ai_goal.id if hasattr(task, "ai_goal") else None,
