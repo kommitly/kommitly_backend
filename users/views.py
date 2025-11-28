@@ -702,7 +702,7 @@ class DashboardStatsView(APIView):
         completed_tags = list(completed_tasks.values_list("tag", flat=True)) + \
                          list(completed_ai_tasks.values_list("ai_goal__tag", flat=True))
 
-        top_tags = Counter([t for t in completed_tags if t]).most_common(5)
+        top_tags = Counter([t for t in completed_tags if t]).most_common(5)  #total number of completed Tasks and completed AI Tasks that were assigned that specific tag.
 
         # Least-performing: tags from overdue tasks (tasks with due_date < now and not completed)
         overdue_tasks = Task.objects.filter(user=user, completed_at__isnull=True, due_date__lt=now)
@@ -711,7 +711,7 @@ class DashboardStatsView(APIView):
         overdue_tags = list(overdue_tasks.values_list("tag", flat=True)) + \
                        list(overdue_ai_tasks.values_list("ai_goal__tag", flat=True))
 
-        least_tags = Counter([t for t in overdue_tags if t]).most_common()[-5:]  # 5 least performing
+        least_tags = Counter([t for t in overdue_tags if t]).most_common()[-5:]  # 5 the total number of overdue Tasks and overdue AI Goals/Tasks that were assigned that specific tag. least perfoming
 
         # Popular tags: tags that appear most in activity logs
         activity_tags = []
@@ -719,7 +719,7 @@ class DashboardStatsView(APIView):
             if act.metadata and "tags" in act.metadata:
                 activity_tags.extend(act.metadata["tags"])
 
-        popular_tags = Counter(activity_tags).most_common(5)
+        popular_tags = Counter(activity_tags).most_common(5)  #the total number of activity logs (e.g., goal updates, task updates) that included that specific tag in their metadata.
 
         return Response({
             "goal_progress": goal_progress,
