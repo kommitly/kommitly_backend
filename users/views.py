@@ -11,7 +11,6 @@ from drf_yasg.utils import swagger_auto_schema
 from django.core.exceptions import ValidationError
 from django.shortcuts import get_object_or_404
 from asgiref.sync import async_to_sync
-from django.core.mail import send_mail
 from channels.layers import get_channel_layer
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.tokens import AccessToken
@@ -25,6 +24,7 @@ from google.oauth2 import id_token
 from django.contrib.auth import get_user_model
 from goals.models import Goal, AiGoal, Task, AiTask
 from collections import Counter
+from users.tasks import send_verification_email
 
 user = get_user_model()
 
