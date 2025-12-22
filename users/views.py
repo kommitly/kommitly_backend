@@ -11,6 +11,7 @@ from drf_yasg.utils import swagger_auto_schema
 from django.core.exceptions import ValidationError
 from django.shortcuts import get_object_or_404
 from asgiref.sync import async_to_sync
+from django.core.mail import send_mail
 from channels.layers import get_channel_layer
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.tokens import AccessToken
@@ -135,6 +136,7 @@ class CreateUserView(APIView):
                     email = validated_data["email"],
                     timezone = validated_data["timezone"],
                     is_verified=False,
+                    email_sent = False
 
                 )
 
@@ -142,14 +144,34 @@ class CreateUserView(APIView):
                 user.set_password(validated_data["password"])
                 user.verification_token = generate_verification_token() #Generate token here.
                 user.save()
+                
+                
+                # Send verification email
+                verification_link = f"https://kommitly-backend.onrender.com/api/verify/{user.verification_token}/"
+
+                try:
+                    send_mail(
+                        subject="Verify your Kommitly Account",
+                        message=f"Hi {user.first_name},\n\nClick the link below to verify your account:\n{verification_link}",
+                        from_email="no-reply@kommitly.com",
+                        recipient_list=[user.email],
+                        fail_silently=False, # Set to False to catch errors during development
+                    )
+                    user.email_sent = True
+                    user.save(update_fields=['email_sent'])
+
+                except Exception as mail_error:
+                    logger.error(f"Failed to send email to {user.email}: {str(mail_error)}")
+
+
 
                 
            
 
 
-
+              
                 user_data= UserSerializer(user).data
-                logger.debug(f"User created {user}")
+                logger.debug(f"User created {user}. Email sent: {user.email_sent}")
                 return Response(user_data, status=status.HTTP_201_CREATED)
             # Catches validation errors. This is used to handle unexpected validation errors that might occur during other parts of the code execution, not just during serializer validation.
             except ValidationError as e:
@@ -193,20 +215,11 @@ class VerifyUserView(APIView):
         user.is_verified = True
         user.verification_token = None  # Clear the token after verification
         user.save()
+
+
         
-        # WebSocket notification (not needed for polling)
-        # try:
-        #     channel_layer = get_channel_layer()
-        #     async_to_sync(channel_layer.group_send)(
-        #         f"user_{user.id}",  
-        #         {
-        #             "type": "user_verified",  # Ensure this matches the WebSocket consumer method
-        #             "message": "User verified successfully",
-        #             "verified": True  
-        #         },
-        #     )
-        # except Exception as e:
-        #     logger.error(f"WebSocket notification failed: {e}")
+        
+       
                 
         refresh = RefreshToken.for_user(user)
         access = refresh.access_token
