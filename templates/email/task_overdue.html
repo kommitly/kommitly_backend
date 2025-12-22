@@ -2,7 +2,7 @@
 <html>
 <head>
     <style>
-        .button {
+         .button {
         background-color: #4F378A;
         color: #F4F1FF;
         font-weight: 100;
@@ -15,18 +15,71 @@
         display: inline-block;
         transition: background-color 0.3s ease;
       }
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #F4F1FF;
-            color: black;
-          
-            padding: 20px;
-            
-           
-        }
+       body {
+        font-family: "Helvetica Neue", Arial, sans-serif;
+        background-color: #f9fafb;
+        margin: 0;
+        padding: 0;
+        color: black;
+      }
+      .container {
+        background-color: #ffffff;
+        max-width: 600px;
+        margin: 40px auto;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        
+
+      }
+      .content {
+        padding: 30px;
+      }
+
+         .logo {
+        border-top-right-radius: 12px;
+        border-top-left-radius: 12px;
+        background-color: #2C1D57;
+        margin-bottom: 30px;
+        padding: 30px;
+        display: flex;
+        justify-content: flex-start;
+        align-items: center; /* ✅ Vertically centers logo + text */
+        
+      }
+
+      .logo img {
+        display: block; /* ✅ Removes baseline spacing under the image */
+        height: 64px;
+        width: 42px;
+      }
+
+      .logo h1 {
+        color: white;
+        font-size: 1.8rem;
+        margin-left: 12px; /* ✅ Removes default top margin pushing text down */
+      }
     </style>
 </head>
 <body>
+     <div class="container " >
+      <div class="logo  ">
+     <img
+  src="../../static/images/logo.svg"
+  alt="Kommitly Logo"
+  width="42"
+  height="64"
+  style="display:block;"
+/>
+
+      <h1 >
+        Kommitly
+      </h1>
+
+      </div>
+
+      <div >
+
+        <div class="content">
     <h2 style="color: black;">Hi <span style="color: #4F378A;">{{ user.first_name }} 👋</span>,</h2>
     
     <p style="color: black;">This is a friendly reminder that your task <span ><strong style="color: black;">{{ task.title }}</strong></span> is overdue!.</p>
@@ -38,5 +91,6 @@
        </p>
 
     <p style="font-size: small; color: #2C1D57;">You’re doing great — keep the momentum going!  💪<br><span style="font-size:small; font-weight: 800; color: #2C2640;">The Kommitly Team</span></p>
+        </div>
 </body>
 </html>
