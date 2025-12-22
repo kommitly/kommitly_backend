@@ -31,6 +31,10 @@ def send_verification_email(user):
         msg = EmailMultiAlternatives(subject, text_content, from_email, to)
         msg.attach_alternative(html_content, "text/html")
         msg.send()
+        user.email_sent = True
+        user.save(update_fields=['email_sent'])
         logger.info(f"Verification email sent to {user.email}")
+        return True
     except Exception as e:
-        logger.error(f"Failed to send verification email to {user.email}: {e}")
+        logger.error(f"Failed to send email: {e}")
+        return False

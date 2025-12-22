@@ -136,7 +136,7 @@ class CreateUserView(APIView):
                     email = validated_data["email"],
                     timezone = validated_data["timezone"],
                     is_verified=False,
-                    email_sent = False
+                
 
                 )
 
@@ -144,29 +144,11 @@ class CreateUserView(APIView):
                 user.set_password(validated_data["password"])
                 user.verification_token = generate_verification_token() #Generate token here.
                 user.save()
-                
-                
-                # Send verification email
-                verification_link = f"https://kommitly-backend.onrender.com/api/verify/{user.verification_token}/"
+      
+                send_verification_email(user)
 
-                try:
-                    send_mail(
-                        subject="Verify your Kommitly Account",
-                        message=f"Hi {user.first_name},\n\nClick the link below to verify your account:\n{verification_link}",
-                        from_email="no-reply@kommitly.com",
-                        recipient_list=[user.email],
-                        fail_silently=False, # Set to False to catch errors during development
-                    )
-                    user.email_sent = True
-                    user.save(update_fields=['email_sent'])
-
-                except Exception as mail_error:
-                    logger.error(f"Failed to send email to {user.email}: {str(mail_error)}")
-
-
-
-                
-           
+                # Refresh from DB to get the updated email_sent status for the response
+                user.refresh_from_db()
 
 
               
@@ -321,22 +303,16 @@ class LoginUserView(APIView):
             # regenerate token only if needed
             if not user.verification_token:
                 user.verification_token = generate_verification_token()
-                user.save()
+                user.save(update_fields=['verification_token'])
 
-                
-            # Send verification email
-            verification_link = f"https://kommitly-backend.onrender.com/api/verify/{user.verification_token}/"
-            send_mail(
-                subject="Verify your Kommitly Account",
-                message=f"Hi {user.first_name},\n\nClick the link below to verify your account:\n{verification_link}",
-                from_email="no-reply@kommitly.com",
-                recipient_list=[user.email],
-            )
+            send_verification_email(user)
+
             return Response(
-                {"error": "User account is not verified. A new verification email has been sent."},
-                status=status.HTTP_401_UNAUTHORIZED,
-            )
-
+                    {"error": "User account is not verified. A verification email has been sent."},
+                    status=status.HTTP_401_UNAUTHORIZED,
+                )
+     
+            
         refresh = RefreshToken.for_user(user)
         access = refresh.access_token
 
