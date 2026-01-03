@@ -24,7 +24,15 @@ from google.oauth2 import id_token
 from django.contrib.auth import get_user_model
 from goals.models import Goal, AiGoal, Task, AiTask
 from collections import Counter
+<<<<<<< Updated upstream
 from users.tasks import send_verification_email
+=======
+from rest_framework_simplejwt.views import TokenRefreshView
+from rest_framework_simplejwt.serializers import TokenRefreshSerializer
+
+
+
+>>>>>>> Stashed changes
 
 user = get_user_model()
 
@@ -325,8 +333,9 @@ class LoginUserView(APIView):
                 "user_agent": request.META.get('HTTP_USER_AGENT'),
             },
         )
-
-        return Response(
+        
+           
+        """ return Response(
             {
                 "message": "Login successful",
                 "refresh": str(refresh),
@@ -334,7 +343,37 @@ class LoginUserView(APIView):
                 "user": UserSerializer(user).data,
             },
             status=status.HTTP_200_OK,
-        )
+        )"""
+    
+        response = Response(
+           {
+          "message": "Login successful",
+          "user": UserSerializer(user).data,
+         },
+           status=status.HTTP_200_OK,
+) 
+
+# Set cookies
+        response.set_cookie(
+         key="access_token",
+    value=str(access),
+    httponly=True,
+    secure=False,          # True in production (HTTPS), False for localhost
+    samesite="Lax",      # "Lax" in production if frontend/backend are same domain
+    max_age=15 * 60,      # 15 minutes
+)
+
+        response.set_cookie(
+    key="refresh_token",
+    value=str(refresh),
+    httponly=True,
+    secure=False,
+    samesite="Lax",
+    max_age=7 * 24 * 60 * 60,  # 7 days
+)
+
+        return response
+
 
 
 
@@ -724,3 +763,41 @@ class DashboardStatsView(APIView):
             "least_tags": least_tags,
             "popular_tags": popular_tags,
         })
+
+class CookieTokenRefreshView(TokenRefreshView):
+    """
+    Refresh access token using refresh token from HttpOnly cookie
+    """
+
+    def post(self, request, *args, **kwargs):
+        refresh_token = request.COOKIES.get("refresh_token")
+
+        if not refresh_token:
+            return Response(
+                {"detail": "Refresh token not found in cookies"},
+                status=status.HTTP_401_UNAUTHORIZED,
+            )
+
+        # Inject refresh token into request data
+        request.data["refresh"] = refresh_token
+
+        response = super().post(request, *args, **kwargs)
+
+        # Set new access token in cookie
+        access = response.data.get("access")
+        if access:
+            response.set_cookie(
+                key="access",
+                value=access,
+                httponly=True,
+                secure=True,  # True in production
+                samesite="None",
+                max_age=60 * 60,  # 1 hour
+            )
+         
+
+        # Optional: hide tokens from response body
+        return Response(
+            {"message": "Access token refreshed"},
+            status=status.HTTP_200_OK,
+        )

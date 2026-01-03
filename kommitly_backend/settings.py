@@ -35,12 +35,25 @@ DEBUG = config("DEBUG", default=False, cast=bool)
 DJANGO_SETTINGS_MODULE = config("DJANGO_SETTINGS_MODULE")
 
 
-ALLOWED_HOSTS = ["*"]
 
 AUTH_USER_MODEL = "users.User"
 
 # CORS
-CORS_ORIGIN_ALLOW_ALL = True
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:5173",  # your frontend URL
+]
+ALLOWED_HOSTS = [
+    "localhost",
+    "127.0.0.1",
+]
+
+
+CSRF_TRUSTED_ORIGINS = [
+    "http://localhost:5173",
+]
+
+# Allow cookies/credentials
+CORS_ALLOW_CREDENTIALS = True
 
 # Application definition
 
@@ -61,6 +74,9 @@ INSTALLED_APPS = [
     'ai_insights',  # Add the ai_insights app here
     'notifications',  # Add the notifications app here
     'corsheaders',
+    'rest_framework_simplejwt.token_blacklist',
+    
+    
     
  
 
@@ -184,16 +200,17 @@ REST_FRAMEWORK = {
         "rest_framework.authentication.SessionAuthentication",
         "rest_framework.authentication.BasicAuthentication",
         "rest_framework_simplejwt.authentication.JWTAuthentication",
+        "users.authentication.CookieJWTAuthentication",
     ),
 }
 
 
 # JWT
 SIMPLE_JWT = {
-    "ACCESS_TOKEN_LIFETIME": timedelta(days=7),
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=15),
     "REFRESH_TOKEN_LIFETIME": timedelta(days=7),
-    "ROTATE_REFRESH_TOKENS": False,
-    "BLACKLIST_AFTER_ROTATION": False,
+    "ROTATE_REFRESH_TOKENS": True,
+    "BLACKLIST_AFTER_ROTATION": True,
     "UPDATE_LAST_LOGIN": False,
     "ALGORITHM": "HS256",
     "SIGNING_KEY": config('SECRET_KEY'),
@@ -251,7 +268,7 @@ LOGGING = {
     'loggers': {
         'django': {
             'handlers': ['console'],
-            'level': 'DEBUG',
+            'level': 'WARNING',
             'propagate': True,
         },
         '': {

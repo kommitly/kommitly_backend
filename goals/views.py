@@ -1285,6 +1285,8 @@ class UserGoalsView(APIView):
     def get(self, request):
         try:
             user = request.user
+            
+
 
             # Fetch the user's regular goals
             goals = Goal.objects.filter(user=user)
