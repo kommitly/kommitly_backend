@@ -9,3 +9,4 @@ def log_activity(user, activity_type, metadata=None):
         activity_type=activity_type,
         metadata=metadata or {}
     )
+

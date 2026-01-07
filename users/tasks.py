@@ -57,3 +57,42 @@ def send_verification_email(user):
     except Exception as e:
         logger.error(f"Failed to send email to {recipient}: {e}")
         return False
+
+
+
+def send_password_reset_email(user):
+    logger.debug(f"Preparing password reset email for: {user.email}")
+
+    # Link points to your FRONTEND "Set New Password" page
+    reset_link = f"https://kommitly-frontend.vercel.app/reset-password?token={user.password_reset_token}"
+    
+    subject = "Reset your Kommitly Password"
+    template = "email/password-reset.html"
+    from_email = "no-reply@kommitly.com"
+    to = [user.email]
+
+    context = {
+        "user": user,
+        "reset_link": reset_link,
+    }
+
+    # Prepare plain text version for email clients that don't support HTML
+    text_content = f"Hi {user.first_name}, reset your Kommitly password here: {reset_link}"
+    
+    try:
+        html_content = render_to_string(template, context)
+        
+        msg = EmailMultiAlternatives(subject, text_content, from_email, to)
+        msg.attach_alternative(html_content, "text/html")
+        msg.send()
+
+        # Update the timestamp for the reset token
+        user.password_reset_sent_at = timezone.now()
+        user.save(update_fields=["password_reset_sent_at"])
+
+        logger.info(f"Password reset email sent to {user.email}")
+        return True
+
+    except Exception as e:
+        logger.error(f"Failed to send password reset email to {user.email}: {e}")
+        return False

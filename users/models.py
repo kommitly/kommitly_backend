@@ -33,6 +33,8 @@ class User(AbstractUser):
     email_sent = models.BooleanField(default=False)
     token_created_at = models.DateTimeField(null=True, blank=True)
     last_active = models.DateTimeField(default=dj_timezone.now)
+    password_reset_token = models.CharField(max_length=50, null=True, blank=True, db_index=True)
+    password_reset_sent_at = models.DateTimeField(null=True, blank=True)
 
 
 
@@ -50,6 +52,18 @@ class User(AbstractUser):
             return False
         # Token expires in 24 hours
         return timezone.now() < self.token_created_at + timedelta(hours=24)
+
+    def is_reset_token_valid(self):
+        if not self.password_reset_token or not self.password_reset_sent_at:
+            return False
+        # Password reset tokens should be shorter-lived (usually 1 hour)
+        return timezone.now() <= self.password_reset_sent_at + timedelta(hours=1)
+
+    # 3. HELPER TO CLEAR TOKEN (Optional but recommended)
+    def clear_reset_token(self):
+        self.password_reset_token = None
+        self.password_reset_sent_at = None
+        self.save(update_fields=['password_reset_token', 'password_reset_sent_at'])
     
 
 

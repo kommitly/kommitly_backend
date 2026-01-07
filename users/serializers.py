@@ -67,3 +67,11 @@ class UserSerializer(serializers.ModelSerializer):
             "last_active"
             
         ]
+
+
+class PasswordResetRequestSerializer(serializers.Serializer):
+    email = serializers.EmailField(required=True, help_text="The email address of the user.")
+
+class PasswordResetConfirmSerializer(serializers.Serializer):
+    token = serializers.CharField(required=True, help_text="The reset token received via email.")
+    password = serializers.CharField(required=True, min_length=8, help_text="The new password.")

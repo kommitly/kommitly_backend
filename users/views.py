@@ -1,4 +1,5 @@
 import logging
+from django.utils.timezone import now
 from django.db import transaction, models
 from urllib.parse import urlencode
 from django.shortcuts import render, redirect
@@ -6,7 +7,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status, permissions
 from drf_yasg import openapi
-from .serializers import CreateUserSerializer, UserSerializer, GoogleUserSerializer
+from .serializers import CreateUserSerializer, UserSerializer, GoogleUserSerializer, PasswordResetRequestSerializer, PasswordResetConfirmSerializer
 import kommitly_backend.settings as st
 from drf_yasg.utils import swagger_auto_schema
 from django.core.exceptions import ValidationError
@@ -25,7 +26,7 @@ from google.oauth2 import id_token
 from django.contrib.auth import get_user_model
 from goals.models import Goal, AiGoal, Task, AiTask
 from collections import Counter
-from users.tasks import send_verification_email
+from users.tasks import send_verification_email, send_password_reset_email
 from rest_framework.renderers import JSONRenderer
 
 
@@ -951,3 +952,72 @@ class DashboardStatsView(APIView):
         })
 
 
+
+class PasswordResetRequestView(APIView):
+    permission_classes = [permissions.AllowAny]
+
+    @swagger_auto_schema(
+        tags=["Authentication"],
+        operation_description="Send a password reset link to the user's email.",
+        request_body=PasswordResetRequestSerializer,
+        responses={
+            200: openapi.Response(
+                description="Success Message",
+                examples={"application/json": {"message": "If an account exists... link has been sent."}}
+            )
+        }
+    )
+    def post(self, request):
+        serializer = PasswordResetRequestSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        
+        email = serializer.validated_data.get("email")
+        user = User.objects.filter(email=email).first()
+
+        if user:
+            user.password_reset_token = generate_verification_token()
+            user.password_reset_sent_at = now()
+            user.save(update_fields=["password_reset_token", "password_reset_sent_at"])
+            send_password_reset_email(user)
+
+        return Response(
+            {"message": "If an account exists with this email, a reset link has been sent."},
+            status=status.HTTP_200_OK
+        )
+
+
+class PasswordResetConfirmView(APIView):
+    permission_classes = [permissions.AllowAny]
+
+    @swagger_auto_schema(
+        tags=["Authentication"],
+        operation_description="Set a new password using a valid reset token.",
+        request_body=PasswordResetConfirmSerializer,
+        responses={
+            200: openapi.Response(
+                description="Password Updated",
+                examples={"application/json": {"message": "Password reset successful."}}
+            ),
+            400: openapi.Response(
+                description="Invalid/Expired Token",
+                examples={"application/json": {"error": "Invalid or expired token."}}
+            ),
+        }
+    )
+    def post(self, request):
+        serializer = PasswordResetConfirmSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        token = serializer.validated_data.get("token")
+        new_password = serializer.validated_data.get("password")
+
+        user = User.objects.filter(password_reset_token=token).first()
+
+        if not user or not user.is_reset_token_valid():
+            return Response({"error": "Invalid or expired token."}, status=status.HTTP_400_BAD_REQUEST)
+
+        user.set_password(new_password)
+        user.password_reset_token = None # Burn the token
+        user.save()
+
+        return Response({"message": "Password reset successful. You can now log in."}, status=status.HTTP_200_OK)

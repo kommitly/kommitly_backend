@@ -1,5 +1,5 @@
 from django .urls import path
-from .views import CreateUserView, LoginUserView, VerifyUserView, VerifyEmailChangeView, CheckVerificationStatusView, GetUserView, UpdateAuthenticatedUserView, UpdateUserByEmailView, DeleteAuthenticatedUserView, DeleteUserByEmailView, GetTimezoneView, GoogleAuthView, DashboardStatsView
+from .views import CreateUserView, LoginUserView, VerifyUserView, VerifyEmailChangeView, CheckVerificationStatusView, GetUserView, UpdateAuthenticatedUserView, UpdateUserByEmailView, DeleteAuthenticatedUserView, DeleteUserByEmailView, GetTimezoneView, GoogleAuthView, DashboardStatsView, PasswordResetRequestView, PasswordResetConfirmView
 
 
 urlpatterns = [
@@ -16,7 +16,10 @@ urlpatterns = [
     path('users/get-timezone/', GetTimezoneView.as_view(), name='get-timezone'),
     path('auth/google/', GoogleAuthView.as_view(), name='google_auth'),
     path("users/stats/", DashboardStatsView.as_view(), name='dashboard-stats'),
+    path('password-reset/request/', PasswordResetRequestView.as_view(), name='password_reset_request'),
+    path('password-reset/confirm/', PasswordResetConfirmView.as_view(), name='password_reset_confirm'),
+]
+
 
     
 
-]
