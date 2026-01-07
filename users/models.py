@@ -5,7 +5,9 @@ from django.core.validators import MinLengthValidator
 from django.contrib.auth.models import AbstractUser
 from django.utils.crypto import get_random_string
 import pytz
+from django.utils import timezone
 from django.utils import timezone as dj_timezone
+from datetime import timedelta
 
 
 def generate_verification_token():

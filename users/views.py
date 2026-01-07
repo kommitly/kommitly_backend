@@ -26,6 +26,8 @@ from django.contrib.auth import get_user_model
 from goals.models import Goal, AiGoal, Task, AiTask
 from collections import Counter
 from users.tasks import send_verification_email
+from rest_framework.renderers import JSONRenderer
+
 
 user = get_user_model()
 
@@ -559,8 +561,16 @@ class UpdateAuthenticatedUserView(APIView):
             )
 
 
+
+
+
+
+
+
+
 class VerifyEmailChangeView(APIView):
     permission_classes = [permissions.AllowAny]
+    renderer_classes = [JSONRenderer]
 
     @swagger_auto_schema(
         tags=["User"],
@@ -580,41 +590,42 @@ class VerifyEmailChangeView(APIView):
             ),
         }
     )
+
     def get(self, request, token):
+        frontend_base = "https://kommitly-frontend.vercel.app"
+        
         try:
-            # We look for the user by the token provided in the URL
             user = User.objects.get(verification_token=token)
             
-            # Check if the token has expired (based on the new token_created_at field)
+            # Check expiration using the method we added to the User model
             if not user.is_token_valid():
-                return Response(
-                    {"error": "Token has expired."}, 
-                    status=status.HTTP_400_BAD_REQUEST
-                )
+                return redirect(f"{frontend_base}/login?error=expired")
 
             if user.pending_email:
-                # --- THE SWAP LOGIC ---
+                # --- THE SWAP ---
                 user.email = user.pending_email
-                user.pending_email = None  # Clear the pending field
-                user.verification_token = None  # Clear the token so it can't be reused
+                user.pending_email = None
+                user.verification_token = None
                 user.is_verified = True
                 user.save()
-                
-                return Response(
-                    {"message": "Email updated successfully!"}, 
-                    status=status.HTTP_200_OK
-                )
+
+                # --- AUTO-LOGIN LOGIC ---
+                refresh = RefreshToken.for_user(user)
+                query_params = urlencode({
+                    "access": str(refresh.access_token),
+                    "refresh": str(refresh),
+                    "status": "verified"
+                })
+
+                return redirect(f"{frontend_base}/verify-redirect?{query_params}")
             
-            return Response(
-                {"error": "No pending email change found."}, 
-                status=status.HTTP_400_BAD_REQUEST
-            )
+            return redirect(f"{frontend_base}/login?error=no_pending_change")
 
         except User.DoesNotExist:
-            return Response(
-                {"error": "Invalid token."}, 
-                status=status.HTTP_404_NOT_FOUND
-            )
+            return redirect(f"{frontend_base}/login?error=invalid_token")
+
+
+
 
 
 #Delete authenticated user
