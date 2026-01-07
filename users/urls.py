@@ -1,5 +1,5 @@
 from django .urls import path
-from .views import CreateUserView, LoginUserView, VerifyUserView, VerifyEmailChangeView, CheckVerificationStatusView, GetUserView, UpdateAuthenticatedUserView, UpdateUserByEmailView, DeleteAuthenticatedUserView, DeleteUserByEmailView, GetTimezoneView, GoogleAuthView, DashboardStatsView, PasswordResetRequestView, PasswordResetConfirmView
+from .views import CreateUserView, LoginUserView, VerifyUserView, VerifyEmailChangeView, CheckVerificationStatusView, GetUserView, UpdateAuthenticatedUserView, UpdateUserByEmailView, DeleteAuthenticatedUserView, DeleteUserByEmailView, GetTimezoneView, GoogleAuthView, DashboardStatsView, PasswordResetRequestView, PasswordResetConfirmView, PasswordChangeView
 
 
 urlpatterns = [
@@ -18,6 +18,7 @@ urlpatterns = [
     path("users/stats/", DashboardStatsView.as_view(), name='dashboard-stats'),
     path('password-reset/request/', PasswordResetRequestView.as_view(), name='password_reset_request'),
     path('password-reset/confirm/', PasswordResetConfirmView.as_view(), name='password_reset_confirm'),
+    path('password-change/', PasswordChangeView.as_view(), name='password_change'),
 ]
 
 

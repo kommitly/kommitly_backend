@@ -1021,3 +1021,37 @@ class PasswordResetConfirmView(APIView):
         user.save()
 
         return Response({"message": "Password reset successful. You can now log in."}, status=status.HTTP_200_OK)
+
+
+class PasswordChangeView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    @swagger_auto_schema(
+        tags=["Authentication"],
+        operation_description="Change password for an authenticated user.",
+        request_body=PasswordChangeSerializer,
+        responses={
+            200: openapi.Response(description="Success"),
+            400: openapi.Response(description="Invalid old password or data"),
+        }
+    )
+    def post(self, request):
+        serializer = PasswordChangeSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        user = request.user
+        old_password = serializer.validated_data.get("old_password")
+        new_password = serializer.validated_data.get("new_password")
+
+        # Verify the current password
+        if not user.check_password(old_password):
+            return Response(
+                {"error": "Your current password was entered incorrectly."}, 
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        # Set and save the new password
+        user.set_password(new_password)
+        user.save()
+
+        return Response({"message": "Password updated successfully!"}, status=status.HTTP_200_OK)
