@@ -1,4 +1,5 @@
 import logging
+from django.db import transaction, models
 from urllib.parse import urlencode
 from django.shortcuts import render, redirect
 from rest_framework.views import APIView
@@ -168,7 +169,6 @@ class CreateUserView(APIView):
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-
 class VerifyUserView(APIView):
     permission_classes = [permissions.AllowAny]
 
@@ -182,37 +182,43 @@ class VerifyUserView(APIView):
         operation_description="Verify a User's account via token",
     )
     def get(self, request, token, *args, **kwargs):
-        """
-        Verify a user using a unique token.
-        """
-        
         user = User.objects.filter(verification_token=token).first()
 
         if not user:
-            return Response({"error": "Invalid or expired verification token."}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {"error": "Invalid or expired verification token."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
-        if user.is_verified:
-            return redirect("https://kommitly-frontend.vercel.app/dashboard")
+        # 🔁 FINALIZE EMAIL CHANGE IF PRESENT
+        if user.pending_email:
+            user.email = user.pending_email
+            user.pending_email = None
 
         user.is_verified = True
-        user.verification_token = None  # Clear the token after verification
+        user.verification_token = None
+        user.email_sent = False
         user.save()
 
-
-        
-        
-       
-                
+        # 🔐 Issue tokens
         refresh = RefreshToken.for_user(user)
         access = refresh.access_token
 
-        # 🔁 Redirect with tokens as query params
-        query_params = urlencode({
-            "access": str(access),
-            "refresh": str(refresh),
-        })
-        redirect_url = f"https://kommitly-frontend.vercel.app/verify-redirect?{query_params}"
+        query_params = urlencode(
+            {
+                "access": str(access),
+                "refresh": str(refresh),
+            }
+        )
+
+        redirect_url = (
+            f"https://kommitly-frontend.vercel.app/verify-redirect?{query_params}"
+        )
         return redirect(redirect_url)
+
+
+
+
 
 class CheckVerificationStatusView(APIView):
     permission_classes = [permissions.AllowAny]
@@ -413,13 +419,8 @@ class UpdateUserByEmailView(APIView):
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-
-
-# Update user with token
 class UpdateAuthenticatedUserView(APIView):
-    permission_classes = [
-        permissions.IsAuthenticated,
-    ]
+    permission_classes = [permissions.IsAuthenticated]
 
     @swagger_auto_schema(
         tags=["User"],
@@ -432,39 +433,188 @@ class UpdateAuthenticatedUserView(APIView):
         },
         operation_description="Update authenticated User",
     )
+    
     def patch(self, request, *args, **kwargs):
-        """
-        Update a user by token
-        """
+
+        user = request.user
+
+        new_email = request.data.get("email")
+
+        
+
+        # We copy the data so we can modify it before passing to the serializer
+
+        data = request.data.copy()
+
+
+
         try:
-            user = User.objects.get(email=request.user.email)
-        except User.DoesNotExist:
+
+            with transaction.atomic():
+
+                # 1. 🔐 EMAIL CHANGE FLOW
+
+                if new_email and new_email != user.email:
+
+                    # Check if email is already taken (either verified or pending)
+
+                    email_in_use = User.objects.filter(
+
+                        models.Q(email=new_email) | models.Q(pending_email=new_email)
+
+                    ).exclude(id=user.id).exists()
+
+
+
+                    if email_in_use:
+
+                        return Response(
+
+                            {"email": "This email is already in use."},
+
+                            status=status.HTTP_400_BAD_REQUEST,
+
+                        )
+
+
+
+                    # Update pending fields
+
+                    user.pending_email = new_email
+
+                    user.verification_token = generate_verification_token()
+
+                    user.token_created_at = timezone.now() # For expiration
+
+                    user.email_sent = False
+
+                    user.save(update_fields=["pending_email", "verification_token", "token_created_at", "email_sent"])
+
+
+
+                    # Send the email
+
+                    send_verification_email(user)
+
+
+
+                    # IMPORTANT: Remove 'email' from data so serializer.save() 
+
+                    # doesn't overwrite the current user.email yet.
+
+                    data.pop("email")
+
+
+
+                # 2. ✅ UPDATE OTHER FIELDS (first_name, timezone, etc.)
+
+                serializer = CreateUserSerializer(user, data=data, partial=True)
+
+                if not serializer.is_valid():
+
+                    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+
+                updated_user = serializer.save()
+
+
+
+                # 3. RETURN RESPONSE
+
+                message = "Profile updated."
+
+                if new_email and new_email != user.email:
+
+                    message = "Verification email sent to the new address. Please verify to complete the change."
+
+
+
+                return Response(
+
+                    {
+
+                        "user": UserSerializer(updated_user).data,
+
+                        "message": message
+
+                    },
+
+                    status=status.HTTP_200_OK,
+
+                )
+
+
+
+        except Exception as e:
+
+            logger.error(f"Unexpected error during user update: {str(e)}")
+
             return Response(
-                {"error": f"User with email {request.user.email} not found"},
-                status=status.HTTP_404_NOT_FOUND,
+
+                {"error": "An unexpected error occurred."},
+
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+
             )
 
-        serializer = CreateUserSerializer(user, data=request.data, partial=True)
-        if serializer.is_valid():
-            try:
-                updated_user = serializer.save()
-                logger.debug(f"Updated user: {updated_user}")
+
+class VerifyEmailChangeView(APIView):
+    permission_classes = [permissions.AllowAny]
+
+    @swagger_auto_schema(
+        tags=["User"],
+        operation_description="Verify a new email address using the token sent via email.",
+        responses={
+            200: openapi.Response(
+                description="Email updated successfully",
+                examples={"application/json": {"message": "Email updated successfully!"}}
+            ),
+            400: openapi.Response(
+                description="Bad Request",
+                examples={"application/json": {"error": "Token has expired."}}
+            ),
+            404: openapi.Response(
+                description="Not Found",
+                examples={"application/json": {"error": "Invalid token."}}
+            ),
+        }
+    )
+    def get(self, request, token):
+        try:
+            # We look for the user by the token provided in the URL
+            user = User.objects.get(verification_token=token)
+            
+            # Check if the token has expired (based on the new token_created_at field)
+            if not user.is_token_valid():
                 return Response(
-                    UserSerializer(updated_user).data, status=status.HTTP_200_OK
+                    {"error": "Token has expired."}, 
+                    status=status.HTTP_400_BAD_REQUEST
                 )
-            except ValidationError as e:
-                logger.error(f"Validation error: {str(e)}")
-                return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
-            except Exception as e:
-                logger.error(f"Unexpected error: {str(e)}")
+
+            if user.pending_email:
+                # --- THE SWAP LOGIC ---
+                user.email = user.pending_email
+                user.pending_email = None  # Clear the pending field
+                user.verification_token = None  # Clear the token so it can't be reused
+                user.is_verified = True
+                user.save()
+                
                 return Response(
-                    {"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
+                    {"message": "Email updated successfully!"}, 
+                    status=status.HTTP_200_OK
                 )
-        else:
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            
+            return Response(
+                {"error": "No pending email change found."}, 
+                status=status.HTTP_400_BAD_REQUEST
+            )
 
-
-
+        except User.DoesNotExist:
+            return Response(
+                {"error": "Invalid token."}, 
+                status=status.HTTP_404_NOT_FOUND
+            )
 
 
 #Delete authenticated user
@@ -682,33 +832,97 @@ class DashboardStatsView(APIView):
                     "timestamp": act.timestamp
                 })
 
-        # 5️⃣ Top / least performing tags
-        # Top-performing: tags from completed tasks/goals
+
+
+
+
+        # # 5️⃣ Top / least performing tags
+        # # Top-performing: tags from completed tasks/goals
+        # completed_tasks = Task.objects.filter(user=user, completed_at__isnull=False)
+        # completed_ai_tasks = AiTask.objects.filter(ai_goal__user=user, completed_at__isnull=False)
+
+        # # Flatten all tags
+        # completed_tags = list(completed_tasks.values_list("tag", flat=True)) + \
+        #                  list(completed_ai_tasks.values_list("ai_goal__tag", flat=True))
+
+
+
+
+        # top_tags = Counter([t for t in completed_tags if t]).most_common(5)  #total number of completed Tasks and completed AI Tasks that were assigned that specific tag.
+
+        # # Least-performing: tags from overdue tasks (tasks with due_date < now and not completed)
+        # overdue_tasks = Task.objects.filter(user=user, completed_at__isnull=True, due_date__lt=now)
+        # overdue_ai_tasks = AiTask.objects.filter(ai_goal__user=user, completed_at__isnull=True, due_date__lt=now)
+
+        # overdue_tags = list(overdue_tasks.values_list("tag", flat=True)) + \
+        #                list(overdue_ai_tasks.values_list("ai_goal__tag", flat=True))
+
+        # least_tags = Counter([t for t in overdue_tags if t]).most_common()[-5:]  # 5 the total number of overdue Tasks and overdue AI Goals/Tasks that were assigned that specific tag. least perfoming
+
+        # # Popular tags: tags that appear most in activity logs
+        # activity_tags = []
+        # for act in activity_logs:
+        #     if act.metadata and "tags" in act.metadata:
+        #         activity_tags.extend(act.metadata["tags"])
+
+        # Helper to fetch and sort objects based on tags
+        def get_sorted_objects_by_tags(tags_list):
+            if not tags_list:
+                return []
+            
+            # Fetch Tasks and AI Tasks that match these tags
+            # We sort by 'last_updated' to ensure Oldest -> Newest
+            tasks = Task.objects.filter(user=user, tag__in=tags_list).order_by('last_updated')
+            ai_tasks = AiTask.objects.filter(ai_goal__user=user, ai_goal__tag__in=tags_list).order_by('last_updated')
+            
+            # Combine and re-sort if they come from different tables
+            combined = sorted(
+                list(tasks) + list(ai_tasks),
+                key=lambda x: x.last_updated if hasattr(x, 'last_updated') else now
+            )
+            
+            # Serialize (using basic dictionary comprehension or a real Serializer)
+            return [
+                {
+                    "id": str(obj.id),
+                    "title": obj.title,
+                    "tag": obj.tag if hasattr(obj, 'tag') else obj.ai_goal.tag,
+                    "last_updated": obj.last_updated,
+                    "status": obj.status
+                } for obj in combined
+            ]
+
+        # --- Top-performing Tags ---
         completed_tasks = Task.objects.filter(user=user, completed_at__isnull=False)
         completed_ai_tasks = AiTask.objects.filter(ai_goal__user=user, completed_at__isnull=False)
+        
+        c_tags = list(completed_tasks.values_list("tag", flat=True)) + \
+                 list(completed_ai_tasks.values_list("ai_goal__tag", flat=True))
+        
+        top_tag_names = [t[0] for t in Counter(filter(None, c_tags)).most_common(5)]
+        top_tags_data = get_sorted_objects_by_tags(top_tag_names)
 
-        # Flatten all tags
-        completed_tags = list(completed_tasks.values_list("tag", flat=True)) + \
-                         list(completed_ai_tasks.values_list("ai_goal__tag", flat=True))
-
-        top_tags = Counter([t for t in completed_tags if t]).most_common(5)  #total number of completed Tasks and completed AI Tasks that were assigned that specific tag.
-
-        # Least-performing: tags from overdue tasks (tasks with due_date < now and not completed)
+        # --- Least-performing Tags (Overdue) ---
         overdue_tasks = Task.objects.filter(user=user, completed_at__isnull=True, due_date__lt=now)
         overdue_ai_tasks = AiTask.objects.filter(ai_goal__user=user, completed_at__isnull=True, due_date__lt=now)
 
-        overdue_tags = list(overdue_tasks.values_list("tag", flat=True)) + \
-                       list(overdue_ai_tasks.values_list("ai_goal__tag", flat=True))
+        o_tags = list(overdue_tasks.values_list("tag", flat=True)) + \
+                 list(overdue_ai_tasks.values_list("ai_goal__tag", flat=True))
+        
+        least_tag_names = [t[0] for t in Counter(filter(None, o_tags)).most_common()[-5:]]
+        least_tags_data = get_sorted_objects_by_tags(least_tag_names)
 
-        least_tags = Counter([t for t in overdue_tags if t]).most_common()[-5:]  # 5 the total number of overdue Tasks and overdue AI Goals/Tasks that were assigned that specific tag. least perfoming
-
-        # Popular tags: tags that appear most in activity logs
+        # --- Popular Tags (Based on Activity Logs) ---
+        activity_logs = UserActivity.objects.filter(user=user).order_by('timestamp')
         activity_tags = []
         for act in activity_logs:
             if act.metadata and "tags" in act.metadata:
                 activity_tags.extend(act.metadata["tags"])
 
-        popular_tags = Counter(activity_tags).most_common(5)  #the total number of activity logs (e.g., goal updates, task updates) that included that specific tag in their metadata.
+        popular_tag_names = [t[0] for t in Counter(filter(None, activity_tags)).most_common(5)]
+        popular_tags_data = get_sorted_objects_by_tags(popular_tag_names)
+
+        # popular_tags = Counter(activity_tags).most_common(5)  #the total number of activity logs (e.g., goal updates, task updates) that included that specific tag in their metadata.
 
         return Response({
             "goal_progress": goal_progress,
@@ -720,7 +934,9 @@ class DashboardStatsView(APIView):
             "longest_streak": max_streak,
             "recent_activity_summary": activity_summary,
             "recent_goal_updates": recent_goal_updates,
-            "top_tags": top_tags,
-            "least_tags": least_tags,
-            "popular_tags": popular_tags,
+            "top_tags": top_tags_data,
+            "least_tags": least_tags_data,
+            "popular_tags": popular_tags_data,
         })
+
+

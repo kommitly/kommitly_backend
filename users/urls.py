@@ -1,10 +1,11 @@
 from django .urls import path
-from .views import CreateUserView, LoginUserView, VerifyUserView, CheckVerificationStatusView, GetUserView, UpdateAuthenticatedUserView, UpdateUserByEmailView, DeleteAuthenticatedUserView, DeleteUserByEmailView, GetTimezoneView, GoogleAuthView, DashboardStatsView
+from .views import CreateUserView, LoginUserView, VerifyUserView, VerifyEmailChangeView, CheckVerificationStatusView, GetUserView, UpdateAuthenticatedUserView, UpdateUserByEmailView, DeleteAuthenticatedUserView, DeleteUserByEmailView, GetTimezoneView, GoogleAuthView, DashboardStatsView
 
 
 urlpatterns = [
     path("users/signup", CreateUserView.as_view(), name="user_signup"),
     path("verify/<str:token>/", VerifyUserView.as_view(), name="verify_user"),
+    path('verify-email/<str:token>/', VerifyEmailChangeView.as_view(), name='verify-email-change'),
     path("users/get-user/<str:email>/", GetUserView.as_view(), name="get_user_details"),
     path("users/user/update/", UpdateAuthenticatedUserView.as_view(), name="update_user_details"),
     path("users/user/update-by-email/<str:email>/", UpdateUserByEmailView.as_view(), name="update_user_by_email"),
@@ -15,6 +16,7 @@ urlpatterns = [
     path('users/get-timezone/', GetTimezoneView.as_view(), name='get-timezone'),
     path('auth/google/', GoogleAuthView.as_view(), name='google_auth'),
     path("users/stats/", DashboardStatsView.as_view(), name='dashboard-stats'),
+
     
 
 ]

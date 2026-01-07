@@ -1,12 +1,12 @@
-import os
-from celery import Celery
+# import os
+# from celery import Celery
 
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'kommitly_backend.settings')
+# os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'kommitly_backend.settings')
 
-app = Celery('kommitly_backend')
-app.config_from_object('django.conf:settings', namespace='CELERY')
-app.autodiscover_tasks()
+# app = Celery('kommitly_backend')
+# app.config_from_object('django.conf:settings', namespace='CELERY')
+# app.autodiscover_tasks()
 
-@app.task(bind=True)
-def debug_task(self):
-    print(f'Request: {self.request!r}')
+# @app.task(bind=True)
+# def debug_task(self):
+#     print(f'Request: {self.request!r}')

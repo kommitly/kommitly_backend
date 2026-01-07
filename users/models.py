@@ -18,6 +18,9 @@ class User(AbstractUser):
     last_name = models.CharField(max_length=255, db_index=True)
     full_name = None
     email = models.EmailField(max_length=255, unique=True, db_index=True)
+    pending_email = models.EmailField(
+        max_length=255, null=True, blank=True, db_index=True
+    )
     is_verified = models.BooleanField(default=False)
     verification_token = models.CharField(max_length=50, default=generate_verification_token, null=True)  # Specify length
     profile_picture = models.CharField(max_length=255, blank=True, null=True)
@@ -26,7 +29,7 @@ class User(AbstractUser):
     updated_at = models.DateTimeField(auto_now=True)
     timezone = models.CharField(max_length=50, choices=[(tz, tz) for tz in pytz.all_timezones], default='UTC')  # Add timezone field
     email_sent = models.BooleanField(default=False)
-
+    token_created_at = models.DateTimeField(null=True, blank=True)
     last_active = models.DateTimeField(default=dj_timezone.now)
 
 
@@ -39,6 +42,12 @@ class User(AbstractUser):
 
     def __str__(self):
         return self.first_name + " " + self.last_name   
+
+    def is_token_valid(self):
+        if not self.token_created_at:
+            return False
+        # Token expires in 24 hours
+        return timezone.now() < self.token_created_at + timedelta(hours=24)
     
 
 

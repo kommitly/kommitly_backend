@@ -18,13 +18,24 @@ class CreateUserSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         user = User.objects.create_user(
-            first_name=validated_data['first_name'],
-            last_name=validated_data['last_name'],
-            email=validated_data['email'],
-            password=validated_data['password'],
-            timezone=validated_data["timezone"]  # Ensure this is passed
+            first_name=validated_data["first_name"],
+            last_name=validated_data["last_name"],
+            email=validated_data["email"],
+            password=validated_data["password"],
+            timezone=validated_data["timezone"],
         )
         return user
+
+    def update(self, instance, validated_data):
+        """
+        Prevent direct email updates.
+        Email changes must go through verification flow.
+        """
+        validated_data.pop("email", None)
+        validated_data.pop("password", None)
+
+        return super().update(instance, validated_data)
+
     
 #google user serializer
 class GoogleUserSerializer(serializers.ModelSerializer):
