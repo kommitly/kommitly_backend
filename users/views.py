@@ -7,7 +7,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status, permissions
 from drf_yasg import openapi
-from .serializers import CreateUserSerializer, UserSerializer, GoogleUserSerializer, PasswordResetRequestSerializer, PasswordResetConfirmSerializer
+from .serializers import CreateUserSerializer, UserSerializer, GoogleUserSerializer, PasswordResetRequestSerializer, PasswordResetConfirmSerializer, PasswordChangeSerializer
 import kommitly_backend.settings as st
 from drf_yasg.utils import swagger_auto_schema
 from django.core.exceptions import ValidationError
